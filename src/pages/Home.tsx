@@ -46,7 +46,7 @@ const Home = () => {
             </div>
           </div>
           <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/Mental-Health-Day-Digital-Art-PNG-SVG-_-Mindfulness-Brain-Clip-Art-_-World-Mental-Health-Day-Wall-Decor-Download.jpeg"
+            src="/Mindfulness.jpeg"
             alt="Mindfulness brain illustration"
           />
         </div>
