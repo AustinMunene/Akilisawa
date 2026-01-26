@@ -127,7 +127,7 @@ const Contact = () => {
             </p>
           </div>
           <ImagePanel
-            src="public/contactus.jpeg"
+            src="/contactus.jpeg"
             alt="Contact and enquiries illustration"
           />
         </div>
@@ -364,7 +364,7 @@ const Contact = () => {
               </div>
             </Card>
             <ImagePanel
-              src="public/futuristic.jpeg"
+              src="/futuristic.jpeg"
               alt="Customer experience collaboration illustration"
             />
           </div>

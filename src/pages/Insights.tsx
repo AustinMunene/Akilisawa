@@ -41,7 +41,7 @@ const Insights = () => {
             </p>
           </div>
           <ImagePanel
-            src="public/Businessman's Idea_ A Creative Concept.jpeg"
+            src="/Businessman%27s%20Idea_%20A%20Creative%20Concept.jpeg"
             alt="Insights illustration"
           />
         </div>

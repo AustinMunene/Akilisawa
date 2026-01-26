@@ -33,7 +33,7 @@ const Pilots = () => {
             </div>
           </div>
           <ImagePanel
-            src="public/Partnerships.jpeg"
+            src="/Partnerships.jpeg"
             alt="Partnerships and collaborations illustration"
           />
         </div>

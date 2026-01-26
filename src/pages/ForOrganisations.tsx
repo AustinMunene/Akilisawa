@@ -56,7 +56,7 @@ const ForOrganisations = () => {
             </p>
           </div>
           <ImagePanel
-            src="public/fillinggap.jpeg"
+            src="/fillinggap.jpeg"
             alt="Employee wellbeing and technology support illustration"
           />
         </div>

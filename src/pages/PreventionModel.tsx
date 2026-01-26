@@ -45,7 +45,7 @@ const PreventionModel = () => {
             </p>
           </div>
           <ImagePanel
-            src="public/prevention.jpeg"
+            src="/prevention.jpeg"
             alt="Preventive wellbeing support illustration"
           />
         </div>

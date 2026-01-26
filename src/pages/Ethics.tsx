@@ -74,7 +74,7 @@ const Ethics = () => {
             </div>
           </div>
           <ImagePanel
-            src="public/Safety.jpeg"
+            src="/Safety.jpeg"
             alt="Safeguarding pathway illustration"
           />
         </div>
