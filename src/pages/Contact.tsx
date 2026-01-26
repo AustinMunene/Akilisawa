@@ -127,7 +127,7 @@ const Contact = () => {
             </p>
           </div>
           <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/I-case-of-any-Query-Contact-US.jpeg"
+            src="public/contactus.jpeg"
             alt="Contact and enquiries illustration"
           />
         </div>
@@ -364,7 +364,7 @@ const Contact = () => {
               </div>
             </Card>
             <ImagePanel
-              src="https://akilisawa.com/wp-content/uploads/2026/01/Working-diligently-to-continuously-refine-the-CustomerExperience-you-offer-as-a-company-can-go-a-long-way-towards-keeping-your-clients-loyal_.jpeg"
+              src="public/futuristic.jpeg"
               alt="Customer experience collaboration illustration"
             />
           </div>

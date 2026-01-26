@@ -38,13 +38,13 @@ const PreventiveLayerOfCare = () => {
             Prevention as a separate intervention category
           </h2>
           <p>
-            Preventive mental wellbeing should be understood as a separate
-            category of intervention, distinct from both clinical treatment and
-            emergency response.
+            Preventive mental wellbeing should be understood as a separate category
+            of intervention, distinct from both clinical treatment and emergency
+            response.
           </p>
           <p>
-            It does not involve diagnosis, treatment, or therapeutic
-            relationships. Instead, it focuses on:
+            It does not involve diagnosis, treatment, or therapeutic relationships.
+            Instead, it focuses on:
           </p>
           <ul className="space-y-2">
             <li>Skills development related to stress management and emotional regulation</li>
@@ -61,9 +61,9 @@ const PreventiveLayerOfCare = () => {
             Limitations of crisis-led delivery models
           </h2>
           <p>
-            Crisis-led models are essential for individuals in acute need.
-            However, when they function as the primary entry point into mental
-            health support systems, several limitations emerge:
+            Crisis-led models are essential for individuals in acute need. However,
+            when they function as the primary entry point into mental health
+            support systems, several limitations emerge:
           </p>
           <ul className="space-y-2">
             <li>Engagement occurs late, after functional impairment is already present</li>
@@ -84,8 +84,8 @@ const PreventiveLayerOfCare = () => {
             commonly used in insurance, employment, and public policy contexts.
           </p>
           <p>
-            Rather than categorising individuals by diagnosis, prevention
-            addresses mental wellbeing as a dynamic condition influenced by:
+            Rather than categorising individuals by diagnosis, prevention addresses
+            mental wellbeing as a dynamic condition influenced by:
           </p>
           <ul className="space-y-2">
             <li>Exposure to stressors</li>
@@ -134,14 +134,31 @@ const PreventiveLayerOfCare = () => {
             <li>Transparency about scope and limitations</li>
           </ul>
 
-          <h2 className="text-lg font-semibold text-text">Implications for sy</h2>
+          <h2 className="text-lg font-semibold text-text">
+            Implications for system design
+          </h2>
+          <p>
+            When preventive mental wellbeing is treated as a distinct intervention
+            layer, it allows systems to:
+          </p>
+          <ul className="space-y-2">
+            <li>Allocate resources more efficiently</li>
+            <li>Reduce pressure on crisis services</li>
+            <li>Support broader populations without medicalisation</li>
+            <li>Evaluate impact using appropriate, non-clinical metrics</li>
+          </ul>
+          <p>
+            This framing enables preventive mental wellbeing to be integrated
+            responsibly into institutional settings without overextending its
+            mandate.
+          </p>
         </div>
       </SectionBackground>
 
       <SectionBackground variant="soft" className="pt-0">
-        <div className="max-w-3xl space-y-4">
+        <div className="max-w-3xl space-y-6">
           <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-muted">
-            Related
+            Next
           </h3>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -151,16 +168,10 @@ const PreventiveLayerOfCare = () => {
               Our Prevention Model
             </Link>
             <Link
-              to="/evidence-impact"
+              to="/insights/behavioural-follow-through"
               className="rounded-full bg-panel/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted shadow-float"
             >
-              Evidence &amp; Impact
-            </Link>
-            <Link
-              to="/ethics"
-              className="rounded-full bg-panel/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted shadow-float"
-            >
-              Ethics &amp; Safeguarding
+              Why Behavioural Follow-Through Matters
             </Link>
           </div>
         </div>

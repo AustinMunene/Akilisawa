@@ -2,7 +2,6 @@ import SectionBackground from "../components/layout/SectionBackground";
 import { ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import ImagePanel from "../components/ui/ImagePanel";
-import { images } from "../lib/images";
 
 const Community = () => {
   return (
@@ -43,7 +42,10 @@ const Community = () => {
             </p>
           </div>
           <div className="w-full">
-            <ImagePanel src={images.communityGroup} alt="Community gathering" />
+            <ImagePanel
+              src="https://akilisawa.com/wp-content/uploads/2025/04/acucu-and-aguka.jpg"
+              alt="Community gathering"
+            />
           </div>
         </div>
       </SectionBackground>

@@ -69,30 +69,27 @@ const About = () => {
         </div>
       </Section>
 
-      <Section variant="dark-soft" className="pt-0">
-        <div className="space-y-4">
-          <h2>Team &amp; Leadership</h2>
-          <p className="max-w-3xl text-base text-muted md:text-lg">
-            As highlighted in the website
-          </p>
-          <ButtonLink to="/prevention-model" variant="tertiary">
-            Explore Our Prevention Model
-          </ButtonLink>
-        </div>
-      </Section>
-
       <Section variant="soft" className="pt-0">
-        <div className="space-y-4">
-          <h2>How We Deliver Impact</h2>
-          <p className="max-w-3xl text-base text-muted md:text-lg">
-            Akili Sawa combines behaviourally informed design, low-bandwidth
-            delivery, and community grounding to provide preventive mental
-            wellbeing solutions. Ethical delivery, clear referral pathways, and
-            scalable methods are embedded in every program.
-          </p>
-          <ButtonLink to="/pilots" variant="tertiary">
-            Pilots &amp; Partnerships
-          </ButtonLink>
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+          <div className="space-y-4">
+            <h2>Team &amp; Leadership</h2>
+            <p className="max-w-3xl text-base text-muted md:text-lg"></p>
+            <ButtonLink to="/prevention-model" variant="tertiary">
+              Explore Our Prevention Model
+            </ButtonLink>
+          </div>
+          <div className="space-y-4">
+            <h2>How We Deliver Impact</h2>
+            <p className="max-w-3xl text-base text-muted md:text-lg">
+              Akili Sawa combines behaviourally informed design, low-bandwidth
+              delivery, and community grounding to provide preventive mental
+              wellbeing solutions. Ethical delivery, clear referral pathways, and
+              scalable methods are embedded in every program.
+            </p>
+            <ButtonLink to="/pilots" variant="tertiary">
+              Pilots &amp; Partnerships
+            </ButtonLink>
+          </div>
         </div>
       </Section>
 

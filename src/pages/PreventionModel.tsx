@@ -15,7 +15,7 @@ const PreventionModel = () => {
               ethically.
             </p>
             <h1 className="text-balance">
-              A Structured, Preventive Model — Before Crisis
+              A Structured, Preventive Model - Before Crisis
             </h1>
           </div>
           <p className="max-w-2xl text-base text-muted md:text-lg">
@@ -40,12 +40,12 @@ const PreventionModel = () => {
               Prevention in mental wellbeing focuses on supporting individuals
               before distress escalates into crisis or clinical need. Akili Sawa
               operates in the space between everyday stress and formal mental
-              health care — providing structured, non-clinical support while
+              health care providing structured, non-clinical support while
               maintaining clear boundaries and referral pathways.
             </p>
           </div>
           <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/1.jpeg"
+            src="public/prevention.jpeg"
             alt="Preventive wellbeing support illustration"
           />
         </div>
@@ -57,25 +57,12 @@ const PreventionModel = () => {
           <div className="relative">
             <div className="pointer-events-none absolute left-3 top-8 bottom-8 w-px bg-line/70 lg:hidden" />
             <div className="pointer-events-none absolute left-0 right-0 top-8 hidden h-px bg-line/70 lg:block" />
-            <div className="pointer-events-none absolute left-0 right-0 top-8 hidden items-center justify-between lg:flex">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-panel text-xs font-semibold text-text shadow-float">
-                1
-              </span>
-              <span className="text-xs font-semibold text-muted">→</span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-panel text-xs font-semibold text-text shadow-float">
-                2
-              </span>
-              <span className="text-xs font-semibold text-muted">→</span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-panel text-xs font-semibold text-text shadow-float">
-                3
-              </span>
-            </div>
             <div className="grid gap-6 pl-6 lg:grid-cols-3 lg:pl-0">
             <Card>
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
                   <IconContainer>
-                    <span className="text-sm font-semibold text-accent">1</span>
+                    <span className="sr-only">Stage</span>
                   </IconContainer>
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
@@ -119,7 +106,7 @@ const PreventionModel = () => {
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
                   <IconContainer>
-                    <span className="text-sm font-semibold text-accent">2</span>
+                    <span className="sr-only">Stage</span>
                   </IconContainer>
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
@@ -150,7 +137,7 @@ const PreventionModel = () => {
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
                   <IconContainer>
-                    <span className="text-sm font-semibold text-accent">3</span>
+                    <span className="sr-only">Stage</span>
                   </IconContainer>
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
@@ -203,7 +190,7 @@ const PreventionModel = () => {
             <p className="max-w-2xl text-base text-muted md:text-lg">
               Akili Sawa is built for environments where bandwidth, access, and
               specialist care may be limited. Our model prioritises simplicity,
-              accessibility, and cultural grounding — ensuring interventions
+              accessibility, and cultural grounding ensuring interventions
               remain usable, ethical, and effective at scale.
             </p>
           </div>

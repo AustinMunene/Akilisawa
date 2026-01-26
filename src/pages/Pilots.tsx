@@ -33,7 +33,7 @@ const Pilots = () => {
             </div>
           </div>
           <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/Marketing-Partnerships_-How-to-Extend-Your-Reach-With-Content-Collaboration-_-Social-Media-Examiner.jpeg"
+            src="public/Partnerships.jpeg"
             alt="Partnerships and collaborations illustration"
           />
         </div>

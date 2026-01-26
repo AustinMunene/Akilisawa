@@ -263,7 +263,7 @@ const Home = () => {
           <div className="flex items-center">
             <div className="w-full">
               <ImagePanel
-                src={images.communityLandscape}
+                src="/grounded.jpeg"
                 alt="Community landscape"
               />
             </div>

@@ -5,15 +5,7 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden bg-tint backdrop-blur">
-      <div
-        className="pointer-events-none absolute inset-0 bg-center bg-contain bg-no-repeat opacity-[0.22]"
-        style={{
-          backgroundImage:
-            "url(https://akilisawa.com/wp-content/uploads/2024/09/map.png)",
-        }}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-sheen opacity-55" />
+    <footer className="relative overflow-hidden bg-soft">
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.04]" />
       <div className="relative mx-auto w-full max-w-7xl px-6 py-12">
         <div className="grid gap-8 md:grid-cols-4">
@@ -41,9 +33,9 @@ const Footer = () => {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <p>© {year} Akili Sawa. All rights reserved.</p>
             <a
-              href="#"
+              href="https://www.linkedin.com/company/akili-sawa/"
               aria-label="Akili Sawa on LinkedIn"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/85 text-muted shadow-float transition hover:text-accent dark:bg-panel/85"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/85 text-muted shadow-float transition hover:scale-110 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 dark:bg-panel/85"
             >
               <svg
                 width="16"

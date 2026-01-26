@@ -1,13 +1,12 @@
 import SectionBackground from "../components/layout/SectionBackground";
 import { ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
-import ImagePanel from "../components/ui/ImagePanel";
 
 const EvidenceImpact = () => {
   return (
     <div>
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
-        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <div className="max-w-3xl space-y-6">
           <div className="max-w-3xl space-y-6">
             <div className="space-y-3">
               <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
@@ -20,7 +19,7 @@ const EvidenceImpact = () => {
             </div>
             <p className="max-w-2xl text-base text-muted md:text-lg">
               Akili Sawa designs preventive mental wellbeing interventions
-              grounded in behavioural science and built for rigorous evaluation —
+              grounded in behavioural science and built for rigorous evaluation
               without overstepping clinical boundaries.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -32,10 +31,6 @@ const EvidenceImpact = () => {
               </ButtonLink>
             </div>
           </div>
-          <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/cmh_1_s6_fig4.tif.jpg"
-            alt="Evidence and learning diagram"
-          />
         </div>
       </SectionBackground>
 
@@ -46,16 +41,12 @@ const EvidenceImpact = () => {
             <p className="max-w-3xl text-base text-muted md:text-lg">
               Mental wellbeing interventions are often deployed without sufficient
               attention to evidence, context, or ethics. Akili Sawa takes a
-              learning-first approach — designing programs that are informed by
+              learning-first approach designing programs that are informed by
               behavioural science, grounded in real-world conditions, and
               structured to support evaluation without exposing participants or
               partners to undue risk.
             </p>
           </div>
-          <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/cmh_1_s6_fig4.tif.jpg"
-            alt="Evidence and learning diagram"
-          />
         </div>
       </SectionBackground>
 

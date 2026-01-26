@@ -19,7 +19,7 @@ const Ethics = () => {
             <p className="max-w-2xl text-base text-muted md:text-lg">
               Akili Sawa operates strictly within a preventive, non-clinical
               scope. Our responsibility is to support coping, resilience, and
-              behavioural follow-through — not to diagnose, treat, or replace
+              behavioural follow-through not to diagnose, treat, or replace
               professional mental health care. Ethical delivery requires knowing
               both what to do and when to stop. Our model is designed around this
               principle.
@@ -74,7 +74,7 @@ const Ethics = () => {
             </div>
           </div>
           <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/cmh_1_s6_fig4.tif.jpg"
+            src="public/Safety.jpeg"
             alt="Safeguarding pathway illustration"
           />
         </div>
@@ -146,37 +146,21 @@ const Ethics = () => {
               </div>
             </Card>
           </div>
-          <div className="rounded-card bg-panel/95 p-6 shadow-float">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-                  Important
-                </p>
-                <p className="text-sm text-muted">
-                  Akili Sawa does not retain participants within its system once
-                  escalation thresholds are met.
-                </p>
+          <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
+            <div className="space-y-4">
+              <div className="rounded-card bg-panel/95 p-6 shadow-float">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                    Important
+                  </p>
+                  <p className="text-sm text-muted">
+                    Akili Sawa does not retain participants within its system once
+                    escalation thresholds are met.
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-xs text-muted">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-panel shadow-float">
-                  1
-                </span>
-                <span>→</span>
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-panel shadow-float">
-                  2
-                </span>
-                <span>→</span>
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-panel shadow-float">
-                  3
-                </span>
-              </div>
+              <div className="space-y-2 text-sm text-muted"></div>
             </div>
-          </div>
-          <div className="space-y-2 text-sm text-muted">
-            <p>
-              Escalation pathways are designed to be clear, low-friction, and
-              aligned with partner systems.
-            </p>
           </div>
         </div>
       </SectionBackground>

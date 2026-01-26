@@ -23,6 +23,7 @@ const Insights = () => {
       <SectionBackground variant="mid" className="pt-0">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div className="max-w-3xl space-y-4 text-base text-muted md:text-lg">
+            <h2>Purpose</h2>
             <p>
               The Insights section presents Akili Sawa’s analytical perspectives on
               preventive mental wellbeing, behaviourally informed delivery, and
@@ -40,7 +41,7 @@ const Insights = () => {
             </p>
           </div>
           <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/not-given.jpeg"
+            src="public/Businessman's Idea_ A Creative Concept.jpeg"
             alt="Insights illustration"
           />
         </div>

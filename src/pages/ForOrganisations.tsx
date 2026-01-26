@@ -27,8 +27,7 @@ const ForOrganisations = () => {
             </div>
             <p className="max-w-2xl text-base text-muted md:text-lg">
               Scalable, non-clinical mental wellbeing support designed to reduce
-              risk, improve behavioural follow-through, and strengthen outcomes —
-              without expanding clinical liability.
+              risk, improve behavioural follow-through, and strengthen outcomes without expanding clinical liability.
             </p>
             <div className="flex flex-wrap gap-4">
               <ButtonLink to="/pilots">Explore Pilots &amp; Partnerships</ButtonLink>
@@ -40,10 +39,6 @@ const ForOrganisations = () => {
               </ButtonLink>
             </div>
           </div>
-          <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/Collectively-Tangled-%E2%80%94-Therapy-for-Entrepreneurs-Business-Owners-and-Leaders-%E2%80%94Entrepreneurs-and-business-owners-have-mental-health-too.jpeg"
-            alt="Entrepreneurs and business owners wellbeing illustration"
-          />
         </div>
       </SectionBackground>
 
@@ -53,7 +48,7 @@ const ForOrganisations = () => {
             <h2>The Gap Between Prevention and Care</h2>
             <p className="max-w-3xl text-base text-muted md:text-lg">
               Most organisations encounter mental distress only after it has
-              become costly — through claims, absenteeism, disengagement, or crisis
+              become costly through claims, absenteeism, disengagement, or crisis
               response. Akili Sawa operates before this point, providing
               structured, preventive support that strengthens coping and
               follow-through while maintaining clear boundaries to formal clinical
@@ -61,7 +56,7 @@ const ForOrganisations = () => {
             </p>
           </div>
           <ImagePanel
-            src="https://akilisawa.com/wp-content/uploads/2026/01/The-Importance-of-Employee-Wellbeing_-How-Technology-Supports-Mental-Health-Initiatives.jpeg"
+            src="public/fillinggap.jpeg"
             alt="Employee wellbeing and technology support illustration"
           />
         </div>
@@ -78,7 +73,7 @@ const ForOrganisations = () => {
                 Akili Sawa functions as a prevention and navigation layer
                 adjacent to claims, benefits, and care pathways. We help partners
                 reduce escalation to high-cost care, improve member engagement,
-                and strengthen early identification — without assuming clinical
+                and strengthen early identification without assuming clinical
                 responsibility.
               </p>
               <div className="mt-4 space-y-3">
