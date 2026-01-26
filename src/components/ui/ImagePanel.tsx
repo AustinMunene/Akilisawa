@@ -14,8 +14,7 @@ const ImagePanel = ({ src, alt = "", className, children }: ImagePanelProps) => 
   const resolvedSrc = src ?? fallbackImage;
   return (
     <div className={`w-full ${className ?? ""}`}>
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-white/80 shadow-float dark:bg-panel/80 dark:shadow-[0_12px_28px_rgba(0,0,0,0.22)]">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[rgba(244,247,251,0.7)] via-transparent to-transparent dark:from-[rgba(18,24,38,0.75)]" />
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-white/80 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:bg-panel/80 dark:shadow-[0_10px_20px_rgba(0,0,0,0.16)]">
         <img
           src={resolvedSrc}
           alt={alt}

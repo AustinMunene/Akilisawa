@@ -86,73 +86,73 @@ const EvidenceImpact = () => {
       </SectionBackground>
 
       <SectionBackground variant="soft" className="pt-0">
-        <div className="space-y-4">
-          <h2>Evaluation &amp; Learning Methods</h2>
-          <p className="max-w-3xl text-base text-muted md:text-lg">
-            Akili Sawa collaborates with partners to assess program
-            effectiveness using methods appropriate to context and scale.
-          </p>
-          <ul className="space-y-2 text-sm text-muted">
-            <li>Pilot evaluations</li>
-            <li>Quasi-experimental designs</li>
-            <li>Randomized Controlled Trials (RCTs), where appropriate</li>
-            <li>Qualitative learning and implementation research</li>
-          </ul>
-          <p className="text-sm text-muted">
-            Evaluation design is aligned with ethical approvals, partner
-            governance, and participant protection.
-          </p>
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+          <div className="space-y-4">
+            <h2>Evaluation &amp; Learning Methods</h2>
+            <p className="max-w-3xl text-base text-muted md:text-lg">
+              Akili Sawa collaborates with partners to assess program
+              effectiveness using methods appropriate to context and scale.
+            </p>
+            <ul className="space-y-2 text-sm text-muted">
+              <li>Pilot evaluations</li>
+              <li>Quasi-experimental designs</li>
+              <li>Randomized Controlled Trials (RCTs), where appropriate</li>
+              <li>Qualitative learning and implementation research</li>
+            </ul>
+            <p className="text-sm text-muted">
+              Evaluation design is aligned with ethical approvals, partner
+              governance, and participant protection.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <h2>Research &amp; Learning Partnerships</h2>
+            <p className="max-w-3xl text-base text-muted md:text-lg">
+              Akili Sawa works with academic institutions, donors, and public
+              agencies to design and deliver preventive mental wellbeing
+              interventions that can be rigorously evaluated.
+            </p>
+            <p className="text-sm text-muted">
+              Active collaborations are underway. Details are shared selectively
+              and under appropriate confidentiality arrangements.
+            </p>
+          </div>
         </div>
       </SectionBackground>
 
       <SectionBackground variant="mid" className="pt-0">
-        <div className="space-y-4">
-          <h2>Research &amp; Learning Partnerships</h2>
-          <p className="max-w-3xl text-base text-muted md:text-lg">
-            Akili Sawa works with academic institutions, donors, and public
-            agencies to design and deliver preventive mental wellbeing
-            interventions that can be rigorously evaluated.
-          </p>
-          <p className="text-sm text-muted">
-            Active collaborations are underway. Details are shared selectively
-            and under appropriate confidentiality arrangements.
-          </p>
-        </div>
-      </SectionBackground>
-
-      <SectionBackground variant="dark-soft" className="pt-0">
-        <div className="space-y-4">
-          <h2>Early Impact Signals</h2>
-          <p className="max-w-3xl text-base text-muted md:text-lg">
-            As a growing platform, Akili Sawa’s impact is currently reflected in:
-          </p>
-          <ul className="space-y-2 text-sm text-muted">
-            <li>
-              Successful deployment of preventive interventions in real-world
-              settings
-            </li>
-            <li>Engagement across low-bandwidth digital channels</li>
-            <li>Institutional uptake through paid pilots and research collaborations</li>
-          </ul>
-          <p className="text-sm text-muted">
-            Comprehensive impact metrics will be shared as pilots mature and
-            evaluations are completed.
-          </p>
-        </div>
-      </SectionBackground>
-
-      <SectionBackground variant="soft" className="pt-0">
-        <Card>
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div className="space-y-4">
-            <h2 className="text-xl">What We Do Not Claim</h2>
+            <h2>Early Impact Signals</h2>
+            <p className="max-w-3xl text-base text-muted md:text-lg">
+              As a growing platform, Akili Sawa’s impact is currently reflected in:
+            </p>
             <ul className="space-y-2 text-sm text-muted">
-              <li>We do not claim to treat mental illness</li>
-              <li>We do not replace clinical services</li>
-              <li>We do not promise crisis prevention</li>
-              <li>We do not overgeneralise early findings</li>
+              <li>
+                Successful deployment of preventive interventions in real-world
+                settings
+              </li>
+              <li>Engagement across low-bandwidth digital channels</li>
+              <li>
+                Institutional uptake through paid pilots and research collaborations
+              </li>
             </ul>
+            <p className="text-sm text-muted">
+              Comprehensive impact metrics will be shared as pilots mature and
+              evaluations are completed.
+            </p>
           </div>
-        </Card>
+          <Card>
+            <div className="space-y-4">
+              <h2 className="text-xl">What We Do Not Claim</h2>
+              <ul className="space-y-2 text-sm text-muted">
+                <li>We do not claim to treat mental illness</li>
+                <li>We do not replace clinical services</li>
+                <li>We do not promise crisis prevention</li>
+                <li>We do not overgeneralise early findings</li>
+              </ul>
+            </div>
+          </Card>
+        </div>
       </SectionBackground>
 
       <SectionBackground variant="gradient">
