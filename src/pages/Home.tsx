@@ -4,7 +4,6 @@ import { ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import IconContainer from "../components/ui/IconContainer";
 import ImagePanel from "../components/ui/ImagePanel";
-import { images } from "../lib/images";
 
 const Home = () => {
   return (
