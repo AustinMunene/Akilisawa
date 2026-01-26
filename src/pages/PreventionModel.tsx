@@ -223,33 +223,32 @@ const PreventionModel = () => {
       </SectionBackground>
 
       <SectionBackground variant="soft" className="pt-0">
-        <div className="space-y-4">
-          <h2>Evidence-Informed and Evaluation-Ready</h2>
-          <p className="max-w-3xl text-base text-muted md:text-lg">
-            Akili Sawa’s prevention model is informed by behavioural science and
-            designed to support rigorous evaluation. We collaborate with
-            partners to assess engagement, follow-through, and outcomes through
-            ethical and appropriate methods, including randomized evaluations
-            where relevant.
-          </p>
-          <ButtonLink to="/evidence-impact" variant="tertiary">
-            Explore Evidence &amp; Impact →
-          </ButtonLink>
-        </div>
-      </SectionBackground>
-
-      <SectionBackground variant="mid" className="pt-0">
-        <div className="space-y-6">
-          <h2>Clear Scope and Boundaries</h2>
-          <ul className="space-y-3 text-sm text-muted">
-            <li>Non-clinical preventive support</li>
-            <li>No diagnosis or treatment</li>
-            <li>Defined referral pathways</li>
-            <li>Alignment with existing care systems</li>
-          </ul>
-          <p className="text-sm text-muted">
-            This repetition is intentional. It reduces risk.
-          </p>
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+          <div className="space-y-4">
+            <h2>Evidence-Informed and Evaluation-Ready</h2>
+            <p className="max-w-3xl text-base text-muted md:text-lg">
+              Akili Sawa’s prevention model is informed by behavioural science and
+              designed to support rigorous evaluation. We collaborate with
+              partners to assess engagement, follow-through, and outcomes through
+              ethical and appropriate methods, including randomized evaluations
+              where relevant.
+            </p>
+            <ButtonLink to="/evidence-impact" variant="tertiary">
+              Explore Evidence &amp; Impact →
+            </ButtonLink>
+          </div>
+          <div className="space-y-6">
+            <h2>Clear Scope and Boundaries</h2>
+            <ul className="space-y-3 text-sm text-muted">
+              <li>Non-clinical preventive support</li>
+              <li>No diagnosis or treatment</li>
+              <li>Defined referral pathways</li>
+              <li>Alignment with existing care systems</li>
+            </ul>
+            <p className="text-sm text-muted">
+              This repetition is intentional. It reduces risk.
+            </p>
+          </div>
         </div>
       </SectionBackground>
 

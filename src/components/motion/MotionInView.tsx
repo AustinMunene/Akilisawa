@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 type MotionInViewProps = {
@@ -8,13 +8,18 @@ type MotionInViewProps = {
 };
 
 const MotionInView = ({ children, className, delay = 0 }: MotionInViewProps) => {
+  const prefersReducedMotion = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 16 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, ease: "easeOut", delay }}
+      transition={{
+        duration: prefersReducedMotion ? 0 : 0.3,
+        ease: "easeOut",
+        delay: prefersReducedMotion ? 0 : delay,
+      }}
     >
       {children}
     </motion.div>

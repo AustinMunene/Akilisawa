@@ -15,7 +15,7 @@ const Layout = () => {
       <ScrollToTop />
       <div className="flex min-h-screen flex-col">
         <Navigation />
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="sync" initial={false}>
           <PageTransition key={location.pathname} className="flex-1">
             <Outlet />
           </PageTransition>
