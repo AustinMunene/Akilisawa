@@ -1,0 +1,41 @@
+{
+  "name": "akilisawa",
+  "version": "1.0.0",
+  "description": "Akili Sawa is a climate-resilient, tech-enabled mental health and wellness ecosystem designed to make therapy, psychological support, and behavioral health tools affordable, accessible, and culturally relevant for Kenyans everywhere.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AustinMunene/Akilisawa.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/AustinMunene/Akilisawa/issues"
+  },
+  "homepage": "https://github.com/AustinMunene/Akilisawa#readme",
+  "dependencies": {
+    "framer-motion": "^12.29.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.13.0",
+    "resend": "^6.8.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
