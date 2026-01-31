@@ -11,11 +11,11 @@ const PageTransition = ({ children, className }: PageTransitionProps) => {
   return (
     <motion.main
       className={className}
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, x: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
+      exit={{ opacity: 0, x: -18 }}
       transition={{
-        duration: prefersReducedMotion ? 0 : 0.2,
+        duration: prefersReducedMotion ? 0 : 0.45,
         ease: "easeOut",
       }}
     >

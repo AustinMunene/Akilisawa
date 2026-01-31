@@ -15,11 +15,17 @@ const MotionInView = ({ children, className, delay = 0 }: MotionInViewProps) => 
       initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{
-        duration: prefersReducedMotion ? 0 : 0.3,
-        ease: "easeOut",
-        delay: prefersReducedMotion ? 0 : delay,
-      }}
+      transition={
+        prefersReducedMotion
+          ? { duration: 0 }
+          : {
+              type: "spring",
+              stiffness: 120,
+              damping: 22,
+              mass: 0.9,
+              delay,
+            }
+      }
     >
       {children}
     </motion.div>
