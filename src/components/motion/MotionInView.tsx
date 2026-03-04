@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
-import { fadeUp } from "../../lib/animation";
+import { EASE_OUT, fadeUp } from "../../lib/animation";
 
 type MotionInViewProps = {
   children: ReactNode;
@@ -21,7 +21,8 @@ const MotionInView = ({ children, className, delay = 0 }: MotionInViewProps) => 
         prefersReducedMotion
           ? { duration: 0 }
           : {
-              ...(fadeUp.visible?.transition ?? {}),
+              duration: 0.6,
+              ease: EASE_OUT,
               delay,
             }
       }

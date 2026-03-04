@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
-import { fadeUp } from "../../lib/animation";
+import { EASE_OUT, fadeUp } from "../../lib/animation";
 
 type CardProps = {
   title?: string;
@@ -41,7 +41,8 @@ const Card = ({ title, eyebrow, children, className }: CardProps) => {
         prefersReducedMotion
           ? { duration: 0 }
           : {
-              ...(fadeUp.visible?.transition ?? {}),
+              duration: 0.6,
+              ease: EASE_OUT,
             }
       }
     >

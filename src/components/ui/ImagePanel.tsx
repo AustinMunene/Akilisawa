@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
-import { scaleIn } from "../../lib/animation";
+import { EASE_OUT, scaleIn } from "../../lib/animation";
 
 type ImagePanelProps = {
   src?: string;
@@ -47,7 +47,10 @@ const ImagePanel = ({ src, alt = "", className, children }: ImagePanelProps) => 
         transition={
           prefersReducedMotion
             ? { duration: 0 }
-            : scaleIn.visible?.transition
+            : {
+                duration: 0.4,
+                ease: EASE_OUT,
+              }
         }
       >
         <img
