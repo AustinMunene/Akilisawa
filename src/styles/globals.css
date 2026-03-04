@@ -1,21 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --bg-light: #dbe4f1;
-  --bg-mid: #cdd9eb;
-  --bg-soft: #d6e1f0;
-  --bg-dark-soft: #c4d1e5;
-  --text-primary: #0b1220;
-  --text-secondary: #4b5563;
-  --accent: #162a42;
-  --bg: var(--bg-light);
-  --bg-tint: var(--bg-mid);
-  --bg-tint-alt: var(--bg-dark-soft);
-  --surface: #ffffff;
-  --panel: #f7f9fc;
+  /* New palette */
+  --bg-primary: #d7e4ff; /* deeper, clearly blue */
+  --bg-secondary: #c5d7ff; /* alternating sections */
+  --bg-card: #ffffff;
+  --bg-deep: #afc6ff; /* hero / deeper bands */
+
+  --text-primary: #0f1c2e;
+  --text-secondary: #3d5166;
+  --text-muted: #6b849e;
+
+  --accent-blue: #2563eb;
+  --accent-green: #22c55e;
+
+  --border-subtle: #c8d9ee;
+
+  /* Legacy tokens mapped onto new palette */
+  --bg-light: var(--bg-primary);
+  --bg-mid: var(--bg-secondary);
+  --bg-soft: var(--bg-secondary);
+  --bg-dark-soft: var(--bg-deep);
+  --accent: var(--accent-blue);
+  --bg: var(--bg-primary);
+  --bg-tint: var(--bg-secondary);
+  --bg-tint-alt: var(--bg-deep);
+  --surface: var(--bg-card);
+  --panel: #f5f7fc;
   --text: var(--text-primary);
   --muted: var(--text-secondary);
-  --line: rgba(11, 18, 32, 0.1);
+  --line: var(--border-subtle);
   --font-sans: "Satoshi", "Plus Jakarta Sans", "Inter", "Poppins", system-ui,
     sans-serif;
 }
@@ -150,15 +164,15 @@
   .bg-gradient-wash {
     background-image: radial-gradient(
         circle at 12% 10%,
-        rgba(22, 42, 66, 0.08),
+      rgba(37, 99, 235, 0.12),
         transparent 55%
       ),
       radial-gradient(
         circle at 88% 20%,
-        rgba(22, 42, 66, 0.06),
+      rgba(37, 99, 235, 0.08),
         transparent 50%
       ),
-      linear-gradient(135deg, #dbe4f1 0%, #cdd9eb 48%, #d6e1f0 100%);
+      linear-gradient(135deg, #d7e4ff 0%, #c5d7ff 48%, #afc6ff 100%);
   }
 
   .dark .bg-gradient-wash {

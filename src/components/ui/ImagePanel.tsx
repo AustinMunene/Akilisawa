@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
-import { EASE_OUT, scaleIn } from "../../lib/animation";
+import { ENTRY_EASE, scaleIn } from "../../lib/animation";
 
 type ImagePanelProps = {
   src?: string;
@@ -42,14 +42,14 @@ const ImagePanel = ({ src, alt = "", className, children }: ImagePanelProps) => 
             : { ...(scaleIn.hidden as object), x: xOffset }
         }
         whileInView={{ ...(scaleIn.visible as object), x: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
+        viewport={{ once: true, margin: "-80px" }}
         whileHover={prefersReducedMotion ? undefined : { y: -3 }}
         transition={
           prefersReducedMotion
             ? { duration: 0 }
             : {
-                duration: 0.4,
-                ease: EASE_OUT,
+                duration: 0.75,
+                ease: ENTRY_EASE,
               }
         }
       >

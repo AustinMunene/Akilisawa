@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
-import { EASE_OUT, fadeUp } from "../../lib/animation";
+import { ENTRY_EASE, fadeUp } from "../../lib/animation";
 
 type CardProps = {
   title?: string;
@@ -35,14 +35,14 @@ const Card = ({ title, eyebrow, children, className }: CardProps) => {
         prefersReducedMotion ? false : { ...(fadeUp.hidden as object), x: xOffset }
       }
       whileInView={{ ...(fadeUp.visible as object), x: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "-80px" }}
       whileHover={prefersReducedMotion ? undefined : { y: -4 }}
       transition={
         prefersReducedMotion
           ? { duration: 0 }
           : {
-              duration: 0.6,
-              ease: EASE_OUT,
+              duration: 0.75,
+              ease: ENTRY_EASE,
             }
       }
     >

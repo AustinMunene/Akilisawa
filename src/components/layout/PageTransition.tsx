@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
-import { EASE_OUT } from "../../lib/animation";
+import { ENTRY_EASE, EXIT_EASE } from "../../lib/animation";
 
 type PageTransitionProps = {
   children: ReactNode;
@@ -13,11 +13,19 @@ const PageTransition = ({ children, className }: PageTransitionProps) => {
     <motion.main
       className={className}
       initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{
-        duration: prefersReducedMotion ? 0 : 0.4,
-        ease: prefersReducedMotion ? undefined : EASE_OUT,
+      animate={{
+        opacity: 1,
+        y: 0,
+        transition: prefersReducedMotion
+          ? { duration: 0 }
+          : { duration: 0.55, ease: ENTRY_EASE },
+      }}
+      exit={{
+        opacity: 0,
+        y: -8,
+        transition: prefersReducedMotion
+          ? { duration: 0 }
+          : { duration: 0.55, ease: EXIT_EASE },
       }}
     >
       {children}

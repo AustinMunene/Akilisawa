@@ -20,12 +20,13 @@ const Navigation = () => {
       <header
         className={`sticky top-0 z-40 border-b border-transparent backdrop-blur-xl transition ${
           isScrolled
-            ? "bg-white/55 shadow-[0_8px_18px_rgba(15,23,42,0.05)]"
-            : "bg-white/80 shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
+            ? "bg-[rgba(238,243,250,0.85)] shadow-[0_8px_18px_rgba(15,23,42,0.05)]"
+            : "bg-[rgba(238,243,250,0.65)] shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
         }`}
         style={{
+          backdropFilter: isScrolled ? "blur(12px)" : "blur(0px)",
           transition:
-            "background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+            "background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
         }}
       >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-5">
