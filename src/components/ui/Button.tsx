@@ -1,5 +1,8 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+
+const MotionLink = motion(Link);
 
 type ButtonVariant = "primary" | "secondary" | "tertiary";
 
@@ -32,8 +35,13 @@ export const Button = ({
   ...props
 }: ButtonProps) => {
   return (
-    <button
+    <motion.button
       className={`${baseStyles} ${variantStyles[variant]} ${className ?? ""}`}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      style={{
+        transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
       {...props}
     />
   );
@@ -46,11 +54,16 @@ export const ButtonLink = ({
   children,
 }: ButtonLinkProps) => {
   return (
-    <Link
+    <MotionLink
       to={to}
       className={`${baseStyles} ${variantStyles[variant]} ${className ?? ""}`}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      style={{
+        transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
     >
       {children}
-    </Link>
+    </MotionLink>
   );
 };

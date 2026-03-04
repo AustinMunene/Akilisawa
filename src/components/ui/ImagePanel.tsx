@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
+import { scaleIn } from "../../lib/animation";
 
 type ImagePanelProps = {
   src?: string;
@@ -34,16 +35,20 @@ const ImagePanel = ({ src, alt = "", className, children }: ImagePanelProps) => 
     <div className={`w-full ${className ?? ""}`}>
       <motion.div
         className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-white/80 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:bg-panel/80 dark:shadow-[0_10px_20px_rgba(0,0,0,0.16)]"
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 10, x: xOffset }}
-        whileInView={{ opacity: 1, y: 0, x: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        whileHover={prefersReducedMotion ? undefined : { y: -2 }}
-        transition={{
-          type: "spring",
-          stiffness: 140,
-          damping: 22,
-          mass: 0.9,
-        }}
+        variants={scaleIn}
+        initial={
+          prefersReducedMotion
+            ? false
+            : { ...(scaleIn.hidden as object), x: xOffset }
+        }
+        whileInView={{ ...(scaleIn.visible as object), x: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : scaleIn.visible?.transition
+        }
       >
         <img
           src={resolvedSrc}

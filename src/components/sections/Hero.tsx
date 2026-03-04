@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+import { fadeUp, staggerContainer } from "../../lib/animation";
 import { ButtonLink } from "../ui/Button";
 import Section from "../ui/Section";
 import Badge from "../ui/Badge";
@@ -5,33 +7,42 @@ import Badge from "../ui/Badge";
 const Hero = () => {
   return (
     <Section className="pt-22 md:pt-26">
-      <div className="max-w-3xl space-y-6">
-        <div className="flex flex-wrap gap-3">
+      <motion.div
+        className="max-w-3xl space-y-6"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        <motion.div className="flex flex-wrap gap-3" variants={fadeUp}>
           <Badge>Non-clinical</Badge>
           <Badge>Preventive</Badge>
           <Badge>Scalable</Badge>
           <Badge>Ethically delivered</Badge>
-        </div>
-        <div>
+        </motion.div>
+        <motion.div variants={fadeUp}>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
             Prevention-first mental health infrastructure
           </p>
           <h1 className="mt-4 text-balance">
             Calm, confident systems that help organisations care well at scale.
           </h1>
-        </div>
-        <p className="max-w-2xl text-base text-muted md:text-lg">
+        </motion.div>
+        <motion.p
+          className="max-w-2xl text-base text-muted md:text-lg"
+          variants={fadeUp}
+        >
           Akili Sawa blends climate-resilient delivery, ethical governance, and
           community-informed programs so partners can build sustainable mental
           health support across Kenya and beyond.
-        </p>
-        <div className="flex flex-wrap gap-4">
+        </motion.p>
+        <motion.div className="flex flex-wrap gap-4" variants={fadeUp}>
           <ButtonLink to="/for-organisations">Partner with us</ButtonLink>
           <ButtonLink to="/prevention-model" variant="secondary">
             Explore the model
           </ButtonLink>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </Section>
   );
 };

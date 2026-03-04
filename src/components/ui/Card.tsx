@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
+import { fadeUp } from "../../lib/animation";
 
 type CardProps = {
   title?: string;
@@ -29,16 +30,20 @@ const Card = ({ title, eyebrow, children, className }: CardProps) => {
   return (
     <motion.div
       className={`rounded-3xl bg-white/85 p-6 shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition hover:shadow-[0_10px_22px_rgba(15,23,42,0.06)] dark:bg-panel/85 dark:shadow-[0_10px_20px_rgba(0,0,0,0.16)] dark:hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] ${className ?? ""}`}
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 10, x: xOffset }}
-      whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      whileHover={prefersReducedMotion ? undefined : { y: -2 }}
-      transition={{
-        type: "spring",
-        stiffness: 140,
-        damping: 22,
-        mass: 0.9,
-      }}
+      variants={fadeUp}
+      initial={
+        prefersReducedMotion ? false : { ...(fadeUp.hidden as object), x: xOffset }
+      }
+      whileInView={{ ...(fadeUp.visible as object), x: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+      transition={
+        prefersReducedMotion
+          ? { duration: 0 }
+          : {
+              ...(fadeUp.visible?.transition ?? {}),
+            }
+      }
     >
       {eyebrow ? (
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">

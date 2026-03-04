@@ -23,6 +23,10 @@ const Navigation = () => {
             ? "bg-white/55 shadow-[0_8px_18px_rgba(15,23,42,0.05)]"
             : "bg-white/80 shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
         }`}
+        style={{
+          transition:
+            "background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
       >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-5">
           <Link to="/" className="flex items-center">

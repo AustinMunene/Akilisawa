@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
+import { fadeUp } from "../../lib/animation";
 
 type MotionInViewProps = {
   children: ReactNode;
@@ -12,17 +13,15 @@ const MotionInView = ({ children, className, delay = 0 }: MotionInViewProps) => 
   return (
     <motion.div
       className={className}
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
+      variants={fadeUp}
+      initial={prefersReducedMotion ? false : "hidden"}
+      whileInView="visible"
+      viewport={{ once: true, margin: "-60px" }}
       transition={
         prefersReducedMotion
           ? { duration: 0 }
           : {
-              type: "spring",
-              stiffness: 120,
-              damping: 22,
-              mass: 0.9,
+              ...(fadeUp.visible?.transition ?? {}),
               delay,
             }
       }
