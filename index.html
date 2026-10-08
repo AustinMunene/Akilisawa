@@ -29,6 +29,23 @@
       href="/apple-touch-icon.png"
     />
     <title>Akili Sawa</title>
+    <script>
+      // Set the `.dark` class before first paint so the dark tokens in
+      // globals.css and the `dark:` utilities resolve from the same source.
+      // Previously nothing ever set this class, so the `.dark` token block was
+      // dead while `dark:` utilities silently followed the OS setting instead.
+      (function () {
+        try {
+          var stored = localStorage.getItem("akisawa-theme");
+          var prefersDark =
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var dark = stored ? stored === "dark" : prefersDark;
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {
+          /* storage blocked - fall through to the light default */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,33 @@
+{
+  /*
+   * Brings `api/` under types. Before this, `tsconfig.json` had `include: ["src"]`,
+   * so `api/contact.ts` was never checked by anything - it is the reference for how
+   * the Sawa safety handlers should be shaped, and it had zero type coverage.
+   *
+   * The handler signature stays `req: any, res: any` (house style, matching the
+   * existing file; `@vercel/node` is not a dependency). The win here is that the
+   * logic, the payload type and the Resend call shape all get checked.
+   *
+   * Not composite and not referenced from tsconfig.json: `npm run typecheck`
+   * invokes this project directly via `tsc -p`. Making it composite would require
+   * emit, and it has no emit to make.
+   */
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["node"]
+  },
+  "include": ["api/**/*.ts"]
+}

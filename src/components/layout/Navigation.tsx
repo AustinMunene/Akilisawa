@@ -17,11 +17,17 @@ const Navigation = () => {
 
   return (
     <>
+      {/* Transparent at rest, so the hero paints straight through with no band
+          across it. Once scrolled it takes `bg-background` — the page's OWN
+          token, so it flips to the dark ground in dark mode with no `dark:`
+          variant. The previous hardcoded `rgba(251,250,247,0.72)` matched the
+          light body but not the green-tinted hero above it, and had no dark
+          equivalent at all: a cream bar across a dark page. */}
       <header
         className={`sticky top-0 z-40 border-b border-transparent backdrop-blur-xl transition ${
           isScrolled
-            ? "bg-[rgba(238,243,250,0.85)] shadow-[0_8px_18px_rgba(15,23,42,0.05)]"
-            : "bg-[rgba(238,243,250,0.65)] shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
+            ? "bg-background/85 shadow-[0_8px_18px_rgba(10,26,22,0.06)]"
+            : "bg-transparent"
         }`}
         style={{
           backdropFilter: isScrolled ? "blur(12px)" : "blur(0px)",
@@ -36,7 +42,7 @@ const Navigation = () => {
               alt="Akili Sawa"
               loading="eager"
               decoding="async"
-              className="h-8 w-auto brightness-0 drop-shadow-[0_2px_6px_rgba(15,23,42,0.25)]"
+              className="h-8 w-auto brightness-0 drop-shadow-[0_2px_6px_rgba(10,26,22,0.25)] dark:invert"
             />
           </Link>
           <div className="flex items-center gap-3">
@@ -46,9 +52,9 @@ const Navigation = () => {
                   key={link.path}
                   to={link.path}
                   className={({ isActive }) =>
-                    `rounded-full px-3 py-1 transition ${
+                    `rounded-none px-3 py-1 transition ${
                       isActive
-                        ? "bg-accent/15 text-accent shadow-[0_8px_16px_rgba(27,49,75,0.1)] ring-1 ring-accent/20 font-semibold"
+                        ? "bg-accent/15 text-accent shadow-[0_8px_16px_rgba(10,74,64,0.12)] ring-1 ring-accent/20 font-semibold"
                         : "text-muted hover:text-text"
                     }`
                   }
@@ -62,7 +68,7 @@ const Navigation = () => {
               aria-label="Toggle navigation menu"
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen((open) => !open)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-text shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 md:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-line bg-surface/70 text-text shadow-[0_8px_18px_rgba(10,26,22,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(10,26,22,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 md:hidden"
             >
               {isMenuOpen ? (
                 <svg
@@ -109,7 +115,7 @@ const Navigation = () => {
             onClick={() => setIsMenuOpen(false)}
             className="absolute inset-0 h-full w-full"
           />
-          <div className="absolute right-4 top-20 z-10 w-[min(90vw,320px)] rounded-3xl bg-white/95 p-4 shadow-[0_20px_50px_rgba(15,23,42,0.18)]">
+          <div className="absolute right-4 top-20 z-10 w-[min(90vw,320px)] rounded-3xl bg-surface/95 p-4 shadow-[0_20px_50px_rgba(10,26,22,0.18)]">
             <nav className="flex flex-col gap-2 text-sm font-medium">
               {navLinks.map((link) => (
                 <NavLink

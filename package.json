@@ -1,12 +1,18 @@
 {
   "name": "akilisawa",
   "version": "1.0.0",
-  "description": "Akili Sawa is a climate-resilient, tech-enabled mental health and wellness ecosystem designed to make therapy, psychological support, and behavioral health tools affordable, accessible, and culturally relevant for Kenyans everywhere.",
+  "description": "Akili Sawa is a Account-free, Kenyan-first wellbeing chat and privacy-conscious wellbeing infrastructure for individuals and institutions.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc -b && tsc -p tsconfig.api.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "verify": "npm run typecheck && npm run lint && npm run test"
   },
   "repository": {
     "type": "git",
@@ -29,13 +35,21 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/coverage-v8": "^5.0.3",
     "autoprefixer": "^10.4.23",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^17.13.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "typescript-eslint": "^8.71.1",
+    "vite": "^7.3.1",
+    "vitest": "^5.0.3"
   }
 }

@@ -66,7 +66,7 @@ Best regards,
 Akili Sawa Team`,
   },
   media: {
-    subject: "Media enquiry received — Akili Sawa",
+    subject: "Media enquiry received - Akili Sawa",
     body: `Thank you for your interest in Akili Sawa.
 
 Media and speaking requests are reviewed on a case-by-case basis. We will be in touch if appropriate.

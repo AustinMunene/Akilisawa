@@ -4,7 +4,19 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    /*
+     * Why an outDir rather than noEmit: this file is a *referenced* project, and
+     * TypeScript rejects `noEmit` in a composite/referenced project (TS6310).
+     * With no outDir, `tsc -b` (npm run build) emitted vite.config.js and
+     * vite.config.d.ts next to vite.config.ts - and vite.config.js SHADOWED
+     * vite.config.ts in Vite's config resolution order, so vite.config.ts was
+     * never read and edits to it silently did nothing.
+     * Emitting into node_modules/.tmp keeps typechecking (the reason for the
+     * project existing) while putting the artefacts somewhere ignored.
+     */
+    "outDir": "./node_modules/.tmp/vite-config",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
   },
   "include": ["vite.config.ts"]
 }

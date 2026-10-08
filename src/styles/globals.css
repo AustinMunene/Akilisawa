@@ -1,50 +1,151 @@
-@import "tailwindcss";
+/*
+ * Source detection is scoped EXPLICITLY, because automatic detection scans the
+ * whole git-ignored-from-nothing project root - including the planning docs in
+ * `.scratch/`. Those tickets quote Tailwind class strings verbatim (old shadow
+ * and header values are written out in them), so Tailwind dutifully generated
+ * utilities for classes that appear in NO source file. Verified: the bundle
+ * carried `.shadow-[0_8px_16px_rgba(27,49,75,0.1)]` after that value had been
+ * deleted from every file, purely because a markdown file still mentioned it.
+ *
+ * `source(none)` turns automatic detection off; the two `@source` lines below
+ * re-add exactly what is real. Both paths are relative to THIS file.
+ */
+@import "tailwindcss" source(none);
+@source "../../index.html";
+@source "../**/*.{ts,tsx}";
 
+/*
+ * Akili Sawa palette. Source: `Akili Sawa_ final site.html:7`.
+ *
+ * Three deliberate departures from the mockup's raw values, each measured rather
+ * than guessed (see ticket 09):
+ *
+ *  1. --accent is split. Mockup amber #e8a33d is 2.07:1 on this page background,
+ *     so it is a FILL only. --accent-ink (#7a4f0d) is the text-safe sibling at
+ *     5.34:1 worst case, and is what `text-accent` and `ring-accent` resolve to.
+ *  2. --muted is #4c5c58, not the mockup's #5a6b67. The mockup value drops to
+ *     4.22:1 on the deepest band; this passes 4.5:1 on every surface.
+ *  3. The band ladder is monotonic in luminance (worst neighbour step 1.06:1).
+ *     A warm neutral and a pale green share luminance, so a hue-only shift reads
+ *     as 1.00:1 and is invisible.
+ */
 :root {
-  /* New palette */
-  --bg-primary: #d7e4ff; /* deeper, clearly blue */
-  --bg-secondary: #c5d7ff; /* alternating sections */
-  --bg-card: #ffffff;
-  --bg-deep: #afc6ff; /* hero / deeper bands */
+  /* Structural brand */
+  --brand: #0f6b5c;
+  --brand-dark: #0a4a40;
 
-  --text-primary: #0f1c2e;
-  --text-secondary: #3d5166;
-  --text-muted: #6b849e;
+  /* Accent: fill-safe and text-safe, deliberately separate */
+  --accent: #e8a33d; /* FILL ONLY - 2.07:1 as text */
+  --accent-ink: #7a4f0d; /* text, links, focus rings - 5.34:1 worst case */
 
-  --accent-blue: #2563eb;
-  --accent-green: #22c55e;
+  /* Surfaces, lightest to deepest */
+  --bg: #fbfaf7;
+  --bg-soft: #f0f2ec;
+  --bg-tint: #e3ede7;
+  --bg-tint-alt: #d2e3db;
+  --surface: #ffffff;
+  --panel: #f6f7f2;
 
-  --border-subtle: #c8d9ee;
+  /* Ink */
+  --text: #1b2624;
+  --muted: #4c5c58;
+  --line: #e2e6e3;
 
-  /* Legacy tokens mapped onto new palette */
-  --bg-light: var(--bg-primary);
-  --bg-mid: var(--bg-secondary);
-  --bg-soft: var(--bg-secondary);
-  --bg-dark-soft: var(--bg-deep);
-  --accent: var(--accent-blue);
-  --bg: var(--bg-primary);
-  --bg-tint: var(--bg-secondary);
-  --bg-tint-alt: var(--bg-deep);
-  --surface: var(--bg-card);
-  --panel: #f5f7fc;
-  --text: var(--text-primary);
-  --muted: var(--text-secondary);
-  --line: var(--border-subtle);
-  --font-sans: "Satoshi", "Plus Jakarta Sans", "Inter", "Poppins", system-ui,
-    sans-serif;
+  --font-stack: "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
+/*
+ * Tailwind v4 theme layer. Until this existed, `tailwind.config.cjs` was the only
+ * place tokens were mapped to utility names — and v4's PostCSS plugin never reads
+ * a JS config, so every token utility (bg-panel, text-muted, rounded-soft,
+ * shadow-float) silently resolved to nothing while `npm run build` stayed green.
+ *
+ * `inline` is required, not decorative: it makes each utility reference the :root
+ * variable directly (`.bg-panel { background-color: var(--panel) }`) instead of
+ * capturing a resolved value, so re-theming :root cascades. Plain `@theme` would
+ * freeze the palette at build time and break the dark palette in ticket 09.
+ *
+ * camelCase names (--color-tintAlt, --shadow-floatHover) match the class vocabulary
+ * already in use across SectionBackground, Section, Button and BackToTop.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-soft: var(--bg-soft);
+  --color-tint: var(--bg-tint);
+  --color-tintAlt: var(--bg-tint-alt);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+
+  /*
+   * The accent split lives here, in the namespace mapping rather than at 14 call
+   * sites. `--color-accent` points at the INK token, so the 13 existing
+   * `text-accent` / `ring-accent` uses become AA-safe with no edits at all.
+   * `bg-accent-fill` is the single opt-in for the bright amber, used by the
+   * primary button.
+   */
+  --color-accent: var(--accent-ink);
+  --color-accent-fill: var(--accent);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+
+  --radius-soft: 18px;
+  --radius-card: 24px;
+  --radius-pill: 999px;
+
+  /* Shadows tinted with the page's own hue rather than slate-900. At 5-8%
+     opacity the difference is invisible on blue but reads as a faint grey-blue
+     smudge on the warm off-white, which is what made the glass cards look
+     dirty against the page. */
+  --shadow-float: 0 12px 24px rgba(10, 26, 22, 0.05);
+  --shadow-floatHover: 0 18px 32px rgba(10, 26, 22, 0.08);
+  --shadow-card: 0 16px 34px rgba(10, 26, 22, 0.08);
+
+  /* Section rhythm. These coincide with v4's dynamic scale (0.25rem x N), so they
+     resolve either way — declared explicitly so the values stay legible here. */
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+  --spacing-26: 6.5rem;
+  --spacing-30: 7.5rem;
+  --spacing-34: 8.5rem;
+
+  --font-sans: var(--font-stack);
+}
+
+/*
+ * Dark palette, from `Akili Sawa_ final site.html:8`.
+ *
+ * `--accent-ink` becomes the BRIGHT amber here, because the light-mode ink is
+ * unreadable on a dark ground and bright amber passes 7.15:1 on the darkest
+ * surface. `--brand` is lightened to a mint (#7dc4ae, 8.91:1) because the deep
+ * brand green only manages 2.82:1 on this background.
+ *
+ * The `.dark` class was previously dead code. Nothing ever set it, so this block
+ * and the `.dark`-prefixed utility rules below never applied, while the 12
+ * `dark:` utilities responded to the OS preference instead - tokens and utilities
+ * disagreed. `index.html` now sets the class before first paint, and
+ * `@custom-variant dark` below makes the utilities follow the same class.
+ */
 .dark {
-  --bg: #0b0f14;
-  --bg-soft: #0f141b;
-  --bg-tint: #0e1715;
-  --bg-tint-alt: #0d141e;
-  --surface: #121826;
-  --panel: #141b2a;
-  --text: #eef2f7;
-  --muted: #a8b3c2;
-  --line: rgba(148, 163, 184, 0.18);
-  --accent: #6b86b5;
+  --bg: #101816;
+  --bg-soft: #131b18;
+  --bg-tint: #14201d;
+  --bg-tint-alt: #1a2823;
+  --surface: #17221f;
+  --panel: #1b2724;
+
+  --text: #eef3f1;
+  --muted: #a3b3ae;
+  --line: #2a3833;
+
+  --accent: #e8a33d;
+  --accent-ink: #e8a33d;
+  --brand: #7dc4ae;
+  --brand-dark: #0a4a40;
 }
 
 @layer base {
@@ -55,7 +156,7 @@
   }
 
   body {
-    font-family: var(--font-sans);
+    font-family: var(--font-stack);
     background-color: var(--bg);
     color: var(--text);
     -webkit-font-smoothing: antialiased;
@@ -118,7 +219,7 @@
   }
 
   ::selection {
-    background: rgba(22, 42, 66, 0.22);
+    background: rgba(15, 107, 92, 0.22);
   }
 }
 
@@ -126,15 +227,15 @@
   .bg-grid {
     background-image: repeating-linear-gradient(
         90deg,
-        rgba(11, 18, 32, 0.05) 0,
-        rgba(11, 18, 32, 0.05) 1px,
-        transparent 1px,
+      rgba(10, 26, 22, 0.05) 0,
+      rgba(10, 26, 22, 0.05) 1px,
+      transparent 1px,
         transparent 120px
       ),
       repeating-linear-gradient(
         0deg,
-        rgba(11, 18, 32, 0.04) 0,
-        rgba(11, 18, 32, 0.04) 1px,
+        rgba(10, 26, 22, 0.04) 0,
+        rgba(10, 26, 22, 0.04) 1px,
         transparent 1px,
         transparent 80px
       );
@@ -143,15 +244,15 @@
   .dark .bg-grid {
     background-image: repeating-linear-gradient(
         90deg,
-        rgba(148, 163, 184, 0.08) 0,
-        rgba(148, 163, 184, 0.08) 1px,
-        transparent 1px,
+      rgba(125, 196, 174, 0.08) 0,
+      rgba(125, 196, 174, 0.08) 1px,
+      transparent 1px,
         transparent 120px
       ),
       repeating-linear-gradient(
         0deg,
-        rgba(148, 163, 184, 0.06) 0,
-        rgba(148, 163, 184, 0.06) 1px,
+        rgba(125, 196, 174, 0.06) 0,
+        rgba(125, 196, 174, 0.06) 1px,
         transparent 1px,
         transparent 80px
       );
@@ -164,47 +265,47 @@
   .bg-gradient-wash {
     background-image: radial-gradient(
         circle at 12% 10%,
-      rgba(37, 99, 235, 0.12),
+      rgba(15, 107, 92, 0.1),
         transparent 55%
       ),
       radial-gradient(
         circle at 88% 20%,
-      rgba(37, 99, 235, 0.08),
+      rgba(232, 163, 61, 0.14),
         transparent 50%
       ),
-      linear-gradient(135deg, #d7e4ff 0%, #c5d7ff 48%, #afc6ff 100%);
+      linear-gradient(135deg, #fbfaf7 0%, #e3ede7 48%, #d2e3db 100%);
   }
 
   .dark .bg-gradient-wash {
     background-image: radial-gradient(
         circle at 10% 10%,
-        rgba(107, 134, 181, 0.18),
+      rgba(125, 196, 174, 0.14),
         transparent 55%
       ),
       radial-gradient(
         circle at 90% 20%,
-        rgba(107, 134, 181, 0.12),
+      rgba(232, 163, 61, 0.1),
         transparent 50%
       ),
-      linear-gradient(135deg, #0b0f14 0%, #0f141b 50%, #111826 100%);
+      linear-gradient(135deg, #101816 0%, #14201d 50%, #1a2823 100%);
   }
 
   .bg-sheen {
     background-image: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.55) 0%,
-        rgba(235, 241, 248, 0.4) 45%,
-        rgba(220, 230, 240, 0.45) 100%
-      );
+      rgba(253, 252, 249, 0.55) 0%,
+      rgba(240, 244, 238, 0.4) 45%,
+      rgba(210, 227, 219, 0.45) 100%
+    );
   }
 
   .dark .bg-sheen {
     background-image: linear-gradient(
-        135deg,
-        rgba(20, 27, 42, 0.9) 0%,
-        rgba(12, 18, 30, 0.6) 40%,
-        rgba(10, 14, 22, 0.8) 100%
-      );
+      135deg,
+      rgba(27, 39, 36, 0.9) 0%,
+      rgba(16, 24, 22, 0.6) 40%,
+      rgba(10, 16, 14, 0.8) 100%
+    );
   }
 
   .section-wrap {
@@ -239,7 +340,7 @@
     border: none !important;
     background: rgba(255, 255, 255, 0.85) !important;
     border-radius: 1.5rem !important;
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 20px 40px rgba(10, 26, 22, 0.08) !important;
     backdrop-filter: blur(8px);
     padding: 1.25rem !important;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
@@ -248,11 +349,11 @@
 
   .faq-panel details:hover {
     transform: translateY(-2px);
-    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 28px 60px rgba(10, 26, 22, 0.12);
   }
 
   .dark .faq-panel details {
-    background: rgba(18, 24, 38, 0.88) !important;
+    background: rgba(23, 34, 31, 0.88) !important;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35) !important;
   }
 

@@ -103,9 +103,21 @@ const Contact = () => {
     }
   };
 
+  /*
+   * Square corners per the design direction, and an explicit border: the field
+   * previously had `border: 0` and relied on `bg-white/85` alone to read as a box.
+   * On the Card - which is itself `bg-surface/85`, i.e. the same white at the same
+   * alpha - that fill step is ~1.03:1, so the fields had almost no edge. A hairline
+   * in `--line` gives the control a real boundary at any ground.
+   *
+   * Text is `--text` (#1b2624) on the field: measured 15.6:1 light, 14.9:1 dark.
+   */
   const inputClass =
-    "mt-2 w-full rounded-soft bg-white/85 px-3 py-2 text-sm text-text shadow-float outline-none transition focus:ring-2 focus:ring-accent/25 dark:bg-panel/85";
+    "mt-2 w-full rounded-none border border-line bg-surface/90 px-3 py-2 text-sm text-text outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/25 dark:bg-panel/90";
   const labelClass = "text-xs font-semibold uppercase tracking-[0.2em] text-muted";
+  // red-600 was 3.17:1 on the dark panel - below AA for 12px text. red-700 is
+  // 6.52:1 on the light field, red-400 is 5.57:1 on the dark one.
+  const errorClass = "mt-2 text-xs text-red-700 dark:text-red-400";
 
   return (
     <div>
@@ -155,7 +167,7 @@ const Contact = () => {
                     required
                   />
                   {errors.fullName ? (
-                    <p className="mt-2 text-xs text-red-600">{errors.fullName}</p>
+                    <p className={errorClass}>{errors.fullName}</p>
                   ) : null}
                 </label>
                 <label className="block">
@@ -168,7 +180,7 @@ const Contact = () => {
                     required
                   />
                   {errors.organisation ? (
-                    <p className="mt-2 text-xs text-red-600">{errors.organisation}</p>
+                    <p className={errorClass}>{errors.organisation}</p>
                   ) : null}
                 </label>
                 <label className="block">
@@ -181,7 +193,7 @@ const Contact = () => {
                     required
                   />
                   {errors.roleTitle ? (
-                    <p className="mt-2 text-xs text-red-600">{errors.roleTitle}</p>
+                    <p className={errorClass}>{errors.roleTitle}</p>
                   ) : null}
                 </label>
                 <label className="block">
@@ -195,7 +207,7 @@ const Contact = () => {
                     required
                   />
                   {errors.workEmail ? (
-                    <p className="mt-2 text-xs text-red-600">{errors.workEmail}</p>
+                    <p className={errorClass}>{errors.workEmail}</p>
                   ) : null}
                 </label>
                 <label className="block">
@@ -208,7 +220,7 @@ const Contact = () => {
                     required
                   />
                   {errors.countryRegion ? (
-                    <p className="mt-2 text-xs text-red-600">
+                    <p className={errorClass}>
                       {errors.countryRegion}
                     </p>
                   ) : null}
@@ -231,7 +243,7 @@ const Contact = () => {
                     <option>Media / Speaking Request</option>
                   </select>
                   {errors.reason ? (
-                    <p className="mt-2 text-xs text-red-600">{errors.reason}</p>
+                    <p className={errorClass}>{errors.reason}</p>
                   ) : null}
                 </label>
               </div>
@@ -254,7 +266,7 @@ const Contact = () => {
                     <option>Public or Development Agency</option>
                   </select>
                   {errors.organisationType ? (
-                    <p className="mt-2 text-xs text-red-600">
+                    <p className={errorClass}>
                       {errors.organisationType}
                     </p>
                   ) : null}
@@ -274,7 +286,7 @@ const Contact = () => {
                     maxLength={300}
                   />
                   {errors.researchInterest ? (
-                    <p className="mt-2 text-xs text-red-600">
+                    <p className={errorClass}>
                       {errors.researchInterest}
                     </p>
                   ) : null}
@@ -291,7 +303,7 @@ const Contact = () => {
                     onChange={handleChange}
                   />
                   {errors.mediaOutlet ? (
-                    <p className="mt-2 text-xs text-red-600">
+                    <p className={errorClass}>
                       {errors.mediaOutlet}
                     </p>
                   ) : null}
@@ -313,7 +325,7 @@ const Contact = () => {
                   clinical information.
                 </p>
                 {errors.message ? (
-                  <p className="mt-2 text-xs text-red-600">{errors.message}</p>
+                  <p className={errorClass}>{errors.message}</p>
                 ) : null}
               </label>
 
@@ -329,7 +341,7 @@ const Contact = () => {
               </label>
 
               {status === "error" ? (
-                <p className="text-sm text-red-600">
+                <p className={`text-sm ${errorClass}`}>
                   We could not send your message. Please try again later.
                 </p>
               ) : null}

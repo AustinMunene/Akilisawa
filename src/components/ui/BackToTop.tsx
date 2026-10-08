@@ -22,7 +22,7 @@ const BackToTop = () => {
       type="button"
       aria-label="Back to top"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-text shadow-float transition hover:-translate-y-1 hover:shadow-floatHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 dark:bg-panel/85"
+      className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-none border border-line bg-surface/85 text-text shadow-float transition hover:-translate-y-1 hover:shadow-floatHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 dark:bg-panel/85"
     >
       <span className="text-lg">↑</span>
     </button>

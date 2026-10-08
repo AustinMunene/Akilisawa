@@ -29,7 +29,7 @@ const Card = ({ title, eyebrow, children, className }: CardProps) => {
   }, []);
   return (
     <motion.div
-      className={`rounded-3xl bg-white/85 p-6 shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition hover:shadow-[0_10px_22px_rgba(15,23,42,0.06)] dark:bg-panel/85 dark:shadow-[0_10px_20px_rgba(0,0,0,0.16)] dark:hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] ${className ?? ""}`}
+      className={`rounded-3xl bg-surface/85 p-6 shadow-[0_6px_14px_rgba(10,26,22,0.16)] transition hover:shadow-[0_8px_18px_rgba(10,26,22,0.2)] dark:bg-panel/85 dark:shadow-[0_8px_16px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_10px_20px_rgba(0,0,0,0.5)] ${className ?? ""}`}
       variants={fadeUp}
       initial={
         prefersReducedMotion ? false : { ...(fadeUp.hidden as object), x: xOffset }
