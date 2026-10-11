@@ -2,7 +2,12 @@
 
 **Label:** `wayfinder:map`
 **Created:** 5 October 2026
-**Status:** in progress - tickets 01, 02, 03, 19 and 21 closed; 09, 10, 12, 13, 15, 16, 17, 18 and 20 code-complete pending human eyes and a preview-deploy measurement; 05 ready-for-review
+**Status:** in progress - tickets 01, 02, 03, 19 and 21 closed; 09, 10, 12, 13, 15, 16, 17, 18 and 20 code-complete pending human eyes and a preview-deploy measurement; 05 ready-for-review; 24 and 25 opened from the staging deploy
+
+**Paused 11 October 2026 on the `staging` branch.** Read
+[`HANDOVER.md`](./HANDOVER.md) before picking this up: it has the deployment state, the live
+URLs, and the one blocker standing between the deployed chat and a working one (no provider key
+in the Preview environment).
 
 ---
 
@@ -125,6 +130,12 @@ Open, unblocked, unclaimed. Work these first; the rest is fog behind them.
 | 06 | [Decide the age gate](./issues/06-decide-the-age-gate.md) | grilling · HITL |
 | 07 | [Write Sawa's voice and the six §67 answers](./issues/07-write-sawas-voice-and-the-six-67-answers.md) | prototype · HITL |
 | 08 | [Verify the Kenya crisis resource list](./issues/08-verify-the-kenya-crisis-resource-list.md) | task · HITL |
+| 24 | [Set the Sawa provider env in Preview](./issues/24-set-the-sawa-provider-env-in-preview.md) | task · HITL |
+| 25 | [Close the ESM gap in the verify gate](./issues/25-close-the-esm-gap-in-the-verify-gate.md) | task · AFK |
+
+24 is the shortest path to a chat that answers: the endpoint is deployed and correct, it simply
+has no key. It also unblocks 16's duration measurement. 25 is the lesson from `2eca8e8` — the
+gate was green on a handler that could not start.
 
 03 is done, which unblocks 17 and 19. 19 is now closed (the store is pure client-side, so it never
 depended on the provider or the crisis list in fact). 17 is code-complete but awaits clinical review.
@@ -163,7 +174,7 @@ disagree without it being visible.
 | 13 | [Add the "can and cannot do" band and the safety-flow strip](./issues/13-add-the-can-and-cannot-do-band-and-the-safety-flow-strip.md) | prototype · HITL | 07, 09 | **code complete** - capability-band and six-step flow in the mockup's split, copy in `src/lib/sawa/copy.ts`; `npm run verify` green. Needs a browser at 390px and 1440px, light and dark. |
 | 14 | [Add the §67 six-question FAQ below the product](./issues/14-add-the-67-six-question-faq-below-the-product.md) | prototype · HITL | 07, 10 |
 | 15 | [Write `src/lib/sawa/prompt.ts` v1 with `promptVersion`](./issues/15-write-src-lib-sawa-prompt-ts-v1-with-promptversion.md) | grilling · HITL | 05, 07 | **code complete** - `prompt.ts` exports `PROMPT_VERSION`/`promptVersion` `1.0` and `promptV1`; voice split, safety prohibitions, crisis-resources-v1 reference, §67 and safety-first encoded; `npm run verify` green. Needs clinical/HITL review and the adversarial run. |
-| 16 | [Build `api/sawa.ts` - SSE streaming, key server-side, turn and IP caps](./issues/16-build-api-sawa-ts-sse-streaming-key-server-side-turn-and-ip-caps.md) | task · AFK | 05 | **code complete** - `api/sawa.ts` streams SSE (`meta`/`delta`/`done`), Mistral primary and OpenAI fallback via env, keys server-side with generic fail-closed errors, 12-turn and 40-per-IP courtesy caps (cold-start caveat commented), client-disconnect abort; `tests/sawa-api.test.ts`; `npm run verify` green. Needs a preview deploy to confirm the Vercel duration ceiling. |
+| 16 | [Build `api/sawa.ts` - SSE streaming, key server-side, turn and IP caps](./issues/16-build-api-sawa-ts-sse-streaming-key-server-side-turn-and-ip-caps.md) | task · AFK | 05 | **code complete** - `api/sawa.ts` streams SSE (`meta`/`delta`/`done`), Mistral primary and OpenAI fallback via env, keys server-side with generic fail-closed errors, 12-turn and 40-per-IP courtesy caps (cold-start caveat commented), client-disconnect abort; `tests/sawa-api.test.ts`; `npm run verify` green. Deployed to staging and fixed in 2eca8e8 (ESM module-load crash). The duration-ceiling measurement is now blocked on 24 - no provider key in Preview. |
 | 17 | [Build `src/lib/sawa/safety/` - detector, rules, bilingual lexicon, severity tiers, crisis copy](./issues/17-build-src-lib-sawa-safety-detector-rules-bilingual-lexicon-severity-tiers-crisis-copy.md) | task · AFK | 03, 05, 08 | **code complete** - five modules (`detector.ts`, `rules.ts`, `lexicon.ts`, `tiers.ts`, `crisisCopy.ts`); bilingual EN+Kiswahili lexicon with code-switched and indirect cases; four tiers with distinct behaviours; mandated crisis block verbatim from ticket 08's ADR; post-generation diagnosis/medication/therapy check; fail-closed detection; `tests/safety.test.ts` (27 tests) including the `trauma` false-positive regression and an injection that cannot suppress detection; `npm run verify` green. Needs clinical review of the tier thresholds and, per the ADR, a named human's sign-off on the resource list before the copy ships. Unblocks 18. |
 | 18 | [Build `escalation.ts` - `EscalationSink`, `EmailEscalationSink`, TTL'd excerpts](./issues/18-build-escalation-ts-escalationsink-emailescalationsink-ttld-excerpts.md) | prototype · HITL | 05, 08, 17 | **code complete** - seam, in-memory TTL'd excerpt store, disclosure on every outcome, generic failures; `npm run verify` green (113 tests). HITL open: TTL, staffing, ADR, endpoint wiring. |
 | 19 | [Build `store.ts` - `ConversationStore` / `AnonymousConversationStore`](./issues/19-build-store-ts-conversationstore-anonymousconversationstore.md) | task · AFK | 03 | **closed** - `ConversationStore` interface + `AnonymousConversationStore`; versioned `sessionStorage` payload under `sawa.conversation:<namespace>`, defensive storage resolution and in-memory degradation surfaced via `isDegraded()`, assistant safety-tier on the message shape; `tests/store.test.ts`; `npm run verify` green. Unblocks 20. |
