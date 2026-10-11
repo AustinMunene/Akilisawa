@@ -23,7 +23,13 @@
  * single source to four worst-case conversations a day.
  */
 
-import { promptV1, promptVersion } from "../src/lib/sawa/prompt";
+// The `.js` extension is required, not optional. `package.json` sets
+// `"type": "module"`, so Vercel compiles this handler to ESM and Node's
+// resolver does no extension guessing on a relative specifier. Without it the
+// function dies at module load with ERR_MODULE_NOT_FOUND before the handler
+// runs, which `npm run verify` cannot catch: tsconfig.api.json resolves with
+// `moduleResolution: "Bundler"`, where the extensionless form typechecks fine.
+import { promptV1, promptVersion } from "../src/lib/sawa/prompt.js";
 
 type Provider = "mistral" | "openai";
 
