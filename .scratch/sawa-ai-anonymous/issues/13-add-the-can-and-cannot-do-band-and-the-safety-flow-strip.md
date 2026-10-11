@@ -5,8 +5,8 @@
 - 09 — Set the Akili Sawa palette
 - 07 — Write Sawa's voice and the six §67 answers
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode
+**Status:** code complete — visual verification outstanding
 
 ## Question
 
@@ -98,3 +98,22 @@ One risk worth naming: a six-step pipeline diagram on a page where only the firs
 read as vapourware. Consider whether the strip belongs on `/sawa-ai` at all, or whether it earns its
 place more honestly on `/prevention-model` or a future security page. Worth raising with the humans
 rather than deciding quietly.
+
+## Status notes
+
+- [x] Capability-boundary band in house vocabulary, mockup split as the structural reference.
+- [x] *"AI identifies patterns. Humans provide context. People make decisions."* verbatim as a
+      blockquote, `border-l-4 border-accent`.
+- [x] Six-step flow as token-coloured pill chips (Conversation, Signal detection, Safety rules,
+      Triage, Human support, Follow-up), brand-coloured `→` separators, wrapping at 390px.
+- [x] Flow strip reads as architecture: copy line "This is how Sawa AI is built, not a live readout
+      of this conversation" plus the sanctioned mechanism line from the boundary table above, so the
+      escalation inbox is described as unstaffed-by-default rather than given a service level.
+- [x] No diagnostic or clinician language; the crisis line stays conceptual and consistent with
+      `crisis-resources-v1.md` (Sawa shares numbers, never calls on the user's behalf, never implies
+      dispatch).
+- [x] Transcript line explains the conversation is held in this browser and links to `/privacy`.
+- [x] Copy lives in `src/lib/sawa/copy.ts` beside ticket 12's, matching the honesty register.
+- [x] `npm run verify` and `npm run build` green; render smoke tests extended in
+      `tests/sawa-ai.test.ts`.
+- [ ] Visual: 390px chip wrap, light and dark. Needs a human at 390px and 1440px, light and dark.

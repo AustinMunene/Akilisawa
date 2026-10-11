@@ -19,7 +19,7 @@ const Footer = () => {
                   <li key={link.path}>
                     <Link
                       to={link.path}
-                      className="transition hover:text-accent"
+                      className="link-underline text-muted hover:text-text"
                     >
                       {link.label}
                     </Link>
@@ -35,7 +35,7 @@ const Footer = () => {
             <a
               href="https://www.linkedin.com/company/akili-sawa/"
               aria-label="Akili Sawa on LinkedIn"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/85 text-muted shadow-float transition hover:scale-110 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 dark:bg-panel/85"
+              className="btn btn-secondary btn-circle"
             >
               <svg
                 width="16"

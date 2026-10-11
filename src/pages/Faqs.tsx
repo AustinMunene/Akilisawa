@@ -5,7 +5,7 @@ const Faqs = () => {
     <div>
       <Section variant="light" className="pt-24 md:pt-28">
         <div className="max-w-3xl space-y-4">
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
             FAQs
           </p>
           <h1 className="text-balance">Frequently Asked Questions</h1>

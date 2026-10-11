@@ -6,14 +6,14 @@ const PreventiveLayerOfCare = () => {
     <div>
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
         <div className="max-w-3xl space-y-4">
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
             INSIGHT
           </p>
           <h1 className="text-balance">
             Preventive Mental Wellbeing as a Distinct Layer of Care
           </h1>
-          <Link to="/insights" className="text-sm text-accent">
-            Back to Insights →
+          <Link to="/insights" className="text-sm text-brand-dark dark:text-brand">
+            Back to Insights <span className="link-arrow" aria-hidden="true">→</span>
           </Link>
         </div>
       </SectionBackground>
@@ -157,19 +157,19 @@ const PreventiveLayerOfCare = () => {
 
       <SectionBackground variant="soft" className="pt-0">
         <div className="max-w-3xl space-y-6">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-muted">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
             Next
           </h3>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/prevention-model"
-              className="rounded-full bg-panel/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted shadow-float"
+              className="rounded-full bg-panel/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand shadow-float"
             >
               Our Prevention Model
             </Link>
             <Link
               to="/insights/behavioural-follow-through"
-              className="rounded-full bg-panel/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted shadow-float"
+              className="rounded-full bg-panel/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand shadow-float"
             >
               Why Behavioural Follow-Through Matters
             </Link>

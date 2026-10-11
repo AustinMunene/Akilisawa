@@ -8,7 +8,7 @@ type BadgeProps = {
 const Badge = ({ children, className }: BadgeProps) => {
   return (
     <span
-      className={`inline-flex items-center rounded-pill bg-white/85 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-muted shadow-float dark:bg-panel/85 dark:text-muted ${className ?? ""}`}
+      className={`inline-flex items-center rounded-pill border border-brand-line bg-brand-soft px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand ${className ?? ""}`}
     >
       {children}
     </span>

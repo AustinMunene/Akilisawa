@@ -13,8 +13,6 @@ const Navigation = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Dark mode toggle temporarily disabled.
-
   return (
     <>
       {/* Transparent at rest, so the hero paints straight through with no band
@@ -26,7 +24,7 @@ const Navigation = () => {
       <header
         className={`sticky top-0 z-40 border-b border-transparent backdrop-blur-xl transition ${
           isScrolled
-            ? "bg-background/85 shadow-[0_8px_18px_rgba(10,26,22,0.06)]"
+            ? "bg-background/85 shadow-[0_8px_18px_rgba(20,40,70,0.06)]"
             : "bg-transparent"
         }`}
         style={{
@@ -42,7 +40,7 @@ const Navigation = () => {
               alt="Akili Sawa"
               loading="eager"
               decoding="async"
-              className="h-8 w-auto brightness-0 drop-shadow-[0_2px_6px_rgba(10,26,22,0.25)] dark:invert"
+              className="h-8 w-auto brightness-0 drop-shadow-[0_2px_6px_rgba(20,40,70,0.25)] dark:invert"
             />
           </Link>
           <div className="flex items-center gap-3">
@@ -52,11 +50,7 @@ const Navigation = () => {
                   key={link.path}
                   to={link.path}
                   className={({ isActive }) =>
-                    `rounded-none px-3 py-1 transition ${
-                      isActive
-                        ? "bg-accent/15 text-accent shadow-[0_8px_16px_rgba(10,74,64,0.12)] ring-1 ring-accent/20 font-semibold"
-                        : "text-muted hover:text-text"
-                    }`
+                    `nav-link link-underline px-3 py-1 font-medium ${isActive ? "font-semibold" : ""}`
                   }
                 >
                   {link.label}
@@ -68,7 +62,7 @@ const Navigation = () => {
               aria-label="Toggle navigation menu"
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen((open) => !open)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-line bg-surface/70 text-text shadow-[0_8px_18px_rgba(10,26,22,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(10,26,22,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 md:hidden"
+              className="btn btn-secondary btn-circle md:hidden"
             >
               {isMenuOpen ? (
                 <svg
@@ -115,7 +109,7 @@ const Navigation = () => {
             onClick={() => setIsMenuOpen(false)}
             className="absolute inset-0 h-full w-full"
           />
-          <div className="absolute right-4 top-20 z-10 w-[min(90vw,320px)] rounded-3xl bg-surface/95 p-4 shadow-[0_20px_50px_rgba(10,26,22,0.18)]">
+          <div className="absolute right-4 top-20 z-10 w-[min(90vw,320px)] rounded-3xl bg-surface/95 p-4 shadow-[0_20px_50px_rgba(20,40,70,0.18)]">
             <nav className="flex flex-col gap-2 text-sm font-medium">
               {navLinks.map((link) => (
                 <NavLink
@@ -123,11 +117,7 @@ const Navigation = () => {
                   to={link.path}
                   onClick={() => setIsMenuOpen(false)}
                   className={({ isActive }) =>
-                    `rounded-2xl px-4 py-2 transition ${
-                      isActive
-                        ? "bg-accent/15 text-accent ring-1 ring-accent/20 font-semibold"
-                        : "text-muted hover:text-text"
-                    }`
+                    `nav-link link-underline rounded-2xl px-4 py-2 ${isActive ? "font-semibold" : ""}`
                   }
                 >
                   {link.label}

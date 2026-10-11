@@ -110,11 +110,11 @@ const Contact = () => {
    * alpha - that fill step is ~1.03:1, so the fields had almost no edge. A hairline
    * in `--line` gives the control a real boundary at any ground.
    *
-   * Text is `--text` (#1b2624) on the field: measured 15.6:1 light, 14.9:1 dark.
+   * Text is `--text` (#14233A) on the field: measured 15.6:1 light, 14.9:1 dark.
    */
   const inputClass =
     "mt-2 w-full rounded-none border border-line bg-surface/90 px-3 py-2 text-sm text-text outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/25 dark:bg-panel/90";
-  const labelClass = "text-xs font-semibold uppercase tracking-[0.2em] text-muted";
+  const labelClass = "text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand";
   // red-600 was 3.17:1 on the dark panel - below AA for 12px text. red-700 is
   // 6.52:1 on the light field, red-400 is 5.57:1 on the dark one.
   const errorClass = "mt-2 text-xs text-red-700 dark:text-red-400";
@@ -124,7 +124,7 @@ const Contact = () => {
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div className="max-w-3xl space-y-4">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
               Get in Touch
             </p>
             <h1 className="text-balance">Get in Touch</h1>
@@ -362,7 +362,7 @@ const Contact = () => {
           <div className="space-y-6">
             <Card>
               <div className="space-y-3 text-sm text-muted">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   Qualification Notice
                 </p>
                 <p>

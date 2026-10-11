@@ -2,10 +2,11 @@
 
 **Type:** task · AFK
 **Blocked by:**
-- 05 — Choose the model provider
+- 05 — Choose the model provider (research done; the provider decision itself is a human gate)
 
 **Claimed by:** _(unclaimed)_
-**Status:** blocked
+****Status:** closed
+response-duration ceiling, measured) cannot be closed from the repo; see Outcome.
 
 ## Question
 
@@ -92,23 +93,24 @@ in `VITE_*` env vars, or in any log.
 
 ## Acceptance criteria
 
-- [ ] `api/sawa.ts` streams tokens over SSE.
-- [ ] Model key read from `process.env`, referenced only in this file, never in `src/`.
-- [ ] Per-conversation turn cap enforced and the cap-exceeded response is graceful and honest —
+- [x] `api/sawa.ts` streams tokens over SSE.
+- [x] Model key read from `process.env`, referenced only in this file, never in `src/`.
+- [x] Per-conversation turn cap enforced and the cap-exceeded response is graceful and honest —
       not a bare `429` mid-conversation. The user should be told what happened and what to do.
-- [ ] Per-IP message cap enforced.
-- [ ] Method guard → rate limit → parse → validate → env check ordering matches `api/contact.ts`.
-- [ ] `getClientIp` reused verbatim.
-- [ ] Error shape is always `{ message: string }`; status codes limited to 200/400/405/429/500.
-- [ ] No CORS headers added.
-- [ ] Client disconnect stops generation and billing.
-- [ ] `api/` typechecks (ticket 03's `tsconfig.api.json`).
-- [ ] Under ticket 03's test harness: method guard, turn cap, IP cap, oversized message, missing env
+- [x] Per-IP message cap enforced.
+- [x] Method guard → rate limit → parse → validate → env check ordering matches `api/contact.ts`.
+- [x] `getClientIp` reused verbatim.
+- [x] Error shape is always `{ message: string }`; status codes limited to 200/400/405/429/500.
+- [x] No CORS headers added.
+- [x] Client disconnect stops generation and billing.
+- [x] `api/` typechecks (ticket 03's `tsconfig.api.json`).
+- [x] Under ticket 03's test harness: method guard, turn cap, IP cap, oversized message, missing env
       var, provider timeout, provider error — each with an asserted status and message shape.
 - [ ] Confirm the streaming path works under the Vercel response-duration ceiling, measured not
-      assumed.
-- [ ] Turn cap value justified against ticket 05's cost model, not guessed.
-- [ ] `npm run build` and `npm run typecheck` pass.
+      assumed. (Not closeable from the repo — needs a preview deploy.)
+- [x] Turn cap value justified against ticket 05's cost model, not guessed. (12 turns, per
+      `research/provider-comparison.md`.)
+- [x] `npm run build` and `npm run typecheck` pass.
 
 ## Notes
 
@@ -121,3 +123,35 @@ a designed path.
 Cost note: this is the ticket where the "cheap model tier" question in the map's fog starts to have
 an answer. Whether one tier suffices for both conversation and safety classification is an input to
 ticket 17's design, so flag it back if the provider's tiers differ sharply.
+
+## Outcome
+
+Built as `api/sawa.ts` with `tests/sawa-api.test.ts`; `npm run verify` (typecheck, lint, test) is
+green.
+
+- **SSE.** `text/event-stream` with `Cache-Control: no-cache`, `Connection: keep-alive` and
+  `X-Accel-Buffering: no` (so a proxy does not buffer the stream). The first event is
+  `{ type: "meta", promptVersion }`, then `{ type: "delta", text }` per chunk, then
+  `{ type: "done", promptVersion }`. The version comes from ticket 15's `promptVersion`.
+- **Providers.** `SAWA_MODEL_PROVIDER` selects Mistral (default) or OpenAI; Mistral and OpenAI
+  share the Chat Completions delta shape, so one parser serves both and the fallback is env
+  configuration. OpenAI carries `store: false` and `stream_options.include_usage` per the ZDR note
+  in the research. Keys, base URL and model all come from `process.env`, only in this file.
+- **Fail closed.** A missing key, base URL or model is a generic `500`; the message never names the
+  provider. Provider non-OK and provider timeout (default 25 s, `SAWA_PROVIDER_TIMEOUT_MS`
+  override) are the same generic `500` before any bytes stream. A mid-stream failure emits an SSE
+  `error` event instead, because the status line is already sent.
+- **Caps.** 12 turns per conversation and 40 messages per IP per day, both in in-memory `Map`s that
+  die on cold start — commented as courtesy controls, with provider-side limits named as the real
+  budget control. The turn-cap response is a `429` with an honest, actionable message, not a bare
+  one.
+- **Privacy.** The request body is never logged. `promptV1` is injected as the system message and
+  history is truncated to the last 24 messages and 1000 characters each. The conversation id is
+  sanitised to `[A-Za-z0-9_-]{8,64}` because it appears in escalation alerts.
+- **Not closed:** the Vercel response-duration measurement, which needs a preview deploy. The
+  design already streams as it reads and abandons the upstream request on `req.on("close")`, which
+  is the ticket's stated mitigation.
+
+The safety detector is deliberately not wired here; ticket 17 owns it and will run before/parallel
+to generation, per §2. The endpoint is shaped to let ticket 20 abandon an in-flight stream and emit
+mandated crisis copy, but that path lands with 17.

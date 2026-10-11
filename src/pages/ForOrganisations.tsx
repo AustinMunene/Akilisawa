@@ -17,7 +17,7 @@ const ForOrganisations = () => {
               <Badge>Ethically delivered</Badge>
             </div>
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-dark dark:text-brand">
                 Built for insurers, financial institutions, employers,
                 researchers, and public programs operating at scale.
               </p>
@@ -77,7 +77,7 @@ const ForOrganisations = () => {
                 responsibility.
               </p>
               <div className="mt-4 space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   Typical use cases:
                 </p>
                 <ul className="space-y-2 text-sm text-muted">
@@ -99,7 +99,7 @@ const ForOrganisations = () => {
                 non-clinical early support.
               </p>
               <div className="mt-4 space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   Outcomes employers value:
                 </p>
                 <ul className="space-y-2 text-sm text-muted">
@@ -121,7 +121,7 @@ const ForOrganisations = () => {
                 interventions delivered with strong ethical safeguards.
               </p>
               <div className="mt-4 space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   What we offer:
                 </p>
                 <ul className="space-y-2 text-sm text-muted">

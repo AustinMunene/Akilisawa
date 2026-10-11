@@ -11,7 +11,7 @@ const Ethics = () => {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div className="max-w-3xl space-y-6">
             <div className="space-y-3">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
                 Ethics &amp; Safeguarding
               </p>
               <h1 className="text-balance">Ethics &amp; Safeguarding</h1>
@@ -120,7 +120,7 @@ const Ethics = () => {
           <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
             <Card>
               <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   Escalation triggers may include:
                 </p>
                 <ul className="space-y-2 text-sm text-muted">
@@ -132,7 +132,7 @@ const Ethics = () => {
             </Card>
             <Card>
               <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   When escalation is triggered:
                 </p>
                 <ul className="space-y-2 text-sm text-muted">
@@ -150,7 +150,7 @@ const Ethics = () => {
             <div className="space-y-4">
               <div className="rounded-card bg-panel/95 p-6 shadow-float">
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                     Important
                   </p>
                   <p className="text-sm text-muted">
@@ -184,7 +184,7 @@ const Ethics = () => {
           </div>
           <Card>
             <div className="space-y-3 text-sm text-muted">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                 Participant data is:
               </p>
               <ul className="space-y-2">
@@ -209,7 +209,7 @@ const Ethics = () => {
           </div>
           <Card>
             <div className="space-y-3 text-sm text-muted">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                 Safeguards include:
               </p>
               <ul className="space-y-2">

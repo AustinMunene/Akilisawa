@@ -9,7 +9,7 @@ const Community = () => {
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
         <div className="max-w-3xl space-y-6">
           <div className="space-y-3">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
               Participation is voluntary. Support is non-clinical. Safety comes
               first.
             </p>
@@ -113,7 +113,7 @@ const Community = () => {
           </div>
           <Card>
             <div className="space-y-3 text-sm text-muted">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                 Safeguards include:
               </p>
               <ul className="space-y-2">

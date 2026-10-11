@@ -11,7 +11,7 @@ const Pilots = () => {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div className="max-w-3xl space-y-6">
             <div className="space-y-3">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
                 Evidence-driven. Ethically bounded. Purpose-built for scale.
               </p>
               <h1 className="text-balance">
@@ -52,7 +52,7 @@ const Pilots = () => {
           </div>
           <Card>
             <div className="space-y-3 text-sm text-muted">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                 Key characteristics:
               </p>
               <ul className="space-y-2">
@@ -91,7 +91,7 @@ const Pilots = () => {
                     </svg>
                   </IconContainer>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                       Research Collaboration
                     </p>
                     <h3 className="mt-1 text-lg font-semibold text-text">
@@ -107,7 +107,7 @@ const Pilots = () => {
                   outcomes — with appropriate ethical approvals and safeguarding
                   protocols.
                 </p>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   Active collaboration (details shared under NDA)
                 </p>
               </div>
@@ -134,7 +134,7 @@ const Pilots = () => {
                     </svg>
                   </IconContainer>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                       Insurance &amp; Financial Services Pilots
                     </p>
                     <h3 className="mt-1 text-lg font-semibold text-text">
@@ -148,7 +148,7 @@ const Pilots = () => {
                   member wellbeing, claims mitigation, and engagement.
                 </p>
                 <div className="space-y-3 text-sm text-muted">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                     Focus areas include:
                   </p>
                   <ul className="space-y-2">
@@ -157,7 +157,7 @@ const Pilots = () => {
                     <li>Claims-adjacent prevention pathways</li>
                   </ul>
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                   Pilot phase (partner names confidential)
                 </p>
               </div>

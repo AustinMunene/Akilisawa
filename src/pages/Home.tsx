@@ -1,4 +1,5 @@
 import SectionBackground from "../components/layout/SectionBackground";
+import SawaChat from "../components/sawa/SawaChat";
 import Badge from "../components/ui/Badge";
 import { ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
@@ -18,7 +19,7 @@ const Home = () => {
               <Badge>Ethically delivered</Badge>
             </div>
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-dark dark:text-brand">
                 Working with insurers, financial institutions, employers,
                 researchers, and communities.
               </p>
@@ -28,7 +29,7 @@ const Home = () => {
             </div>
             <p className="max-w-2xl text-base text-muted md:text-lg">
               Strengthening resilience, improving behavioural follow-through, and
-              reducing downstream risk — through non-clinical, scalable mental
+              reducing downstream risk through non-clinical, scalable mental
               wellbeing support.
             </p>
             <p className="text-xs text-muted">
@@ -189,6 +190,38 @@ const Home = () => {
               </div>
             </Card>
           </div>
+        </div>
+      </SectionBackground>
+
+      {/*
+       * §3 - Talk to Sawa. Blueprint §40 places the live conversation here,
+       * directly before the prevention model bands. Same component as /sawa-ai
+       * (ticket 20), compact inline variant. The opening line, transcript and
+       * safety behaviour are all the component's own.
+       */}
+      <SectionBackground variant="light">
+        <div className="space-y-8">
+          <div className="space-y-3">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
+              Talk to Sawa AI
+            </p>
+            <h2>Talk to Sawa</h2>
+            <p className="max-w-2xl text-base text-muted md:text-lg">
+              A conversation can be a place to start. Begin here, or visit the
+              Sawa AI page to learn more about how it works.
+            </p>
+          </div>
+          <Card>
+            <SawaChat variant="inline" />
+          </Card>
+          <p className="text-xs text-muted">
+            Akili Sawa is not a therapist, clinician or crisis service. If you
+            need urgent help, contact local emergency services or a trusted
+            healthcare provider.
+          </p>
+          <ButtonLink to="/sawa-ai" variant="tertiary">
+            Learn about Sawa AI →
+          </ButtonLink>
         </div>
       </SectionBackground>
 

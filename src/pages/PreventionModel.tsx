@@ -10,7 +10,7 @@ const PreventionModel = () => {
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
         <div className="max-w-3xl space-y-6">
           <div className="space-y-3">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
               Designed for scale. Grounded in behavioural science. Delivered
               ethically.
             </p>
@@ -65,7 +65,7 @@ const PreventionModel = () => {
                     <span className="sr-only">Stage</span>
                   </IconContainer>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                       Stage 1
                     </p>
                     <h3 className="mt-2 text-lg font-semibold text-text">
@@ -96,7 +96,7 @@ const PreventionModel = () => {
                     <li>Community-facilitated sessions</li>
                   </ul>
                 </div>
-                <div className="rounded-soft bg-soft px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-muted shadow-float">
+                <div className="rounded-soft bg-soft px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand shadow-float">
                   No diagnosis. No treatment.
                 </div>
               </div>
@@ -109,7 +109,7 @@ const PreventionModel = () => {
                     <span className="sr-only">Stage</span>
                   </IconContainer>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                       Stage 2
                     </p>
                     <h3 className="mt-2 text-lg font-semibold text-text">
@@ -140,7 +140,7 @@ const PreventionModel = () => {
                     <span className="sr-only">Stage</span>
                   </IconContainer>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                       Stage 3
                     </p>
                     <h3 className="mt-2 text-lg font-semibold text-text">
@@ -196,7 +196,7 @@ const PreventionModel = () => {
           </div>
           <Card>
             <div className="space-y-3 text-sm text-muted">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
                 Key features:
               </p>
               <ul className="space-y-2">

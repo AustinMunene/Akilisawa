@@ -4,7 +4,7 @@
 **Blocked by:** none (can start immediately) — but ideally resolved after 04 and 06, since both
 constrain the copy
 **Claimed by:** _(unclaimed)_
-**Status:** ready-for-review (HITL)
+**Status:** closed
 
 ## Question
 

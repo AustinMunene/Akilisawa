@@ -3,7 +3,7 @@
 **Type:** research · AFK
 **Blocked by:** none (can start immediately)
 **Claimed by:** _(unclaimed)_
-**Status:** ready-for-review
+**Status:** closed
 
 ## Question
 

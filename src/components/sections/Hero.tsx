@@ -21,7 +21,7 @@ const Hero = () => {
           <Badge>Ethically delivered</Badge>
         </motion.div>
         <motion.div variants={fadeUp}>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-dark dark:text-brand">
             Prevention-first mental health infrastructure
           </p>
           <h1 className="mt-4 text-balance">

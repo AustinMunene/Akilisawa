@@ -20,36 +20,34 @@
  * Three deliberate departures from the mockup's raw values, each measured rather
  * than guessed (see ticket 09):
  *
- *  1. --accent is split. Mockup amber #e8a33d is 2.07:1 on this page background,
- *     so it is a FILL only. --accent-ink (#7a4f0d) is the text-safe sibling at
- *     5.34:1 worst case, and is what `text-accent` and `ring-accent` resolve to.
- *  2. --muted is #4c5c58, not the mockup's #5a6b67. The mockup value drops to
- *     4.22:1 on the deepest band; this passes 4.5:1 on every surface.
+ *  1. --accent is split into the steel-blue fill and text-safe values specified
+ *     for each theme. `text-accent` and `ring-accent` resolve to --accent-ink.
  *  3. The band ladder is monotonic in luminance (worst neighbour step 1.06:1).
- *     A warm neutral and a pale green share luminance, so a hue-only shift reads
+ *     A pale neutral and a pale blue share luminance, so a hue-only shift reads
  *     as 1.00:1 and is invisible.
  */
 :root {
-  /* Structural brand */
-  --brand: #0f6b5c;
-  --brand-dark: #0a4a40;
-
-  /* Accent: fill-safe and text-safe, deliberately separate */
-  --accent: #e8a33d; /* FILL ONLY - 2.07:1 as text */
-  --accent-ink: #7a4f0d; /* text, links, focus rings - 5.34:1 worst case */
-
-  /* Surfaces, lightest to deepest */
-  --bg: #fbfaf7;
-  --bg-soft: #f0f2ec;
-  --bg-tint: #e3ede7;
-  --bg-tint-alt: #d2e3db;
-  --surface: #ffffff;
-  --panel: #f6f7f2;
-
-  /* Ink */
-  --text: #1b2624;
-  --muted: #4c5c58;
-  --line: #e2e6e3;
+  --brand: #1E7F68;
+  --brand-dark: #155C4B;
+  --brand-soft: #E3F3EC;
+  --brand-line: #C5E6D8;
+  --accent: #2E5E8C;
+  --accent-ink: #234A70;
+  --accent-soft: #E4EDF7;
+  --bg: #F3F7FC;
+  --bg-soft: #E9F0F8;
+  --bg-tint: #DFEAF5;
+  --bg-tint-alt: #D3E3F1;
+  --surface: #FFFFFF;
+  --panel: #F7FAFD;
+  --text: #14233A;
+  --muted: #4B5D74;
+  --line: #D8E2EE;
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-sweep: cubic-bezier(.22, 1, .36, 1);
+  --dur-fast: .15s;
+  --dur-base: .25s;
+  --dur-slow: .35s;
 
   --font-stack: "Plus Jakarta Sans", system-ui, sans-serif;
 }
@@ -84,14 +82,17 @@
   /*
    * The accent split lives here, in the namespace mapping rather than at 14 call
    * sites. `--color-accent` points at the INK token, so the 13 existing
-   * `text-accent` / `ring-accent` uses become AA-safe with no edits at all.
-   * `bg-accent-fill` is the single opt-in for the bright amber, used by the
+   * `text-accent` / `ring-accent` uses resolve to the theme's AA-safe ink value.
+   * `bg-accent-fill` is the single opt-in for the bright fill, used by the
    * primary button.
    */
   --color-accent: var(--accent-ink);
   --color-accent-fill: var(--accent);
   --color-brand: var(--brand);
   --color-brand-dark: var(--brand-dark);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-line: var(--brand-line);
+  --color-accent-soft: var(--accent-soft);
 
   --radius-soft: 18px;
   --radius-card: 24px;
@@ -101,9 +102,9 @@
      opacity the difference is invisible on blue but reads as a faint grey-blue
      smudge on the warm off-white, which is what made the glass cards look
      dirty against the page. */
-  --shadow-float: 0 12px 24px rgba(10, 26, 22, 0.05);
-  --shadow-floatHover: 0 18px 32px rgba(10, 26, 22, 0.08);
-  --shadow-card: 0 16px 34px rgba(10, 26, 22, 0.08);
+  --shadow-float: 0 12px 24px rgba(20, 40, 70, 0.05);
+  --shadow-floatHover: 0 18px 32px rgba(20, 40, 70, 0.08);
+  --shadow-card: 0 16px 34px rgba(20, 40, 70, 0.08);
 
   /* Section rhythm. These coincide with v4's dynamic scale (0.25rem x N), so they
      resolve either way — declared explicitly so the values stay legible here. */
@@ -119,9 +120,8 @@
 /*
  * Dark palette, from `Akili Sawa_ final site.html:8`.
  *
- * `--accent-ink` becomes the BRIGHT amber here, because the light-mode ink is
- * unreadable on a dark ground and bright amber passes 7.15:1 on the darkest
- * surface. `--brand` is lightened to a mint (#7dc4ae, 8.91:1) because the deep
+ * `--accent-ink` uses the bright steel blue here, because the light-mode ink is
+ * unreadable on a dark ground. `--brand` is lightened to a mint because the deep
  * brand green only manages 2.82:1 on this background.
  *
  * The `.dark` class was previously dead code. Nothing ever set it, so this block
@@ -131,21 +131,22 @@
  * `@custom-variant dark` below makes the utilities follow the same class.
  */
 .dark {
-  --bg: #101816;
-  --bg-soft: #131b18;
-  --bg-tint: #14201d;
-  --bg-tint-alt: #1a2823;
-  --surface: #17221f;
-  --panel: #1b2724;
-
-  --text: #eef3f1;
-  --muted: #a3b3ae;
-  --line: #2a3833;
-
-  --accent: #e8a33d;
-  --accent-ink: #e8a33d;
-  --brand: #7dc4ae;
-  --brand-dark: #0a4a40;
+  --bg: #1A222D;
+  --bg-soft: #1D2632;
+  --bg-tint: #212B38;
+  --bg-tint-alt: #26313F;
+  --surface: #222C39;
+  --panel: #263140;
+  --line: #34404F;
+  --text: #EEF2F6;
+  --muted: #AEB9C5;
+  --accent: #8AB4D6;
+  --accent-ink: #8AB4D6;
+  --accent-soft: #24384F;
+  --brand: #7CCBB1;
+  --brand-dark: #155C4B;
+  --brand-soft: #1E3A33;
+  --brand-line: #2C5247;
 }
 
 @layer base {
@@ -173,13 +174,45 @@
     text-decoration: none;
   }
 
-  a:hover {
-    color: var(--text);
+  a:not(.btn):not(:has(img)) {
+    color: var(--brand-dark);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1.5px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+    transition: background-size var(--dur-slow) var(--ease-out), color var(--dur-base) var(--ease-out);
   }
+
+  a:not(.btn):not(:has(img)):hover,
+  a:not(.btn):not(:has(img)):focus-visible {
+    background-size: 100% 1.5px;
+  }
+
+  a:not(.btn):not(:has(img)):hover { color: var(--brand-dark); }
+  .dark a:not(.btn):not(:has(img)) { color: var(--brand); }
+  .dark a:not(.btn):not(:has(img)):hover { color: var(--brand); }
+
+  .nav-link[aria-current="page"] {
+    color: var(--text);
+    background-image: linear-gradient(var(--brand), var(--brand));
+    background-size: 100% 2px;
+  }
+  .dark .nav-link[aria-current="page"] { color: var(--text); }
 
   button {
     font-family: inherit;
   }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--brand) !important;
+    outline: none;
+    box-shadow: 0 0 0 4px var(--brand-soft) !important;
+  }
+
+  footer a:not(.btn):not(:has(img)) { color: var(--muted); }
+  footer a:not(.btn):not(:has(img)):hover { color: var(--text); }
 
   #root {
     min-height: 100vh;
@@ -219,23 +252,94 @@
   }
 
   ::selection {
-    background: rgba(15, 107, 92, 0.22);
+    background: rgba(30, 127, 104, 0.22);
   }
+}
+
+@layer components {
+  .btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    border-radius: 9999px;
+    padding-inline: 1.75rem;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-decoration: none;
+    transition: color var(--dur-slow) var(--ease-sweep), border-color var(--dur-slow) var(--ease-sweep), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-slow) var(--ease-sweep);
+  }
+  .btn:hover::before { transform: scaleX(1); }
+  .btn:active { transform: scale(.97); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .btn-primary { border: 1px solid var(--accent); background: var(--accent); color: #fff; }
+  .btn-primary::before { background: var(--accent-ink); }
+  .btn-primary:hover { color: #fff; box-shadow: 0 10px 24px -12px rgba(46,94,140,.55); }
+  .dark .btn-primary, .dark .btn-primary:hover { color: #0E1A26; }
+  .btn:disabled { opacity: .5; pointer-events: none; }
+  .btn:disabled::before { display: none; }
+  .btn-secondary { border: 1.5px solid var(--line); background: var(--surface); color: var(--text); }
+  .btn-secondary::before { background: var(--brand-soft); }
+  .btn-secondary:hover { border-color: var(--brand-line); color: var(--brand-dark); }
+  .dark .btn-secondary:hover { color: var(--brand); }
+  .btn-ghost { border: 1.5px solid var(--brand-line); background: transparent; color: var(--brand-dark); }
+  .dark .btn-ghost { color: var(--brand); }
+  .btn-ghost::before { background: var(--brand); }
+  .btn-ghost:hover { color: #fff; }
+  .dark .btn-ghost:hover { color: #1A222D; }
+  .btn-sm { height: 44px; }
+  .btn-circle { width: 44px; height: 44px; padding: 0; }
+  .btn-arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-out); }
+  .btn:hover .btn-arrow { transform: translateX(3px); }
+  .btn-circle:hover .btn-arrow { transform: translateY(-2px); }
+  .link-action { display: inline-flex; align-items: center; gap: .35rem; padding: 0; border: 0; background: transparent; color: var(--brand-dark); font: inherit; cursor: pointer; }
+  .dark .link-action { color: var(--brand); }
+  .link-action .btn-arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-out); }
+  .link-action:hover .btn-arrow { transform: translateX(3px); }
+  button.link-underline { background-image: linear-gradient(currentColor, currentColor); background-size: 0% 1.5px; background-position: 0 100%; background-repeat: no-repeat; padding-bottom: 2px; transition: background-size var(--dur-slow) var(--ease-out), color var(--dur-base) var(--ease-out); }
+  button.link-underline:hover, button.link-underline:focus-visible { background-size: 100% 1.5px; }
+  .link-arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-out); }
+  a:hover .link-arrow { transform: translateX(3px); }
+  .section-wrap h2::before { content: ""; display: block; width: 40px; height: 3px; margin-bottom: .75rem; border-radius: 99px; background: var(--brand); }
+  .uppercase { color: var(--brand); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+  .btn, .btn::before, .btn-arrow, .link-arrow, a:not(.btn):not(:has(img)) { transition: none !important; }
+  .card { transition: none !important; }
+  .btn:active, .btn:hover, .btn:hover .btn-arrow, .link-action:hover .btn-arrow, a:hover .link-arrow { transform: none !important; }
+  .btn::before { display: none; }
 }
 
 @layer utilities {
   .bg-grid {
     background-image: repeating-linear-gradient(
         90deg,
-      rgba(10, 26, 22, 0.05) 0,
-      rgba(10, 26, 22, 0.05) 1px,
+      rgba(20, 40, 70, 0.05) 0,
+      rgba(20, 40, 70, 0.05) 1px,
       transparent 1px,
         transparent 120px
       ),
       repeating-linear-gradient(
         0deg,
-        rgba(10, 26, 22, 0.04) 0,
-        rgba(10, 26, 22, 0.04) 1px,
+        rgba(20, 40, 70, 0.04) 0,
+        rgba(20, 40, 70, 0.04) 1px,
         transparent 1px,
         transparent 80px
       );
@@ -244,15 +348,15 @@
   .dark .bg-grid {
     background-image: repeating-linear-gradient(
         90deg,
-      rgba(125, 196, 174, 0.08) 0,
-      rgba(125, 196, 174, 0.08) 1px,
+      rgba(124, 203, 177, 0.08) 0,
+      rgba(124, 203, 177, 0.08) 1px,
       transparent 1px,
         transparent 120px
       ),
       repeating-linear-gradient(
         0deg,
-        rgba(125, 196, 174, 0.06) 0,
-        rgba(125, 196, 174, 0.06) 1px,
+        rgba(124, 203, 177, 0.06) 0,
+        rgba(124, 203, 177, 0.06) 1px,
         transparent 1px,
         transparent 80px
       );
@@ -265,46 +369,46 @@
   .bg-gradient-wash {
     background-image: radial-gradient(
         circle at 12% 10%,
-      rgba(15, 107, 92, 0.1),
+      rgba(30, 127, 104, 0.08),
         transparent 55%
       ),
       radial-gradient(
         circle at 88% 20%,
-      rgba(232, 163, 61, 0.14),
+      color-mix(in srgb, var(--accent) 8%, transparent),
         transparent 50%
       ),
-      linear-gradient(135deg, #fbfaf7 0%, #e3ede7 48%, #d2e3db 100%);
+      linear-gradient(135deg, var(--bg) 0%, var(--bg-tint) 48%, var(--bg-tint-alt) 100%);
   }
 
   .dark .bg-gradient-wash {
     background-image: radial-gradient(
         circle at 10% 10%,
-      rgba(125, 196, 174, 0.14),
+      rgba(124, 203, 177, 0.08),
         transparent 55%
       ),
       radial-gradient(
         circle at 90% 20%,
-      rgba(232, 163, 61, 0.1),
+      color-mix(in srgb, var(--accent) 8%, transparent),
         transparent 50%
       ),
-      linear-gradient(135deg, #101816 0%, #14201d 50%, #1a2823 100%);
+      linear-gradient(135deg, var(--bg) 0%, var(--bg-tint) 50%, var(--bg-tint-alt) 100%);
   }
 
   .bg-sheen {
     background-image: linear-gradient(
         135deg,
-      rgba(253, 252, 249, 0.55) 0%,
-      rgba(240, 244, 238, 0.4) 45%,
-      rgba(210, 227, 219, 0.45) 100%
+      rgba(250, 252, 255, 0.55) 0%,
+      rgba(233, 240, 248, 0.4) 45%,
+      rgba(211, 226, 241, 0.45) 100%
     );
   }
 
   .dark .bg-sheen {
     background-image: linear-gradient(
       135deg,
-      rgba(27, 39, 36, 0.9) 0%,
-      rgba(16, 24, 22, 0.6) 40%,
-      rgba(10, 16, 14, 0.8) 100%
+      rgba(38, 49, 64, 0.9) 0%,
+      rgba(26, 34, 45, 0.6) 40%,
+      rgba(22, 29, 39, 0.8) 100%
     );
   }
 
@@ -325,6 +429,13 @@
     padding-left: 1.25rem;
   }
 
+  .section-wrap li::marker { color: var(--brand); }
+
+  .card {
+    transition: border-color var(--dur-slow) var(--ease-out),
+      box-shadow var(--dur-slow) var(--ease-out);
+  }
+
   @media (min-width: 768px) {
     .section-wrap {
       padding-top: 5rem;
@@ -340,7 +451,7 @@
     border: none !important;
     background: rgba(255, 255, 255, 0.85) !important;
     border-radius: 1.5rem !important;
-    box-shadow: 0 20px 40px rgba(10, 26, 22, 0.08) !important;
+    box-shadow: 0 20px 40px rgba(20, 40, 70, 0.08) !important;
     backdrop-filter: blur(8px);
     padding: 1.25rem !important;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
@@ -349,11 +460,11 @@
 
   .faq-panel details:hover {
     transform: translateY(-2px);
-    box-shadow: 0 28px 60px rgba(10, 26, 22, 0.12);
+    box-shadow: 0 28px 60px rgba(20, 40, 70, 0.12);
   }
 
   .dark .faq-panel details {
-    background: rgba(23, 34, 31, 0.88) !important;
+    background: rgba(34, 44, 57, 0.88) !important;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35) !important;
   }
 

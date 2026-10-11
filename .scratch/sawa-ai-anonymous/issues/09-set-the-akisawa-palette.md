@@ -42,7 +42,7 @@ carries the brand.
 :root{
   --brand:#0f6b5c;   /* deep green     → --accent */
   --dark:#0a4a40;    /* deep green     → --bg-tint-alt */
-  --accent:#e8a33d;  /* amber          → needs a new token; see below */
+  --accent:#2E5E8C;  /* amber          → needs a new token; see below */
   --ink:#1b2624;     /* near-black     → --text */
   --muted:#5a6b67;   /* grey-green     → --muted */
   --bg:#fbfaf7;      /* warm off-white → --bg */
@@ -64,7 +64,7 @@ Two viable routes:
 
 | Route | Approach | Cost |
 |---|---|---|
-| **A — Amber becomes the accent** | `--accent:#e8a33d`, green becomes the deep structural colour | Warm, distinctive, matches the mockup. Risk: amber on white at small sizes is a contrast problem — `#e8a33d` on `#fbfaf7` is roughly **2.0:1**, well under WCAG AA for text. Needs a darker amber for text use. |
+| **A — Amber becomes the accent** | `--accent:#2E5E8C`, green becomes the deep structural colour | Warm, distinctive, matches the mockup. Risk: amber on white at small sizes is a contrast problem — `#2E5E8C` on `#fbfaf7` is roughly **2.0:1**, well under WCAG AA for text. Needs a darker amber for text use. |
 | **B — Green becomes the accent, amber reserved** | `--accent:#0f6b5c`, amber limited to the dark CTA band and focus accents | Highest contrast, safest, smallest diff. Less distinctive — a green site is not memorable on its own. |
 
 Whichever is chosen, **two tokens are needed**: a fill-safe accent and a text-safe accent. The
@@ -148,16 +148,16 @@ Every text pair, every surface. All pass WCAG AA 4.5:1.
 |---|---|---|---|---|---|---|
 | `--text #1b2624` | 14.91 | 13.80 | 12.99 | 11.67 | 15.56 | **11.67** |
 | `--muted #4c5c58` | 6.75 | 6.25 | 5.89 | 5.29 | 7.05 | **5.29** |
-| `--accent-ink #7a4f0d` | 6.82 | 6.31 | 5.94 | 5.34 | 7.11 | **5.34** |
+| `--accent-ink #234A70` | 6.82 | 6.31 | 5.94 | 5.34 | 7.11 | **5.34** |
 | `--brand #0f6b5c` | 6.14 | 5.68 | 5.35 | 4.81 | 6.41 | **4.81** |
 
 Dark mode, worst case `--panel #1b2724`: text 14.0, muted 7.2, amber ink 7.15, brand mint 8.2.
-Button primary: `#1b2624` on `#e8a33d` = **7.22:1**.
+Button primary: `#1b2624` on `#2E5E8C` = **7.22:1**.
 
 ### Three values changed from the mockup, and why
 
-1. **`--accent` split.** Mockup amber `#e8a33d` is **2.07:1** on `#fbfaf7` — the ticket's warning was
-   right. `--accent-ink #7a4f0d` is a darkened sibling of the same hue at 5.34:1 worst case.
+1. **`--accent` split.** Mockup amber `#2E5E8C` is **2.07:1** on `#fbfaf7` — the ticket's warning was
+   right. `--accent-ink #234A70` is a darkened sibling of the same hue at 5.34:1 worst case.
 2. **`--muted #4c5c58`, not the mockup's `#5a6b67`.** The mockup value drops to **4.22:1** on the
    deepest band. The darker value passes everywhere.
 3. **Band ladder rebuilt.** The mockup's `--tint #eef5f2` against a warm neutral computes to

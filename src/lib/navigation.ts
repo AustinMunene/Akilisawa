@@ -14,6 +14,7 @@ export const navLinks: NavItem[] = [
   { label: "Insights", path: "/insights" },
   { label: "Ethics & Safeguarding", path: "/ethics" },
   { label: "Pilots & Partnerships", path: "/pilots" },
+  { label: "Talk to Sawa AI", path: "/sawa-ai" },
   { label: "Contact", path: "/contact" },
 ];
 
@@ -25,6 +26,7 @@ export const footerColumns: FooterColumn[] = [
       { label: "Prevention Model", path: "/prevention-model" },
       { label: "Evidence & Impact", path: "/evidence-impact" },
       { label: "Ethics & Safeguarding", path: "/ethics" },
+      { label: "Talk to Sawa AI", path: "/sawa-ai" },
     ],
   },
   {

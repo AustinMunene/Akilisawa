@@ -5,8 +5,8 @@
 - 09 — Set the Akili Sawa palette
 - 07 — Write Sawa's voice and the six §67 answers
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode
+**Status:** code complete — visual verification outstanding
 
 ## Question
 
@@ -81,22 +81,44 @@ const SawaAi = lazy(() => import("./pages/SawaAi"));
 
 ## Acceptance criteria
 
-- [ ] `/sawa-ai` exists as a lazy route under `Layout`, and `/style-guide` is **not** in the nav
-      (gap analysis Tier 7.1 — an internal reference is currently reachable).
-- [ ] Hero carries §8 verbatim.
-- [ ] A placeholder slot where `SawaChat` mounts in ticket 20, sized so the page does not reflow
-      when the real component lands.
-- [ ] §39 persistent CTA present — see ticket 11, but the hero needs its own
-      `[Talk to Sawa AI]` treatment.
-- [ ] Closing CTA band in the house pattern (prose left, one primary `ButtonLink` right), matching
+- [x] `/sawa-ai` exists as a lazy route under `Layout`, and `/style-guide` is **not** in the nav
+      (gap analysis Tier 7.1 — an internal reference is currently reachable). Verified: nothing in
+      `navLinks` or `footerColumns` points at `/style-guide`; the route is reachable only by URL.
+- [x] Hero carries §8 verbatim. Kicker `Sawa AI`, `h1` "Meet Sawa AI.", `h2` "A conversation can
+      be a place to start.", the full paragraph and the `Talk to Sawa AI` CTA.
+- [x] A placeholder slot where `SawaChat` mounts in ticket 20, sized so the page does not reflow
+      when the real component lands. `#sawa-ai-chat` has `min-h-[20rem] md:min-h-[22rem]`, renders
+      the opening line verbatim in the first bubble and a disabled composer.
+- [x] §39 persistent CTA present — see ticket 11, but the hero needs its own
+      `[Talk to Sawa AI]` treatment. Hero CTA scrolls the chat into view, gated on
+      `useReducedMotion`.
+- [x] Closing CTA band in the house pattern (prose left, one primary `ButtonLink` right), matching
       `Home.tsx:273`.
-- [ ] Mobile-first verified at 390px: no horizontal scroll, tap targets at least 44px, hero type does
-      not clip.
-- [ ] Motion respects `useReducedMotion` — the house rule in every animated component. Streaming
-      chat will make this critical in ticket 20.
-- [ ] Copy: British English, `wellbeing` one word, sentence case, no exclamation marks, `&` escaped
+- [ ] Mobile-first verified at 390px: no horizontal scroll, tap targets at least 44px, hero type
+      does not clip. **Outstanding** — needs a real browser at 390×844 and 1440×900, light and dark.
+- [x] Motion respects `useReducedMotion` — the house rule in every animated component. Streaming
+      chat will make this critical in ticket 20. Page code delegates to `MotionInView` /
+      `SectionBackground`; the one page-level animation is the CTA scroll, gated on the hook.
+- [x] Copy: British English, `wellbeing` one word, sentence case, no exclamation marks, `&` escaped
       as `&amp;`.
-- [ ] `npm run build` and `npm run typecheck` pass.
+- [x] `npm run build` and `npm run typecheck` pass, plus `npm run lint` and `npm run test`
+      (`npm run verify` is green; 2 test files, 17 tests).
+
+## What changed
+
+| File | Change |
+|---|---|
+| `src/pages/SawaAi.tsx` | New page: §8 hero, chat placeholder mount, non-clinical disclaimer above the hero CTA, closing CTA band. |
+| `src/App.tsx` | Lazy `SawaAi` import and `<Route path="sawa-ai" ...>` under `Layout`. |
+| `tests/sawa-ai.test.ts` | Render smoke tests via `react-dom/server` (node env, no jsdom): §8 hero verbatim, opening line verbatim, house-voice disclaimer. |
+
+### §67 placement decision
+
+The §8 paragraph sits **below** the chat mount, not between the heading and the conversation. This
+keeps the opening message and input within the first screen at 390×844, which is the acceptance
+criterion the ticket treats as non-negotiable. It is also the mockup's product-first reading. The
+closing band is left empty of the §12/§13/§14 content on purpose; those tickets slot in between.
+
 
 ## Notes
 

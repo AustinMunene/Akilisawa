@@ -34,7 +34,7 @@ const ImagePanel = ({ src, alt = "", className, children }: ImagePanelProps) => 
   return (
     <div className={`w-full ${className ?? ""}`}>
       <motion.div
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-surface/80 shadow-[0_8px_18px_rgba(10,26,22,0.05)] dark:bg-panel/80 dark:shadow-[0_10px_20px_rgba(0,0,0,0.16)]"
+        className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-surface/80 shadow-[0_8px_18px_rgba(20,40,70,0.05)] dark:bg-panel/80 dark:shadow-[0_10px_20px_rgba(0,0,0,0.16)]"
         variants={scaleIn}
         initial={
           prefersReducedMotion

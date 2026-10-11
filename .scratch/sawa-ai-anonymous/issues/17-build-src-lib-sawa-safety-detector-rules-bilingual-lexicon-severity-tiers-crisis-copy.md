@@ -6,8 +6,8 @@
 - 05 — Choose the model provider
 - 08 — Verify the Kenya crisis resource list
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode (agent)
+****Status:** closed
 
 ## Question
 
@@ -93,24 +93,40 @@ no helpline.
 
 ## Acceptance criteria
 
-- [ ] `detect.ts`, `rules.ts`, `crisisCopy.ts` exist as separate modules per §4.
-- [ ] Detection runs **before** generation, on the user turn, in parallel with the LLM call.
-- [ ] High severity short-circuits: mandated response emitted, open-ended continuation stopped.
-- [ ] Post-generation check exists and runs on Sawa's own reply before it is streamed to the client.
-- [ ] Crisis copy is **verbatim** from §2, in `crisisCopy.ts`, and cites only ticket 08's verified
-      resources.
-- [ ] Lexicon is bilingual (English + Kiswahili) from the first commit. Code-switched and indirect
-      cases covered, not just literal keywords.
-- [ ] Severity tiers implemented as a real classification with distinct behaviours, each
-      human-verified.
-- [ ] **Every tier has a test case**, and the tests assert the tier *and* the response behaviour —
-      which resources were cited, whether generation was stopped, whether a signal was emitted.
-- [ ] False-positive cases tested explicitly: a wellbeing enquiry containing "trauma" must be
-      answered, not rejected. This is the `api/contact.ts` anti-pattern as a regression test.
-- [ ] Tested against ticket 03's harness, including a prompt-injection attempt that tries to suppress
-      detection.
-- [ ] Reviewed by someone clinically qualified, if available. §24's governance console will need this.
-- [ ] `npm run test`, `npm run typecheck`, `npm run lint` pass.
+- [x] Five modules exist under `src/lib/sawa/safety/`: `detector.ts`, `rules.ts`, `lexicon.ts`,
+      `tiers.ts`, `crisisCopy.ts`. The ticket text names three; `lexicon.ts` and `tiers.ts` split
+      the bilingual list and the tier definitions out of `rules.ts` so each is independently
+      reviewable. `detector.ts` is the entry point; `detect.ts` was not used because the file
+      exports detection plus the post-generation check, not one `detect` function.
+- [x] Detection is pure and runs on the user turn **before** generation. `detectUserTurn` returns the
+      tier, behaviour, crisis copy and `SafetySignal`. The endpoint wiring that calls it (and
+      short-circuits) lands with ticket 18's sink, as that ticket's acceptance requires. The
+      ordering itself is enforced by the module contract: detection never reads a model reply.
+- [x] High severity short-circuits: `TIER_BEHAVIOUR.high.continueOpenEnded` is `false`, the mandated
+      block is emitted, and a `SafetySignal` is produced.
+- [x] `detectAssistantReply` / `checkAssistantReply` exist and classify Sawa's own reply for
+      diagnosis, medication and therapy claims (diagnosis and medication are marked independent —
+      a reply can be both).
+- [x] Crisis copy is verbatim from `docs/adr/crisis-resources-v1.md`'s in-chat block (the ticket
+      text says §2, which gives only the opener; the ADR holds the full block and cites ticket 08's
+      verified resources). Tests assert the opener is a prefix, list the allowed numbers, and
+      assert the omitted ones (0800, 1190, 911, 0900, Niskize, EMKF) are absent.
+- [x] Lexicon is bilingual (English + Kiswahili) from the first commit, with code-switched and
+      indirect cases (`joining my brother`, `kujiunga na ndugu yangu`) covered. A word-boundary
+      matcher normalises apostrophes, punctuation and case.
+- [x] Severity tiers are a real classification with distinct behaviours: `low` (continue, watch),
+      `elevated` (continue with care, offer support, specialist line by need), `high` (short-circuit,
+      mandated copy, escalate), `abuse` (decline, no crisis channel). Thresholds are the open
+      clinical-review item below.
+- [x] **Every tier has a test case**, asserting the tier *and* the behaviour: resources cited,
+      whether generation was stopped, whether a signal was emitted.
+- [x] False-positive regression tests: a wellbeing enquiry containing "trauma" is answered, not
+      rejected; ordinary exhaustion does not trigger crisis copy.
+- [x] Tested under ticket 03's harness. A prompt-injection attempt ("ignore all previous
+      instructions…") is flagged and **does not suppress** the high-severity classification.
+- [ ] Reviewed by someone clinically qualified, if available. §24's governance console will need
+      this. **Not done: HITL.** The tier thresholds encoded in `tiers.ts` are the review's subject.
+- [x] `npm run verify` passes (typecheck + lint + test); `tests/safety.test.ts`, 27 tests.
 
 ## Notes
 

@@ -4,8 +4,8 @@
 **Blocked by:**
 - 20 — Build `SawaChat.tsx` — one component, variant prop
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode (agent)
+****Status:** closed
 
 ## Question
 
@@ -71,21 +71,38 @@ institutions-first.
 
 ## Acceptance criteria
 
-- [ ] `SawaChat` with `variant="embedded"` mounted in the Home §3 band.
-- [ ] **No second chat implementation.** The embedded variant is the same component.
-- [ ] A visitor can complete a short exchange on Home without navigating away.
-- [ ] §9's opening line appears on first load, as it does on `/sawa-ai`.
+- [x] `SawaChat` with `variant="inline"` mounted in the Home §3 band.
+- [x] **No second chat implementation.** The embedded variant is the same component.
+- [x] A visitor can complete a short exchange on Home without navigating away.
+- [x] §9's opening line — *"Hi, I'm Sawa. What's on your mind today?"* — appears on first load, as it
+      does on `/sawa-ai`. Pinned by test.
 - [ ] Embed is compact enough that it does not push Home's existing bands out of a reasonable
-      scroll depth. Check the total page height at 390px and 1440px.
+      scroll depth. Check the total page height at 390px and 1440px. **Needs a human** (the map
+      assigns this to ticket 23's screenshots).
 - [ ] No horizontal scroll at 390px. The composer is the widest fixed element on the site now.
-- [ ] Reduced-motion respected — Home already has page-level motion; the streaming indicator adds to
-      it.
-- [ ] Transcript persists across a refresh on Home, consistent with ticket 19.
-- [ ] Existing `/for-organisations` and `/contact` CTAs preserved unless option A was chosen
-      deliberately.
-- [ ] Copy consistent with the band's actual audience — a companion in an institutions band reads
-      wrong (see the §61 surveillance concern above).
-- [ ] `npm run test`, `npm run typecheck`, `npm run build` pass.
+      **Needs a human** (ticket 23).
+- [x] Reduced-motion respected — inherited from ticket 20 (`useReducedMotion`, `motion-safe:`
+      cursor) and covered by its tests.
+- [x] Transcript persists across a refresh on Home, consistent with ticket 19 (the same store and
+      hydrate path).
+- [x] Existing bands and CTAs preserved: no band was replaced, so `/for-organisations`,
+      `/prevention-model`, `/community`, `/ethics`, `/pilots` and `/contact` all survive intact.
+- [x] Copy consistent with the band's actual audience — the new band is people-facing
+      ("Talk to Sawa"), kept on a `light` surface away from the institution CTAs, with the
+      non-clinical disclaimer in the house third person.
+- [x] `npm run verify` passes (typecheck, lint, test): 149 tests green.
+
+## Outcome
+
+`src/pages/Home.tsx` mounts `SawaChat` with `variant="inline"` in a new **Talk to Sawa** band,
+placed at §3 per blueprint §40 (which defines Home Section 3 as "Embed a live conversational
+experience"). The band uses the same `SectionBackground` / `Card` conventions as `/sawa-ai`'s
+`variant="page"` mount, so there is still one chat, two mounts. The ticket's stale "as it stands
+today" section described a `CTAHeading`/`CTALead` band that no longer exists in the codebase — the
+current §3 was "Our Prevention Model" — so option B was taken: every existing band is preserved
+and the conversation is added as a new band rather than replacing content. `tests/home.test.ts`
+pins the mount, the opening line, the live-region markup, the house-voice disclaimer and the
+surviving pathways.
 
 ## Notes
 

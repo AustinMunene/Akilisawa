@@ -8,7 +8,7 @@ type IconContainerProps = {
 const IconContainer = ({ children, className }: IconContainerProps) => {
   return (
     <div
-      className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 text-accent shadow-float dark:bg-panel/85 ${className ?? ""}`}
+      className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-line bg-brand-soft text-brand-dark dark:text-brand ${className ?? ""}`}
     >
       {children}
     </div>

@@ -29,25 +29,29 @@ const Card = ({ title, eyebrow, children, className }: CardProps) => {
   }, []);
   return (
     <motion.div
-      className={`rounded-3xl bg-surface/85 p-6 shadow-[0_6px_14px_rgba(10,26,22,0.16)] transition hover:shadow-[0_8px_18px_rgba(10,26,22,0.2)] dark:bg-panel/85 dark:shadow-[0_8px_16px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_10px_20px_rgba(0,0,0,0.5)] ${className ?? ""}`}
+      className={`card rounded-3xl border border-transparent bg-surface/85 p-6 shadow-[0_8px_18px_rgba(20,40,70,0.08)] hover:border-brand-line hover:shadow-[0_14px_28px_rgba(20,40,70,0.13)] dark:bg-panel/85 dark:shadow-[0_8px_16px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_10px_20px_rgba(0,0,0,0.5)] ${className ?? ""}`}
       variants={fadeUp}
       initial={
         prefersReducedMotion ? false : { ...(fadeUp.hidden as object), x: xOffset }
       }
       whileInView={{ ...(fadeUp.visible as object), x: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+      whileHover={
+        prefersReducedMotion
+          ? undefined
+          : { y: -4, transition: { duration: 0.35, ease: [0.23, 1, 0.32, 1] } }
+      }
       transition={
         prefersReducedMotion
           ? { duration: 0 }
           : {
-              duration: 0.75,
+              duration: 0.35,
               ease: ENTRY_EASE,
             }
       }
     >
       {eyebrow ? (
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
           {eyebrow}
         </p>
       ) : null}

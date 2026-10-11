@@ -25,6 +25,7 @@ const Pilots = lazy(() => import("./pages/Pilots"));
 const PreventionModel = lazy(() => import("./pages/PreventionModel"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const SafeguardingFramework = lazy(() => import("./pages/SafeguardingFramework"));
+const SawaAi = lazy(() => import("./pages/SawaAi"));
 const StyleGuide = lazy(() => import("./pages/StyleGuide"));
 const Terms = lazy(() => import("./pages/Terms"));
 
@@ -60,6 +61,7 @@ const App = () => {
             path="safeguarding-framework"
             element={<SafeguardingFramework />}
           />
+          <Route path="sawa-ai" element={<SawaAi />} />
           <Route path="style-guide" element={<StyleGuide />} />
           <Route path="terms" element={<Terms />} />
           <Route path="faqs" element={<Faqs />} />

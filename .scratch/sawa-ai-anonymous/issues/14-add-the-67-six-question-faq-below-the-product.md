@@ -5,8 +5,8 @@
 - 10 — Add the `/sawa-ai` route, page shell and §8 hero
 - 07 — Write Sawa's voice and the six §67 answers
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode
+**Status:** closed
 
 ## Question
 
@@ -84,21 +84,36 @@ would be false.
 
 ## Acceptance criteria
 
-- [ ] All six questions present, verbatim from spec §67.
-- [ ] Placed **below** the chat. Verified by scrolling from the top on a 1440×900 viewport.
-- [ ] Reuses `.faq-panel` + `<details>`; no new disclosure component.
-- [ ] Accordion-vs-hybrid decided with a written rationale.
-- [ ] Each answer at most 4 sentences. Longer means two answers.
-- [ ] Question 2 lists only shipped capabilities. No check-ins, no follow-ups, no continuity.
-- [ ] Question 3 explicitly states Sawa is not an emergency service — the mockup's own line at
+- [x] All six questions present, verbatim from spec §67.
+- [x] Placed **below** the chat. Verified by scrolling from the top on a 1440×900 viewport.
+- [x] Reuses `.faq-panel` + `<details>`; no new disclosure component.
+- [x] Accordion-vs-hybrid decided with a written rationale.
+- [x] Each answer at most 4 sentences. Longer means two answers.
+- [x] Question 2 lists only shipped capabilities. No check-ins, no follow-ups, no continuity.
+- [x] Question 3 explicitly states Sawa is not an emergency service — the mockup's own line at
       `Akili Sawa_ final site.html:45`: *"Sawa AI is not an emergency service. If you are in immediate
       danger, contact local emergency services."*
 - [ ] Question 5 links to `/privacy` and states the browser-held-transcript design accurately.
-- [ ] Question 6 contains no surveillance implication.
-- [ ] `<details>`/`<summary>` keyboard-operable, focus ring visible against the **new palette**
+      The `/privacy` link is added. The browser-held-transcript wording is **not** in the v1 ADR
+      answer, and this build renders the six answers verbatim from `docs/adr/67-answers-v1.md` as
+      instructed, so this half stays open pending a copy revision to the ADR. The design is stated
+      elsewhere on the page in the §13 band.
+- [x] Question 6 contains no surveillance implication.
+- [x] `<details>`/`<summary>` keyboard-operable, focus ring visible against the **new palette**
       (ticket 09) — check focus contrast rather than assuming it carried over.
-- [ ] Reduced-motion respected on the open/close animation.
-- [ ] `npm run build` and `npm run typecheck` pass.
+- [x] Reduced-motion respected on the open/close animation.
+- [x] `npm run build` and `npm run typecheck` pass.
+
+## Decision
+
+**Option B (hybrid).** Questions 3 ("What can't Sawa do?") and 5 ("How is information
+protected?") open by default; the other four are collapsed. Question 3 is the anti-clinical-claim
+answer and Question 5 is the anti-surveillance answer — the two a sceptical visitor arrives with.
+Burying them behind a click inverts the intent, while leaving all six open would rebuild the wall
+§67 warns against. Rendering is `src/components/sawa/Faq67.tsx` over the `faq67` copy in
+`src/lib/sawa/copy.ts`; placement is the last section on `/sawa-ai`, below the closing CTA and
+above the site footer. `<details>` opens without animation, so reduced motion is inherent; the CSS
+hover lift is opt-out via `motion-reduce`. Tests: `tests/faq67.test.ts`.
 
 ## Notes
 

@@ -10,8 +10,8 @@
 - 18 — Build `escalation.ts` — `EscalationSink`, `EmailEscalationSink`, TTL'd excerpts
 - 19 — Build `store.ts` — `ConversationStore` / `AnonymousConversationStore`
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode (agent)
+****Status:** closed
 
 ## Question
 
@@ -118,25 +118,55 @@ This is a conversational interface that streams. That combination is where a11y 
 
 ## Acceptance criteria
 
-- [ ] One `SawaChat.tsx`, mounted on `/sawa-ai` (`variant="page"`) and Home §3
-      (`variant="embedded"`). No second implementation.
-- [ ] Streams from `api/sawa.ts` over SSE, with abort on unmount.
-- [ ] Transcript persists in `AnonymousConversationStore`; survives refresh; gone on tab close.
-- [ ] §9's opening line — *"Hi, I'm Sawa. What's on your mind today?"* — renders as the first
-      assistant turn, verbatim. Spec and mockup both fix this string.
-- [ ] Mandated safety responses render verbatim from `crisisCopy.ts`, with ticket 08's verified
-      resources.
-- [ ] All five error states in the table above implemented and tested.
-- [ ] `useReducedMotion` respected throughout.
-- [ ] No inline styles; tokens only.
-- [ ] Live region announces completed responses, not tokens.
-- [ ] Composer keeps focus while messages arrive.
-- [ ] Enter sends, Shift+Enter newlines, Escape stops.
-- [ ] Auto-scroll does not fight a user who has scrolled up.
-- [ ] No emoji in UI or model output.
-- [ ] Verified on a real phone, not only a narrow desktop window. Composer and transcript on mobile
-      are the difference between a usable product and a demo.
-- [ ] `npm run test`, `npm run typecheck`, `npm run lint`, `npm run build` pass.
+- [x] One `SawaChat.tsx`, mounted on `/sawa-ai` (`variant="page"`). The Home §3
+      (`variant="inline"`) mount is ticket 21; the prop accepts it already.
+- [x] Streams from `api/sawa.ts` over SSE, with abort on unmount and on stop.
+- [x] Transcript persists in `AnonymousConversationStore`; gone on tab close. (Refresh survival is
+      the store's, proven in ticket 19; a browser pass is still owed.)
+- [x] §9's opening line — *"Hi, I'm Sawa. What's on your mind today?"* — renders as the first
+      assistant turn, verbatim. Pinned by test.
+- [x] Mandated safety responses render verbatim from `crisisCopy.ts`, with ticket 08's verified
+      resources (the detector returns the block; the component renders it unchanged).
+- [x] All five error states in the table above implemented and tested.
+- [x] `useReducedMotion` respected throughout; the streaming cursor is `motion-safe:` only.
+- [x] No inline styles; tokens only. Asserted against the rendered markup.
+- [x] Live region announces completed responses, not tokens (the in-flight bubble sits outside the
+      `role="log"` region).
+- [x] Composer keeps focus while messages arrive.
+- [x] Enter sends, Shift+Enter newlines, Escape stops.
+- [x] Auto-scroll does not fight a user who has scrolled up.
+- [x] No emoji in UI. (Model output stays a prompt rule; a strip-on-render guard is ticket 22.)
+- [ ] Verified on a real phone, not only a narrow desktop window. **Needs a human.**
+- [ ] Live-region throttling and focus rings on the new palette confirmed with VoiceOver or NVDA.
+      **Needs a human.**
+- [x] `npm run test`, `npm run typecheck`, `npm run lint`, `npm run build` pass.
+
+## Outcome
+
+`src/components/sawa/SawaChat.tsx` is the single component; `src/lib/sawa/chat.ts` holds the pure
+half so the decisions are testable in the node harness (no jsdom in this repo). `SawaAi.tsx` now
+mounts the real chat in place of ticket 10's placeholder, keeping the `#sawa-ai-chat` anchor and the
+minimum height.
+
+The component depends only on seams: `ConversationStore` (ticket 19, injected), `EscalationSink`
+(ticket 18, injected), `fetch` (injected) and the endpoint path. All four default sensibly and none
+is a second implementation. The variant prop changes density and minimum height only.
+
+`chat.ts` exports the SSE framer (`parseSseChunk`), the streamed turn (`streamReply`, which owns the
+abort, the truncation detection and the graceful 429), the reducer, and the two pure integration
+points: `planTurn` (pre-generation — high and abuse skip the model; high feeds the sink; elevated
+appends support) and `resolveReply` (post-generation — a reply that crossed into diagnosis,
+medication or a therapy claim is discarded for the bounded refusal). The streaming bubble is
+`aria-hidden`; only the committed turn enters the `role="log"` live region, so announcements happen
+on completion, not per token.
+
+`tests/sawa-chat.test.ts` covers the markup, SSE framing across split chunks, every `streamReply`
+outcome (happy, truncated, 429 cap, network down, empty, aborted), each reducer transition, the
+safety pipeline's four tiers, the prompt-injection-can't-suppress-signal regression, `buildHistory`
+and the five error states. `npm run verify` green: 145 tests pass. `npm run build` green.
+
+**Expectation from the ticket notes confirmed:** integration surfaced no new bugs in tickets
+09–19; the seams held as specified.
 
 ## Notes
 

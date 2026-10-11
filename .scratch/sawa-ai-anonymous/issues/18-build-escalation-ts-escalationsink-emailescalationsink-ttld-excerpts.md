@@ -6,8 +6,8 @@
 - 08 — Verify the Kenya crisis resource list
 - 17 — Build `src/lib/sawa/safety/` — detector, rules, bilingual lexicon, severity tiers, crisis copy
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode (agent)
+****Status:** closed
 
 ## Question
 
@@ -89,25 +89,66 @@ Do not resolve this by choosing quietly. It is a HITL ticket for exactly this re
 
 ## Acceptance criteria
 
-- [ ] `EscalationSink` interface in `escalation.ts`, with `EmailEscalationSink` as the default
-      implementation.
-- [ ] Sink is replaceable without modifying `detect.ts` or `crisisCopy.ts` — the interface earns its
-      place.
-- [ ] Only **flagged-session excerpts** are retained. Full transcripts are never persisted.
-- [ ] TTL is enforced in code, not documented as an intention. A test proves expiry.
-- [ ] The in-chat disclosure (ticket 05) is emitted whenever a signal fires, in the transcript, in
-      `Akili Sawa` third person.
-- [ ] Alert contains: `promptVersion`, tier, timestamp, conversation id, and the capped excerpt.
+- [x] `EscalationSink` interface in `escalation.ts`, with `EmailEscalationSink` as the default
+      implementation. The interface is `notify(signal: SafetySignal): Promise<EscalationOutcome>`,
+      matching §3's shape.
+- [x] Sink is replaceable without modifying `detect.ts` or `crisisCopy.ts` — the interface earns its
+      place. A test routes a detector signal through a custom `EscalationSink`, and a source test
+      asserts the detector does not import `escalation`.
+- [x] Only **flagged-session excerpts** are retained. Full transcripts are never persisted. The sink
+      accepts only a `SafetySignal` (which carries a single capped excerpt), re-caps it, and stores
+      one `ExcerptRecord`. The store has no transcript field.
+- [x] TTL is enforced in code, not documented as an intention. `InMemoryExcerptStore` expires on
+      read and on purge; tests prove expiry with an injected clock and prove it end to end through
+      the sink.
+- [x] The in-chat disclosure is exported as `EXCERPT_DISCLOSURE` (bilingual, house third person) and
+      every `EscalationOutcome` carries it. Rendering it in the transcript is ticket 20's wiring.
+- [x] Alert contains: `promptVersion`, tier, timestamp, conversation id, and the capped excerpt.
       Everything ticket 05 requires for reproducibility.
-- [ ] Alert does **not** contain the model key, and does not contain other users' data.
-- [ ] Alert is not a firehose — an unattended inbox is also a spam-filter problem. Confirm rate
-      limits on the alerting path.
+- [x] Alert does **not** contain the model key, and does not contain other users' data. Source tests
+      assert no environment/key access; the sink never reads a transcript.
+- [x] Alert is not a firehose. Repeats from one conversation coalesce behind a cooldown, so one
+      flagged session produces one email, not one per turn.
 - [ ] TTL duration decided with the humans, and tied to something real (a follow-up SLA) rather than
-      picked as a round number.
-- [ ] Endpoint wiring in ticket 16's `api/sawa.ts` calls the sink on `SafetySignal`.
-- [ ] Tested under ticket 03's harness, including a high-severity signal end to end.
+      picked as a round number. **HITL.** `DEFAULT_EXCERPT_TTL_MS` is a documented placeholder
+      (three days, tied to a read-and-act SLA) and is overridable so the answer applies without a
+      code change.
+- [ ] Endpoint wiring in ticket 16's `api/sawa.ts` calls the sink on `SafetySignal`. **Open.** Not
+      wired here: ticket 17 also deferred pre-generation detection wiring to 18, but the shipping
+      decision is blocked by the staffing question below, and wiring it would make the page claim a
+      followed-up path that does not exist. Left for the HITL resolution.
+- [x] Tested under ticket 03's harness, including a high-severity signal end to end
+      (`detector -> EscalationSink`). `tests/escalation.test.ts`, 20 tests.
 - [ ] Recorded as an ADR: what is retained, for how long, who can read it, and what happens when the
-      inbox is unattended.
+      inbox is unattended. **HITL.** The content is a human decision; the code is written to make
+      each answer a configuration change rather than a rewrite.
+
+## Outcome (agent)
+
+`src/lib/sawa/escalation.ts` builds the seam §3 specifies.
+
+- `EscalationSink.notify(signal)` is the whole contract. `EmailEscalationSink` is the default.
+- `EscalationTransport.send(message)` is the injected transport contract; Resend is the intended
+  implementation and the key stays in the api layer. `escalation.ts` never touches the environment,
+  never calls `fetch`, and has no `console` call.
+- `ExcerptStore` bounds retention. `InMemoryExcerptStore` is the default and expiry is enforced on
+  read, not merely documented. A durable KV/Postgres store swaps in behind the same interface;
+  **production persistence is deferred**, and the in-memory store is per-instance and cleared on
+  cold start.
+- `EXCERPT_DISCLOSURE` is the bilingual in-chat disclosure, and every `EscalationOutcome` carries
+  it, so the chat cannot withhold it.
+- The alert names `docs/adr/crisis-resources-v1.md` rather than inlining a number, includes the
+  reproducibility fields §3 lists, and coalesces repeats per conversation.
+- Failures are generic: an unusable signal or a failed send returns `unavailable`, logs nothing,
+  and discards the excerpt rather than retaining data nobody was told about.
+
+`tests/escalation.test.ts` (20 tests): store TTL on read, list, purge and early delete; alert
+contents; disclosure voice; capped single-excerpt retention; sink-level expiry; default TTL;
+per-conversation coalescing; generic transport failure; malformed-signal refusal; detector-to-sink
+end to end; and source invariants (no logging, no key, no fetch, expiry present, detector not
+importing escalation).
+
+`npm run verify` green: 113 tests, typecheck and lint included.
 
 ## Notes
 

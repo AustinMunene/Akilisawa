@@ -67,7 +67,7 @@ const SectionBackground = ({
             className="pointer-events-none absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${imageUrl})` }}
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/90 dark:from-[rgba(16,24,22,0.7)] dark:via-[rgba(16,24,22,0.55)] dark:to-[rgba(16,24,22,0.75)]" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/90 dark:from-[rgba(26,34,45,0.7)] dark:via-[rgba(26,34,45,0.55)] dark:to-[rgba(26,34,45,0.75)]" />
         </>
       ) : null}
       <div className="pointer-events-none absolute inset-0 bg-noise opacity-[0.03]" />

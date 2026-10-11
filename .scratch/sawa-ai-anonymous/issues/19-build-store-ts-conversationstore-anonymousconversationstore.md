@@ -4,8 +4,8 @@
 **Blocked by:**
 - 03 — Add vitest, api typecheck and real scripts
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode (agent)
+****Status:** closed
 
 ## Question
 
@@ -62,24 +62,43 @@ because a visitor blocks storage. Degrade to in-memory and say so.
 
 ## Acceptance criteria
 
-- [ ] `ConversationStore` interface and `AnonymousConversationStore` implementation in `store.ts`.
-- [ ] Full transcript lives in `sessionStorage` only. No transcript POSTed to the server, ever.
-- [ ] Transcript survives a page refresh within the same tab, and is gone when the tab closes.
-- [ ] `SawaChat` depends on the interface, not the implementation.
-- [ ] Storage-unavailable path degrades to in-memory without crashing the UI, and the degraded state
+- [x] `ConversationStore` interface and `AnonymousConversationStore` implementation in `store.ts`.
+- [x] Full transcript lives in `sessionStorage` only. No transcript POSTed to the server, ever.
+- [x] Transcript survives a page refresh within the same tab, and is gone when the tab closes.
+- [x] `SawaChat` depends on the interface, not the implementation.
+- [x] Storage-unavailable path degrades to in-memory without crashing the UI, and the degraded state
       is not silently invisible.
-- [ ] Serialisation handles a malformed or partial `sessionStorage` value without throwing.
-- [ ] A version key on the stored payload, so a schema change does not crash the app on an old value.
+- [x] Serialisation handles a malformed or partial `sessionStorage` value without throwing.
+- [x] A version key on the stored payload, so a schema change does not crash the app on an old value.
       The store will change shape as features land.
-- [ ] Message shape carries: role, content, timestamp, `promptVersion`, and — for assistant turns —
+- [x] Message shape carries: role, content, timestamp, `promptVersion`, and — for assistant turns —
       the safety-tier result if any.
-- [ ] The flagged-excerpt path is **not** implemented here. It is ticket 18's. The store's job is to
+- [x] The flagged-excerpt path is **not** implemented here. It is ticket 18's. The store's job is to
       surface when disclosure is required; the sink decides where the excerpt goes.
-- [ ] "Continue with Sawa" (ticket 12) reads from this store.
-- [ ] Tested under ticket 03's harness: round-trip, malformed value, storage unavailable, schema
+- [x] "Continue with Sawa" (ticket 12) reads from this store.
+- [x] Tested under ticket 03's harness: round-trip, malformed value, storage unavailable, schema
       version mismatch.
-- [ ] No `localStorage` for conversation content. Grepable assertion.
-- [ ] `npm run test`, `npm run typecheck`, `npm run lint` pass.
+- [x] No `localStorage` for conversation content. Grepable assertion.
+- [x] `npm run test`, `npm run typecheck`, `npm run lint` pass.
+
+## Outcome
+
+`src/lib/sawa/store.ts` and `tests/store.test.ts`. `ConversationStore` is the minimal surface
+(`addMessage`, `getMessages`, `getLastN`, `clear`, `isDegraded`). `AnonymousConversationStore` keys
+`sessionStorage` as `sawa.conversation:<namespace>` (default `anonymous`) and stores a versioned
+payload `{ version, messages }`. `ConversationMessage` carries `id`, `role`, `content`, ISO
+`timestamp`, `promptVersion` and, on assistant turns, `safety: { tier, categories }` typed against
+ticket 17's severity tiers — that field is the store's half of the disclosure seam; the sink is
+ticket 18's.
+
+Storage is resolved defensively (a probe write/delete catches private mode) and every read/write is
+wrapped: unavailable, throwing or quota-exhausted storage degrades to in-memory and flips
+`isDegraded()` true rather than throwing. Malformed JSON, a schema-version mismatch and partial
+messages are all discarded silently. No `localStorage`, no `fetch` and no logging are in the file;
+`tests/store.test.ts` asserts all three by reading the source. `npm run verify` green: 93 tests pass.
+
+What ticket 19 does not do and cannot: there is no browser at the harness, so the tab-close lifetime
+and Safari private-mode path are reasoned, not measured.
 
 ## Notes
 

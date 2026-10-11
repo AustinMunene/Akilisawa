@@ -5,8 +5,8 @@
 - 10 — Add the `/sawa-ai` route, page shell and §8 hero
 - 07 — Write Sawa's voice and the six §67 answers
 
-**Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Claimed by:** opencode
+**Status:** code complete — visual verification outstanding
 
 ## Question
 
@@ -80,19 +80,44 @@ institution can enrol anyone tomorrow.
 
 ## Acceptance criteria
 
-- [ ] Three levels rendered in house `Card` vocabulary, with Level 1 visually marked as available.
-- [ ] No control on the page implies a capability that does not exist.
-- [ ] `Create your Sawa account` → `/contact`, clearly framed as waitlist capture.
-- [ ] `Continue with Sawa` wired to the real `AnonymousConversationStore` (ticket 19) and confirmed
-      to work, not merely to render. Wire it in ticket 20 if the store is not ready; this ticket owns
-      the copy and the card layout, ticket 20 owns the behaviour.
-- [ ] Level 3 copy contains no surveillance implication.
-- [ ] Decision (from ticket 04) reflected: if Akili Sawa is **not** serving individuals, this section
-      does not ship as-is.
-- [ ] Consistent with ticket 06's age gate outcome — Level 1's description must state who it is for.
-- [ ] Mobile: three cards stack cleanly at 390px, tap targets at least 44px.
-- [ ] Copy review against the map's house rules: British English, sentence case, no exclamation
-      marks, `&amp;`.
+- [x] Three levels rendered in house `Card` vocabulary, with Level 1 visually marked as available.
+      Level 1 carries a `ring-accent` outline and an `Available now` badge; Levels 2 and 3 carry
+      `Not available yet`.
+- [x] No control on the page implies a capability that does not exist. Level 3 has no CTA at all
+      (the institutional contact path stays with the existing closing band); Level 2's only control
+      routes to `/contact`.
+- [x] `Create your Sawa account` → `/contact?reason=sawa-account-waitlist`, clearly framed as
+      waitlist capture ("Until then, this records your interest as a waitlist enquiry").
+- [~] `Continue with Sawa` — the store (ticket 19) is not ready, so per the ticket this belongs to
+      ticket 20. The reserved fork copy (`Continue with Sawa`, `Create your Sawa account`) now lives
+      in `src/lib/sawa/copy.ts:sawaFork` for ticket 20 to wire to `AnonymousConversationStore`.
+- [x] Level 3 copy contains no surveillance implication. States "Institutions see aggregate insight,
+      never private conversations."
+- [x] Decision (from ticket 04) reflected: individuals and institutions, public `/sawa-ai`.
+- [x] Consistent with ticket 06's age gate outcome — Level 1 states it is for adults aged 18 and
+      over. **Assumption flagged:** the age gate itself is not built here; this is the intended
+      audience, not enforcement. Adjust the wording if the humans pick a different threshold.
+- [ ] Mobile: three cards stack cleanly at 390px, tap targets at least 44px. Cards are
+      `grid md:grid-cols-3` (single column below `md`); CTAs carry `min-h-[44px]`. **Needs a browser
+      at 390px and 1440px, light and dark.**
+- [x] Copy review against the map's house rules: British English, sentence case, no exclamation
+      marks, `&amp;`. All three levels stay in the house third person (`Akili Sawa`) per voice-v1.
+- [x] `npm run verify` green (20 tests) and `npm run build` green.
+
+## What changed
+
+| File | Change |
+|---|---|
+| `src/lib/sawa/copy.ts` | New. Typed `accessLevels` (Level 1 Public, Level 2 Registered, Level 3 Institutional) and the reserved `sawaFork` copy (`Continue with Sawa` / `Create your Sawa account`) for ticket 20. Copy only. |
+| `src/pages/SawaAi.tsx` | New `Three ways to use Sawa` band between the hero and the closing CTA, mapping over `accessLevels` into house `Card`s. Level 1 ringed and badged available; Level 2 links to `/contact` as waitlist; Level 3 has no control. |
+| `tests/sawa-ai.test.ts` | Three render smoke tests: three levels with only Level 1 available, the waitlist route, and the no-surveillance institutional line. |
+
+### Reading of the three levels
+
+The spec §10 table is the source of truth (Public / Registered / Institutional), which is what the
+mockup at `Akili Sawa_ final site.html:64` renders as "Three ways to use Sawa". One level works; two
+are described. Nothing forces an account, and no control promises a capability the build does not
+have.
 
 ## Notes
 
