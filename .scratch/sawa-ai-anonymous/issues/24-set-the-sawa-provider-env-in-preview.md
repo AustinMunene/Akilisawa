@@ -5,7 +5,30 @@
 - 05 — Choose the model provider (the decision itself is a human gate; research is done)
 
 **Claimed by:** _(unclaimed)_
-**Status:** open - code supports NVIDIA; Vercel configuration and live smoke test remain
+**Status:** done in Preview and Production - NVIDIA vars set in both scopes, both URLs verified
+streaming on 19 October 2026. Zero-data-retention and NVIDIA's terms for real conversations are
+still human gates.
+
+## Result (19 October 2026)
+
+The Preview vars were already set. What blocked the chat was that the deployed branch could not
+read them: the NVIDIA provider lived in the working tree, unpushed, so the live handler treated
+`SAWA_MODEL_PROVIDER=nvidia` as Mistral, found no `MISTRAL_*` vars and failed closed. `staging`
+now carries that code, and `main` was fast-forwarded to it.
+
+| Request | Response |
+|---|---|
+| Preview `POST /api/sawa` | `200`, streamed, `promptVersion 1.2` |
+| Production `POST /api/sawa` | `200`, streamed, `promptVersion 1.2` |
+| `POST` without the consent flag | `400` |
+| Local `npm run dev`, `POST /api/sawa` | `200`, streamed - the dev middleware in `vite.config.ts` runs the same handler |
+
+`RESEND_API_KEY` is set in Development, Preview and Production, so the contact form no longer
+answers "Email service not configured".
+
+Still open, and not closable by an agent: zero-data-retention with the provider, and written
+confirmation that NVIDIA's trial terms permit real visitor conversations. Until that confirmation
+exists, treat the deployed conversations as evaluation traffic.
 
 ## Question
 

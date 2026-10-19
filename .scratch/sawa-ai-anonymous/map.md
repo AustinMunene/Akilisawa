@@ -105,6 +105,7 @@ _None. This map was charted in one session and resolved no tickets._
 | [02 - Clear the shadowed Vite config](./issues/02-clear-the-shadowed-vite-config.md) | `vite.config.js` and `vite.config.d.ts` deleted; `tsconfig.node.json` given an `outDir` so `tsc -b` can no longer regenerate them beside the source. The suggested `noEmit: true` is impossible here - TS6310 forbids disabling emit in a *referenced* project. Proven behaviourally: a `server.port` added to `vite.config.ts` moved the dev server off 5173, so Vite demonstrably reads the `.ts` now. Caught in the act during ticket 09 - every `npm run build` had been rewriting both files. |
 | [19 - Build `store.ts` - `ConversationStore` / `AnonymousConversationStore`](./issues/19-build-store-ts-conversationstore-anonymousconversationstore.md) | Browser-held transcript in `sessionStorage` under `sawa.conversation:<namespace>`. Minimal `ConversationStore` (`addMessage`, `getMessages`, `getLastN`, `clear`, `isDegraded`); `ConversationMessage` carries role, content, ISO timestamp, `promptVersion` and the assistant safety tier, typed against ticket 17. Versioned payload; malformed/mismatched values discarded. Storage failures degrade to in-memory and surface via `isDegraded()` instead of white-screening. Source-level tests pin no `localStorage`, no `fetch`, no logging. `npm run verify` green (93 tests). Unblocks 20. |
 | [21 - Embed Sawa on Home §3](./issues/21-embed-sawa-on-home-3.md) | `SawaChat` with `variant="inline"` mounted in a new Home §3 "Talk to Sawa" band (blueprint §40 Section 3 is the live conversational embed). One component, two mounts: no second implementation. Every existing Home band and its CTAs preserved (ticket 20's option B); `tests/home.test.ts` pins the mount, the opening line, the live-region markup, the house-voice disclaimer and the surviving pathways. `npm run verify` green (149 tests). The 390px/1440px visual pass is folded into ticket 23's screenshots. Unblocks nothing new; 22 and 23 were already open off 20. |
+| [24 - Set the Sawa provider env in Preview](./issues/24-set-the-sawa-provider-env-in-preview.md) | Closed 19 October 2026. The Preview vars existed but the deployed branch predates the NVIDIA provider, so the handler failed closed on every request - the chat's "Sawa is unavailable right now" was that path, working as designed. `staging` carries the NVIDIA code, `main` was fast-forwarded to it, and the four vars are set in both Preview and Production. `akilisawa-staging.vercel.app` and `akilisawa.com` both stream a reply at `promptVersion 1.2`. `npm run dev` streams too, through the dev middleware in `vite.config.ts`. Still human: zero-data-retention, and NVIDIA's written terms confirmation for real conversations. |
 
 ### Needs eyes - code complete, cannot be finished by an agent
 
@@ -136,11 +137,10 @@ Open, unblocked, unclaimed. Work these first; the rest is fog behind them.
 | 18 | [Confirm escalation owner and mailbox retention](./issues/18-build-escalation-ts-escalationsink-emailescalationsink-ttld-excerpts.md) | HITL · operations |
 | 22 | [Complete live chat hardening checks](./issues/22-harden-the-chat-surface.md) | task · manual |
 | 23 | [Audit the deployed chat surface](./issues/23-audit-the-chat-surface.md) | task · manual |
-| 24 | [Set the Sawa provider env in Preview](./issues/24-set-the-sawa-provider-env-in-preview.md) | task · Vercel |
 
-Ticket 25's NodeNext guard is implemented. Ticket 24 requires the code to be deployed before the
-NVIDIA Preview variables are added. Use synthetic prompts until NVIDIA confirms that the selected
-hosted service and terms permit real wellbeing conversations.
+Ticket 25's NodeNext guard is implemented, and ticket 24 is closed: both URLs stream at
+`promptVersion 1.2`. Use synthetic prompts until NVIDIA confirms that the selected hosted service
+and terms permit real wellbeing conversations.
 
 03 is done, which unblocks 17 and 19. 19 is now closed (the store is pure client-side, so it never
 depended on the provider or the crisis list in fact). 17 is code-complete but awaits clinical review.
