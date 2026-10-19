@@ -29,8 +29,11 @@ describe("SawaAi page", () => {
     expect(html).toContain("Talk to Sawa AI");
   });
 
-  it("renders the opening line verbatim", () => {
-    expect(render()).toContain("Hi, I'm Sawa. What's on your mind today?");
+  it("requires the age and consent gate before exposing the chat", () => {
+    const html = render();
+    expect(html).toContain("Date of birth / Tarehe ya kuzaliwa");
+    expect(html).toContain("I am 18 or over");
+    expect(html).not.toContain("Hi, I'm Sawa. What's on your mind today?");
   });
 
   it("keeps the non-clinical disclaimer in the house third person", () => {
@@ -83,7 +86,7 @@ describe("SawaAi page", () => {
     const html = render();
     expect(html).toContain("not a live readout of this conversation");
     expect(html).toContain(
-      "the conversation is routed for human follow-up rather than continued open-endedly"
+      "the flagged message may also be sent there; the inbox is not monitored for emergencies"
     );
     expect(html).toContain("Akili Sawa does not call on your behalf");
   });

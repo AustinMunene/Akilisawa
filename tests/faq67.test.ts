@@ -45,9 +45,7 @@ describe("Faq67", () => {
     expect(html).toContain(
       "It is not a therapist, psychiatrist, psychologist or other licensed clinician."
     );
-    expect(html).toContain(
-      "We do not assume consent to share private details"
-    );
+    expect(html).toContain("Your transcript is held in this browser.");
     expect(html).toContain(
       "organisations see aggregated insights where relevant, never private conversation details."
     );
@@ -70,7 +68,7 @@ describe("Faq67", () => {
 
   it("places the FAQ below the product and the closing CTA", () => {
     const html = render(createElement(SawaAi));
-    const chat = html.indexOf("Hi, I'm Sawa. What's on your mind today?");
+    const chat = html.indexOf("Date of birth / Tarehe ya kuzaliwa");
     const cta = html.indexOf("Bring Sawa AI to your organisation");
     const faq = html.indexOf("What is Sawa?");
     expect(chat).toBeGreaterThan(-1);

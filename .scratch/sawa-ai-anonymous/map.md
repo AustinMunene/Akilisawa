@@ -2,12 +2,13 @@
 
 **Label:** `wayfinder:map`
 **Created:** 5 October 2026
-**Status:** in progress - tickets 01, 02, 03, 19 and 21 closed; 09, 10, 12, 13, 15, 16, 17, 18 and 20 code-complete pending human eyes and a preview-deploy measurement; 05 ready-for-review; 24 and 25 opened from the staging deploy
+**Status:** in progress - UI, chat, safety and endpoint implementations are in the workspace; NVIDIA configuration, provider terms, operational escalation decisions and live human review remain open
 
-**Paused 11 October 2026 on the `staging` branch.** Read
-[`HANDOVER.md`](./HANDOVER.md) before picking this up: it has the deployment state, the live
-URLs, and the one blocker standing between the deployed chat and a working one (no provider key
-in the Preview environment).
+The staging deployment details in [`HANDOVER.md`](./HANDOVER.md) describe the 11 October deployment,
+not the current workspace edits. The current code adds NVIDIA support and safety hardening, but has
+not been deployed. Recheck Vercel protection and branch deployment before adding a key.
+The hosted escalation endpoint emails a capped excerpt only when explicitly enabled; email
+retention follows the mailbox policy and is not covered by the in-memory excerpt TTL.
 
 ---
 
@@ -15,7 +16,7 @@ in the Preview environment).
 
 A publicly reachable `/sawa-ai` that streams a real conversation with **no account** - transcript
 held in the browser, the safety pipeline running *before* generation, escalation by email with
-TTL'd flagged excerpts, and the spec's six §67 questions sitting **below** the working product
+a human-approved retention policy for flagged excerpts, and the spec's six §67 questions sitting **below** the working product
 rather than above it.
 
 Rendered in the Akili Sawa palette, which by then actually resolves. Provider, age gate and
@@ -130,12 +131,16 @@ Open, unblocked, unclaimed. Work these first; the rest is fog behind them.
 | 06 | [Decide the age gate](./issues/06-decide-the-age-gate.md) | grilling · HITL |
 | 07 | [Write Sawa's voice and the six §67 answers](./issues/07-write-sawas-voice-and-the-six-67-answers.md) | prototype · HITL |
 | 08 | [Verify the Kenya crisis resource list](./issues/08-verify-the-kenya-crisis-resource-list.md) | task · HITL |
-| 24 | [Set the Sawa provider env in Preview](./issues/24-set-the-sawa-provider-env-in-preview.md) | task · HITL |
-| 25 | [Close the ESM gap in the verify gate](./issues/25-close-the-esm-gap-in-the-verify-gate.md) | task · AFK |
+| 05 | [Confirm provider terms for real-user conversations](./issues/05-choose-the-model-provider.md) | HITL · written confirmation |
+| 08 | [Sign off the Kenya crisis resource list](./issues/08-verify-the-kenya-crisis-resource-list.md) | HITL · named human |
+| 18 | [Confirm escalation owner and mailbox retention](./issues/18-build-escalation-ts-escalationsink-emailescalationsink-ttld-excerpts.md) | HITL · operations |
+| 22 | [Complete live chat hardening checks](./issues/22-harden-the-chat-surface.md) | task · manual |
+| 23 | [Audit the deployed chat surface](./issues/23-audit-the-chat-surface.md) | task · manual |
+| 24 | [Set the Sawa provider env in Preview](./issues/24-set-the-sawa-provider-env-in-preview.md) | task · Vercel |
 
-24 is the shortest path to a chat that answers: the endpoint is deployed and correct, it simply
-has no key. It also unblocks 16's duration measurement. 25 is the lesson from `2eca8e8` — the
-gate was green on a handler that could not start.
+Ticket 25's NodeNext guard is implemented. Ticket 24 requires the code to be deployed before the
+NVIDIA Preview variables are added. Use synthetic prompts until NVIDIA confirms that the selected
+hosted service and terms permit real wellbeing conversations.
 
 03 is done, which unblocks 17 and 19. 19 is now closed (the store is pure client-side, so it never
 depended on the provider or the crisis list in fact). 17 is code-complete but awaits clinical review.

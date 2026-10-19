@@ -59,6 +59,15 @@ about it.
 - D4: A - If DOB collected, never stored server-side; client-only gate state in sessionStorage; no DOB persisted. /privacy must be updated if DOB used.
 - D5: Age gate copy plain, English+Kiswahili, third person per voice-v1 where boundaries appear.
 
+## Implementation update
+
+`SawaAgeGate` now wraps both the `/sawa-ai` chat and Home embed. It checks an entered date of birth
+in the browser, requires explicit acknowledgement, stores only an acceptance marker in
+`sessionStorage`, and never sends the DOB. The API requires an age/consent acknowledgement and
+returns child-safety resources without calling the model when an under-18 disclosure is detected.
+This does not verify identity: a caller can forge a request to the public endpoint. External legal
+advice and the named leadership contact remain pre-launch requirements.
+
 ## Notes
 
 This is not an engineering question. An agent cannot assess statutory exposure, and should not try.

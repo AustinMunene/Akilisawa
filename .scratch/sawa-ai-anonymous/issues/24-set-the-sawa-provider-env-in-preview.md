@@ -5,7 +5,7 @@
 - 05 — Choose the model provider (the decision itself is a human gate; research is done)
 
 **Claimed by:** _(unclaimed)_
-**Status:** open
+**Status:** open - code supports NVIDIA; Vercel configuration and live smoke test remain
 
 ## Question
 
@@ -43,6 +43,24 @@ reaches `main`):
 | `SAWA_PROVIDER_TIMEOUT_MS` | no | module default applies when unset or non-numeric |
 | `RESEND_API_KEY` | separate concern | the contact form and the escalation sink both need it; currently absent on Preview, so the contact form answers "Email service not configured" |
 
+### NVIDIA Preview configuration (current requested route)
+
+Add the following under Vercel **Settings → Environment Variables**, scoped to **Preview**. The
+code now reads these names; do not use a `VITE_` prefix.
+
+| Variable | Value |
+|---|---|
+| `SAWA_MODEL_PROVIDER` | `nvidia` |
+| `NVIDIA_API_KEY` | Secret generated from the chosen NVIDIA model page |
+| `NVIDIA_BASE_URL` | `https://integrate.api.nvidia.com/v1` |
+| `NVIDIA_MODEL` | `nvidia/nemotron-3.5-lightning-30b-a3b` (evaluation candidate) |
+
+Save and redeploy the Preview branch, then test with synthetic conversations. NVIDIA's API Trial
+Terms restrict personal or sensitive data unless the service expressly allows it. Get written
+confirmation of real-user use and retention before sending visitor conversations. The staging URL
+was reported as publicly reachable, so check Vercel Deployment Protection before adding a usable
+Preview key.
+
 Then apply for **zero-data-retention** with the chosen provider. Ticket 05 raises this and it is
 not done. For a wellbeing product whose privacy claim is that transcripts are not kept, a
 provider retaining them by default contradicts the page.
@@ -53,6 +71,7 @@ provider retaining them by default contradicts the page.
 - The contact form on staging no longer answers "Email service not configured", or the decision
   to leave it unconfigured on Preview is written down here.
 - Zero-data-retention is applied for, or explicitly deferred with a reason.
+- A Preview message returns a streamed reply from the selected NVIDIA model.
 
 ## Unblocks
 

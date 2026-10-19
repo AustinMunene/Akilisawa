@@ -17,7 +17,7 @@
  * match the disclosed need.
  */
 
-import type { SeverityTier, SignalCategory } from "./tiers";
+import type { SeverityTier, SignalCategory } from "./tiers.js";
 
 export type BilingualText = {
   readonly en: string;

@@ -43,6 +43,9 @@ export const TURN_CAP_FALLBACK =
   "This conversation has reached its turn limit. Your transcript stays in this browser; you can begin a new conversation whenever you like.";
 export const STREAM_TRUNCATED_MESSAGE =
   "The reply stopped early. You can try again to continue.";
+export const STREAM_TIMEOUT_MESSAGE =
+  "Sawa stopped responding. Your message is saved here; you can try again.";
+export const STREAM_IDLE_TIMEOUT_MS = 30_000;
 
 /* Bounded refusals, house third person for the boundary and first person for the
  * warmth, exactly as voice-v1's refusal pattern prescribes. */
@@ -290,7 +293,7 @@ export function parseSseChunk(buffer: string): ParsedSseChunk {
  * One streamed turn
  * ------------------------------------------------------------------ */
 
-export type StreamFailureReason = "network" | "http" | "truncated" | "empty" | "aborted";
+export type StreamFailureReason = "network" | "http" | "truncated" | "empty" | "aborted" | "timeout";
 
 export type StreamReplyResult = {
   readonly ok: boolean;
@@ -309,6 +312,8 @@ export type StreamReplyOptions = {
   readonly fetcher: typeof fetch;
   readonly onDelta?: (text: string) => void;
   readonly onMeta?: (version: string) => void;
+  /** Shortens the idle timer in tests; production uses STREAM_IDLE_TIMEOUT_MS. */
+  readonly idleTimeoutMs?: number;
 };
 
 /*
@@ -353,6 +358,7 @@ export async function streamReply(options: StreamReplyOptions): Promise<StreamRe
       headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
       body: JSON.stringify({
         conversationId: options.conversationId,
+        ageConsentAccepted: true,
         message: options.message,
         history: options.history,
       }),
@@ -401,7 +407,28 @@ export async function streamReply(options: StreamReplyOptions): Promise<StreamRe
         await reader.cancel().catch(() => undefined);
         return { ok: false, text, reason: "aborted" };
       }
-      const { done, value } = await reader.read();
+      let stalled = false;
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      const read = reader.read();
+      const timeout = new Promise<never>((_resolve, reject) => {
+        timeoutId = setTimeout(() => {
+          stalled = true;
+          reject(new Error("stream idle timeout"));
+        }, options.idleTimeoutMs ?? STREAM_IDLE_TIMEOUT_MS);
+      });
+      let chunk: ReadableStreamReadResult<Uint8Array>;
+      try {
+        chunk = await Promise.race([read, timeout]);
+      } catch {
+        if (stalled) {
+          void reader.cancel().catch(() => undefined);
+          return { ok: false, text, reason: "timeout" };
+        }
+        throw new Error("stream read failed");
+      } finally {
+        if (timeoutId !== undefined) clearTimeout(timeoutId);
+      }
+      const { done, value } = chunk;
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
       const { events, rest } = parseSseChunk(buffer);

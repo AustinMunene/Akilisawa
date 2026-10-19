@@ -17,8 +17,8 @@
  * not to reproduce: it rejected any enquiry containing "trauma" or "emergency".
  */
 
-import { highestTier, type SeverityTier, type SignalCategory } from "./tiers";
-import { matchLexicon, type LexiconMatch } from "./lexicon";
+import { highestTier, type SeverityTier, type SignalCategory } from "./tiers.js";
+import { matchLexicon, type LexiconMatch } from "./lexicon.js";
 
 export const MAX_USER_TURN_CHARS = 1000;
 
@@ -131,7 +131,15 @@ const REPLY_PATTERNS: readonly { category: ReplyCategory; pattern: RegExp }[] = 
     pattern:
       /\b(take|increase|reduce|stop|adjust|change|double)\b[\s\S]{0,24}\b(medication|dose|dosage|pills|antidepressants?|ssris?)\b/i,
   },
-  { category: "medication", pattern: /\b(prescribe|prescribing|prescription)\b/i },
+  {
+    category: "medication",
+    // Do not mistake Sawa's required boundary (for example, "I do not
+    // prescribe") for prescription advice. Actual claims or offers to
+    // prescribe remain blocked here; dosage and medication instructions are
+    // covered by the rule above.
+    pattern:
+      /\b(?:i|we|akili sawa)\s+(?!(?:do not|don't|cannot|can't|never)\b)(?:(?:can|will|would)\s+)?prescrib(?:e|ing|ed|es)\b/i,
+  },
   {
     category: "therapy_claim",
     pattern: /\bi am (your|a) (therapist|psychiatrist|psychologist|counsellor|clinician)\b/i,

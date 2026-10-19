@@ -20,12 +20,12 @@ const render = () =>
   );
 
 describe("Home page", () => {
-  it("mounts the live Sawa chat in the §3 band", () => {
+  it("gates the Home §3 Sawa chat before showing its composer", () => {
     const html = render();
     expect(html).toContain("Talk to Sawa");
-    expect(html).toContain("Hi, I'm Sawa. What's on your mind today?");
-    expect(html).toContain('role="log"');
-    expect(html).toContain('aria-live="polite"');
+    expect(html).toContain("Date of birth / Tarehe ya kuzaliwa");
+    expect(html).toContain("I am 18 or over");
+    expect(html).not.toContain('role="log"');
   });
 
   it("keeps the non-clinical disclaimer in the house third person", () => {

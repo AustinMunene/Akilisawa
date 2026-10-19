@@ -2,6 +2,7 @@ import { useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import SectionBackground from "../components/layout/SectionBackground";
 import Faq67 from "../components/sawa/Faq67";
+import SawaAgeGate from "../components/sawa/SawaAgeGate";
 import SawaChat from "../components/sawa/SawaChat";
 import Badge from "../components/ui/Badge";
 import { Button, ButtonLink } from "../components/ui/Button";
@@ -47,7 +48,9 @@ const SawaAi = () => {
            */}
           <Card>
             <div id="sawa-ai-chat" className="flex min-h-[24rem] flex-col">
-              <SawaChat variant="page" />
+              <SawaAgeGate>
+                <SawaChat variant="page" />
+              </SawaAgeGate>
             </div>
           </Card>
 

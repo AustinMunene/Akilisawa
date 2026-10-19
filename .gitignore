@@ -150,3 +150,5 @@ skills-lock.json
 # Local reference material - specs and exported mocks, not project source
 *.docx
 Akili Sawa_ final site.html
+
+.vercel

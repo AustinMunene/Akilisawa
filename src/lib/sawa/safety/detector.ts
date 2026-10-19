@@ -19,7 +19,7 @@
  * transport are ticket 18's, not this module's.
  */
 
-import { promptVersion } from "../prompt";
+import { promptVersion } from "../prompt.js";
 import {
   applyUserTurnRules,
   checkAssistantReply,
@@ -27,15 +27,15 @@ import {
   type IntakeIssue,
   type IntakeResult,
   type ReplyCheck,
-} from "./rules";
-import { matchLexicon, type LexiconMatch } from "./lexicon";
+} from "./rules.js";
+import { matchLexicon, type LexiconMatch } from "./lexicon.js";
 import {
   TIER_BEHAVIOUR,
   type SeverityTier,
   type SignalCategory,
   type TierBehaviour,
-} from "./tiers";
-import { crisisResponseFor, type CrisisResponse } from "./crisisCopy";
+} from "./tiers.js";
+import { crisisResponseFor, type CrisisResponse } from "./crisisCopy.js";
 
 export const MAX_EXCERPT_CHARS = 500;
 

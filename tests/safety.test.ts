@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { promptVersion } from "../src/lib/sawa/prompt";
 import {
   detectAssistantReply,
   detectUserTurn,
@@ -140,7 +141,7 @@ describe("severity behaviour, per tier", () => {
     expect(result.crisis?.resourceIds[0]).toBe("emergency");
     expect(result.signal).not.toBeNull();
     expect(result.signal?.conversationId).toBe("conv-high-1");
-    expect(result.signal?.promptVersion).toBe("1.0");
+    expect(result.signal?.promptVersion).toBe(promptVersion);
     expect(result.signal?.createdAt).toBe("2026-10-11T00:00:00.000Z");
   });
 
@@ -201,6 +202,14 @@ describe("post-generation check", () => {
     expect(detectAssistantReply("It sounds like you have depression.").flagged).toBe(true);
     expect(detectAssistantReply("Take your medication twice a day.").categories).toContain("medication");
     expect(detectAssistantReply("I am your therapist now.").categories).toContain("therapy_claim");
+  });
+
+  it("allows a clear non-prescribing boundary", () => {
+    expect(
+      detectAssistantReply(
+        "Akili Sawa cannot prescribe medication, but I can help you plan a conversation with a qualified professional.",
+      ).flagged,
+    ).toBe(false);
   });
 
   it("passes an ordinary warm reply", () => {

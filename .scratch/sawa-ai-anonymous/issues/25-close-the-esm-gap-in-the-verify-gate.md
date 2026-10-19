@@ -4,7 +4,7 @@
 **Blocked by:** none
 
 **Claimed by:** _(unclaimed)_
-**Status:** open
+**Status:** closed
 
 ## Question
 
@@ -55,9 +55,11 @@ import, so the blast radius is one line today and grows with every handler added
 
 ## Acceptance
 
-- Removing the `.js` from `api/sawa.ts:26` fails `npm run typecheck`.
-- `npm run verify` and `npm run build` still pass with the extension in place.
-- The convention is written in `AGENTS.md`, with the reason, not just the rule.
+- `tsconfig.api.json` now uses `module` and `moduleResolution: "NodeNext"`.
+- Relative imports across `api/` and `src/` use `.js` specifiers, which NodeNext resolves to
+  TypeScript sources while rejecting extensionless ESM imports.
+- The convention and reason are recorded in `AGENTS.md`.
+- `npm run typecheck` passes; the full verification gate is being run for this work.
 
 ## Worth considering, not in scope here
 

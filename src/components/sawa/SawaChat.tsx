@@ -54,6 +54,7 @@ import {
   promptVersion,
   resolveReply,
   STREAM_TRUNCATED_MESSAGE,
+  STREAM_TIMEOUT_MESSAGE,
   streamReply,
   toBubble,
   TURN_CAP_FALLBACK,
@@ -79,6 +80,13 @@ export type SawaChatProps = {
 };
 
 const DEFAULT_ENDPOINT_VALUE = DEFAULT_ENDPOINT;
+
+const STARTING_OPTIONS = [
+  "Help me make sense of a concern",
+  "Help me plan a next step",
+  "What support options could suit me?",
+  "What can you help me with?",
+] as const;
 
 /*
  * api/sawa.ts accepts `[A-Za-z0-9_-]{8,64}`. A UUID is 36 characters and fits;
@@ -109,14 +117,20 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
         className={[
           "max-w-[85%] rounded-3xl px-4 py-3 text-sm",
           isUser
-            ? "bg-accent-fill text-white dark:text-[#0e1a26]"
+            ? "bg-accent-fill text-accent-on-fill"
             : "bg-tint text-text shadow-[0_8px_18px_rgba(15,23,42,0.05)]",
           isSafety ? "ring-1 ring-line" : "",
         ]
           .join(" ")
           .trim()}
       >
-        <p className="whitespace-pre-wrap text-pretty">{message.content}</p>
+        <p
+          className={`whitespace-pre-wrap text-pretty ${
+            isUser ? "text-accent-on-fill" : "text-text"
+          }`}
+        >
+          {message.content}
+        </p>
         {message.partial ? (
           <p className="mt-1 text-xs text-muted">Reply stopped early.</p>
         ) : null}
@@ -233,6 +247,15 @@ const SawaChat = ({
     []
   );
 
+  // Do not keep paying for a generation after the visitor backgrounds the tab.
+  useEffect(() => {
+    const stopWhenHidden = () => {
+      if (document.visibilityState === "hidden") abortRef.current?.abort();
+    };
+    document.addEventListener("visibilitychange", stopWhenHidden);
+    return () => document.removeEventListener("visibilitychange", stopWhenHidden);
+  }, []);
+
   // Speak freshly committed assistant turns once, coalesced. The first pass is
   // skipped so hydration is never announced as an addition.
   useEffect(() => {
@@ -312,9 +335,23 @@ const SawaChat = ({
       type: "notice",
       notice: { kind: "info", message: EXCERPT_DISCLOSURE.en },
     });
-    if (!escalationSink) return;
     try {
-      const outcome = await escalationSink.notify(signal);
+      const outcome = escalationSink
+        ? await escalationSink.notify(signal)
+        : await (async () => {
+            if (!doFetch) return null;
+            const response = await doFetch("/api/sawa-escalate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                conversationId: signal.conversationId,
+                excerpt: signal.excerpt,
+                ageConsentAccepted: true,
+              }),
+            });
+            return response.ok ? { disclosure: EXCERPT_DISCLOSURE } : null;
+          })();
+      if (!outcome) return;
       dispatch({
         type: "notice",
         notice: { kind: "info", message: outcome.disclosure.en },
@@ -356,7 +393,11 @@ const SawaChat = ({
     if (result.ok) {
       const resolved = resolveReply(result.text);
       appendAssistant(resolved.content, detection);
-      if (plan.thenCrisis && detection.crisis) {
+      if (
+        plan.thenCrisis &&
+        detection.crisis &&
+        !result.text.includes(detection.crisis.text.en)
+      ) {
         appendAssistant(detection.crisis.text.en, detection);
       }
       dispatch({ type: "stream-end" });
@@ -365,6 +406,10 @@ const SawaChat = ({
 
     if (result.reason === "aborted") {
       commitPartial(result.text);
+      dispatch({
+        type: "notice",
+        notice: { kind: "info", message: STREAM_TRUNCATED_MESSAGE },
+      });
       return;
     }
 
@@ -394,6 +439,15 @@ const SawaChat = ({
       return;
     }
 
+    if (result.reason === "timeout") {
+      commitPartial(result.text);
+      dispatch({
+        type: "notice",
+        notice: { kind: "info", message: STREAM_TIMEOUT_MESSAGE },
+      });
+      return;
+    }
+
     // Network, HTTP error, empty body: generic, and the user's turn is kept.
     commitPartial(result.text);
     dispatch({
@@ -404,7 +458,7 @@ const SawaChat = ({
 
   const submit = async (rawText: string) => {
     const text = rawText.trim();
-    if (!text || isStreaming) return;
+    if (!text || isStreaming || abortRef.current) return;
     const messageCheck = checkMessage(text);
     if (!messageCheck.ok) {
       if (messageCheck.tooLong) {
@@ -479,6 +533,12 @@ const SawaChat = ({
 
   const minHeight = variant === "page" ? "min-h-[24rem]" : "min-h-[18rem]";
   const canSend = input.trim().length > 0 && !isStreaming;
+  const retryAvailable =
+    state.notice !== null &&
+    lastTurnRef.current !== null &&
+    (state.notice.kind === "error" ||
+      state.notice.message === STREAM_TIMEOUT_MESSAGE ||
+      state.notice.message === STREAM_TRUNCATED_MESSAGE);
 
   return (
     <div
@@ -511,6 +571,20 @@ const SawaChat = ({
             <MessageBubble key={message.id} message={message} />
           ))}
         </div>
+        {state.messages.length === 1 && !isStreaming ? (
+          <div className="flex flex-wrap gap-2" aria-label="Ways Sawa can help">
+            {STARTING_OPTIONS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => void submit(option)}
+                className="rounded-full border border-line bg-surface px-3 py-2 text-left text-xs text-text transition-colors hover:bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/25 dark:bg-panel"
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        ) : null}
         {isStreaming ? (
           <StreamingBubble
             text={state.streaming}
@@ -528,7 +602,7 @@ const SawaChat = ({
           }`}
         >
           <p className="text-pretty">{state.notice.message}</p>
-          {state.notice.kind === "error" ? (
+          {retryAvailable ? (
             <button
               type="button"
               onClick={retry}

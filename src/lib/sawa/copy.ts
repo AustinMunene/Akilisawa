@@ -108,7 +108,7 @@ export const safetyFlow = {
   architecture:
     "This is how Sawa AI is built, not a live readout of this conversation.",
   mechanism:
-    "Sawa AI is built with signal detection and safety rules. Where a defined signal appears, the conversation is routed for human follow-up rather than continued open-endedly.",
+    "Sawa AI checks messages against safety rules before generation. A high-severity signal stops the open-ended reply and shows crisis resources. When an escalation inbox is configured, the flagged message may also be sent there; the inbox is not monitored for emergencies and no immediate response is guaranteed.",
   crisis:
     "In a crisis, Sawa shares support line details so you can reach someone directly. Akili Sawa does not call on your behalf.",
 } as const;
@@ -166,13 +166,13 @@ export const faq67: {
       id: "when-human-involved",
       question: "When does a human become involved?",
       answer:
-        "Sawa AI is designed for safe, self-directed reflection. A qualified person becomes involved when safety signals indicate a need for human review or follow-up, or when you choose to connect with a professional. Specific escalation paths depend on the context and are explained clearly when relevant.",
+        "Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. When an escalation inbox is configured, the flagged message may be sent for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.",
     },
     {
       id: "how-information-protected",
       question: "How is information protected?",
       answer:
-        "Sawa AI takes privacy seriously. Information is handled in line with good practice for privacy and security. Any retention is limited, disclosed and time-limited where it occurs. We do not assume consent to share private details; sharing happens only as described and with clear disclosure.",
+        "Your transcript is held in this browser. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message may be sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains the current provider and data handling before real-user use is enabled.",
       defaultOpen: true,
       privacyTo: "/privacy",
       privacyLabel: "Read about privacy",

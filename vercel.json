@@ -1,3 +1,13 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/((?!@vite(?:/|$)|@react-refresh(?:/|$)|src/|node_modules/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/sawa.ts": {
+      "maxDuration": 60
+    }
+  }
 }

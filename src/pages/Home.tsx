@@ -1,5 +1,6 @@
 import SectionBackground from "../components/layout/SectionBackground";
 import SawaChat from "../components/sawa/SawaChat";
+import SawaAgeGate from "../components/sawa/SawaAgeGate";
 import Badge from "../components/ui/Badge";
 import { ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
@@ -212,7 +213,9 @@ const Home = () => {
             </p>
           </div>
           <Card>
-            <SawaChat variant="inline" />
+            <SawaAgeGate>
+              <SawaChat variant="inline" />
+            </SawaAgeGate>
           </Card>
           <p className="text-xs text-muted">
             Akili Sawa is not a therapist, clinician or crisis service. If you

@@ -15,6 +15,7 @@ import {
   REFUSAL_MESSAGE,
   resolveReply,
   streamReply,
+  STREAM_IDLE_TIMEOUT_MS,
   toBubble,
   type ChatAction,
   type ChatBubble,
@@ -71,6 +72,15 @@ describe("SawaChat markup", () => {
     const html = renderChat();
     expect(OPENING_LINE).toBe("Hi, I'm Sawa. What's on your mind today?");
     expect(html).toContain("Hi, I'm Sawa. What's on your mind today?");
+  });
+
+  it("offers clear starting points before a visitor writes their first message", () => {
+    const html = renderChat();
+    expect(html).toContain('aria-label="Ways Sawa can help"');
+    expect(html).toContain("Help me make sense of a concern");
+    expect(html).toContain("Help me plan a next step");
+    expect(html).toContain("What support options could suit me?");
+    expect(html).toContain("What can you help me with?");
   });
 
   it("exposes the transcript as a polite live region that announces additions", () => {
@@ -160,9 +170,11 @@ describe("streamReply", () => {
     const body = JSON.parse(String(calls[0]?.body));
     expect(body).toMatchObject({
       conversationId: "conv-1234567890",
+      ageConsentAccepted: true,
       message: "hello",
       history: [],
     });
+    expect(body).not.toHaveProperty("dateOfBirth");
   });
 
   it("keeps the partial text when the stream ends without a done frame", async () => {
@@ -233,6 +245,13 @@ describe("streamReply", () => {
 
     expect(result.reason).toBe("aborted");
     expect(result.text).toBe("one");
+  });
+
+  it("returns a timeout result when the stream stalls without data", async () => {
+    const fetcher = (async () => new Response(new ReadableStream<Uint8Array>())) as typeof fetch;
+    const result = await streamReply(baseOptions({ fetcher, idleTimeoutMs: 5 }));
+    expect(result).toMatchObject({ ok: false, reason: "timeout", text: "" });
+    expect(STREAM_IDLE_TIMEOUT_MS).toBe(30_000);
   });
 });
 

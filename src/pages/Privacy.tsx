@@ -52,10 +52,9 @@ const Privacy = () => {
             </ul>
             <p className="text-sm text-muted">Akili Sawa does not collect:</p>
             <ul className="space-y-2 text-sm text-muted">
-              <li>Clinical or medical records</li>
-              <li>Diagnostic information</li>
+              <li>Clinical or medical records through this website</li>
+              <li>Diagnostic information as a clinical record</li>
               <li>Therapy notes or counselling records</li>
-              <li>Emergency or crisis-related data</li>
             </ul>
           </div>
           <div className="space-y-4">
@@ -85,15 +84,17 @@ const Privacy = () => {
           <div className="space-y-4">
             <h2>Data storage and security</h2>
             <p className="text-sm text-muted">
-              Akili Sawa applies appropriate technical and organisational measures
-              to protect data, including:
+              Akili Sawa works to apply technical and organisational measures
+              appropriate to each service. Measures for the Sawa AI preview depend
+              on the hosting and inference providers and must be confirmed before
+              real-user conversations are enabled.
             </p>
             <ul className="space-y-2 text-sm text-muted">
               <li>Secure data storage</li>
               <li>Restricted access to authorised personnel only</li>
               <li>
-                Use of trusted technology providers under confidentiality
-                agreements
+                Technology providers selected for each service, subject to their
+                applicable terms
               </li>
             </ul>
             <p className="text-sm text-muted">
@@ -106,21 +107,40 @@ const Privacy = () => {
             <p className="text-sm text-muted">
               Akili Sawa does not sell personal data.
             </p>
-            <p className="text-sm text-muted">Data may be shared with:</p>
+            <p className="text-sm text-muted">
+              Depending on the service used, data may be shared with:
+            </p>
             <ul className="space-y-2 text-sm text-muted">
               <li>
                 Institutional or research partners in anonymised or aggregated form
               </li>
               <li>
-                Technology providers supporting programme delivery, under strict
-                data protection and confidentiality obligations
+                Technology providers supporting programme delivery, under their
+                applicable privacy and data processing terms
               </li>
             </ul>
             <p className="text-sm text-muted">
-              Any data sharing is limited to what is necessary for the stated
-              purpose.
+              We aim to limit sharing to what is necessary for the stated purpose.
+              Provider terms, processing location, and retention periods vary by
+              service and will be disclosed for the Sawa AI preview before it is
+              offered for real-user conversations.
             </p>
           </div>
+        </div>
+      </Section>
+
+      <Section variant="light" className="pt-0">
+        <div className="max-w-3xl space-y-4">
+          <h2>Sawa AI preview</h2>
+          <p className="text-sm text-muted">
+            The conversation transcript is held in this browser tab. To generate a reply, the current message and recent conversation history are sent to the AI inference provider configured for the preview. The provider name, processing location and applicable retention terms must be confirmed and published before real-user conversations are enabled. Do not use the preview to share information you would not want processed by an external AI service.
+          </p>
+          <p className="text-sm text-muted">
+            The age check is performed in your browser. Your date of birth is not sent to Akili Sawa or stored; this tab stores only that the age and consent steps were completed.
+          </p>
+          <p className="text-sm text-muted">
+            If a high-severity safety concern is detected, the message that raised it may be sent to Akili Sawa's designated support inbox when that feature is configured. Email retention depends on that inbox's settings. The inbox is not monitored for emergencies and Akili Sawa cannot guarantee an immediate response. The full conversation is not sent.
+          </p>
         </div>
       </Section>
 

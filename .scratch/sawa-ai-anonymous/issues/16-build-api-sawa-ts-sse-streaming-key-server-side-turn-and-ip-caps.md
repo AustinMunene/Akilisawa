@@ -133,12 +133,15 @@ green.
   `X-Accel-Buffering: no` (so a proxy does not buffer the stream). The first event is
   `{ type: "meta", promptVersion }`, then `{ type: "delta", text }` per chunk, then
   `{ type: "done", promptVersion }`. The version comes from ticket 15's `promptVersion`.
-- **Providers.** `SAWA_MODEL_PROVIDER` selects Mistral (default) or OpenAI; Mistral and OpenAI
-  share the Chat Completions delta shape, so one parser serves both and the fallback is env
-  configuration. OpenAI carries `store: false` and `stream_options.include_usage` per the ZDR note
-  in the research. Keys, base URL and model all come from `process.env`, only in this file.
+- **Providers.** `SAWA_MODEL_PROVIDER` selects Mistral (default), OpenAI or NVIDIA. NVIDIA uses
+  `NVIDIA_API_KEY`, `NVIDIA_BASE_URL` (including `/v1`) and `NVIDIA_MODEL`; keys and model settings
+  remain server-only.
+- **Safety boundary.** The API reruns user-turn checks before generation, blocks prompt injection
+  and PII solicitation, prevents child-safety and high-severity turns from reaching the model, and
+  returns support copy if an elevated-risk turn arrives while the model is unavailable. Provider
+  output is buffered and screened before it is emitted in SSE chunks; it is capped at 700 tokens.
 - **Fail closed.** A missing key, base URL or model is a generic `500`; the message never names the
-  provider. Provider non-OK and provider timeout (default 25 s, `SAWA_PROVIDER_TIMEOUT_MS`
+  provider. Provider non-OK and provider timeout (default 55 s, `SAWA_PROVIDER_TIMEOUT_MS`
   override) are the same generic `500` before any bytes stream. A mid-stream failure emits an SSE
   `error` event instead, because the status line is already sent.
 - **Caps.** 12 turns per conversation and 40 messages per IP per day, both in in-memory `Map`s that
@@ -148,10 +151,19 @@ green.
 - **Privacy.** The request body is never logged. `promptV1` is injected as the system message and
   history is truncated to the last 24 messages and 1000 characters each. The conversation id is
   sanitised to `[A-Za-z0-9_-]{8,64}` because it appears in escalation alerts.
-- **Not closed:** the Vercel response-duration measurement, which needs a preview deploy. The
-  design already streams as it reads and abandons the upstream request on `req.on("close")`, which
-  is the ticket's stated mitigation.
+- **NVIDIA runtime.** Nemotron requests disable its reasoning trace because the visitor-facing
+  response is buffered for safety screening. A 15-second SSE comment heartbeat keeps the client
+  stream alive while the provider prepares its answer. The function allows 60 seconds in
+  `vercel.json` and leaves five seconds for screening and response completion. Client disconnect
+  cancellation listens on the response's `close` event; the incoming request's `close` can mean its
+  body merely finished arriving.
+- **Not closed:** an end-to-end local synthetic request reached the NVIDIA endpoint, but the full
+  Sawa prompt did not finish within the local function's 60-second ceiling in this run. NVIDIA's
+  direct stream completed in 63 seconds. Confirm provider latency and the deployed function limit
+  before closing this item; do not assume it fits.
 
-The safety detector is deliberately not wired here; ticket 17 owns it and will run before/parallel
-to generation, per §2. The endpoint is shaped to let ticket 20 abandon an in-flight stream and emit
-mandated crisis copy, but that path lands with 17.
+The safety detector is now enforced at the server boundary as well as in the client. High severity
+short-circuits generation and attempts an email notification only when explicitly enabled and
+configured. Output buffering prevents prohibited partial replies from reaching the visitor, at the
+cost of provider-token latency not being visible. A full Sawa prompt exceeded the local 60-second
+function window; the live Preview duration and a suitable inference configuration remain open.

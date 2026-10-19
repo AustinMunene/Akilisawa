@@ -7,7 +7,7 @@
 - 17 — Build `src/lib/sawa/safety/` — detector, rules, bilingual lexicon, severity tiers, crisis copy
 
 **Claimed by:** opencode (agent)
-****Status:** closed
+**Status:** in progress - API route added; retention and staffing gates remain
 
 ## Question
 
@@ -149,6 +149,18 @@ end to end; and source invariants (no logging, no key, no fetch, expiry present,
 importing escalation).
 
 `npm run verify` green: 113 tests, typecheck and lint included.
+
+## Implementation update
+
+`api/sawa-escalate.ts` now reclassifies the submitted capped excerpt on the server and only sends a
+high-severity notification. It requires `SAWA_ESCALATION_ENABLED=true`, `SAWA_ESCALATION_TO` and
+`RESEND_API_KEY`; the client disclosure is shown before the request and no full transcript is sent.
+The endpoint applies per-IP and per-conversation courtesy caps and fails closed when unconfigured.
+
+The emailed excerpt is retained according to the receiving mailbox's policy, which this code cannot
+expire. Therefore the previous fixed-TTL claim is not true for email copies. Do not enable this route
+until an owner, monitored hours, mailbox access and deletion policy are agreed and the copy is
+re-approved. The durable excerpt-store TTL still requires a storage-provider decision.
 
 ## Notes
 

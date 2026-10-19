@@ -17,7 +17,7 @@
  * That inverted list is the anti-pattern this ticket exists to not reproduce.
  */
 
-import type { SeverityTier, SignalCategory } from "./tiers";
+import type { SeverityTier, SignalCategory } from "./tiers.js";
 
 export type LexiconLang = "en" | "sw";
 

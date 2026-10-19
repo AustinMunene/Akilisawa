@@ -27,11 +27,13 @@
 // `"type": "module"`, so Vercel compiles this handler to ESM and Node's
 // resolver does no extension guessing on a relative specifier. Without it the
 // function dies at module load with ERR_MODULE_NOT_FOUND before the handler
-// runs, which `npm run verify` cannot catch: tsconfig.api.json resolves with
-// `moduleResolution: "Bundler"`, where the extensionless form typechecks fine.
+// runs. `tsconfig.api.json` now uses NodeNext so the verification gate catches
+// extensionless imports in the API's deployed module graph.
 import { promptV1, promptVersion } from "../src/lib/sawa/prompt.js";
+import { detectAssistantReply, detectUserTurn } from "../src/lib/sawa/safety/detector.js";
+import { sendSafetyNotification } from "./_sawaEscalation.js";
 
-type Provider = "mistral" | "openai";
+type Provider = "mistral" | "openai" | "nvidia";
 
 type ProviderConfig = {
   provider: Provider;
@@ -52,7 +54,14 @@ const MAX_MESSAGE_CHARS = 1000;
 const MAX_HISTORY_MESSAGES = 24;
 const IP_WINDOW_MS = 24 * 60 * 60 * 1000;
 const MAX_MESSAGES_PER_IP_PER_DAY = 40;
-const DEFAULT_PROVIDER_TIMEOUT_MS = 25_000;
+// NVIDIA's hosted endpoint can take more than 25 seconds on a cold request.
+// vercel.json reserves a 60-second function window; leave a little time for
+// safety screening and the final SSE response before Vercel's hard deadline.
+const DEFAULT_PROVIDER_TIMEOUT_MS = 55_000;
+// Replies are buffered for the final safety check before they reach the
+// visitor. Keeping this bounded gives NVIDIA enough time to finish within the
+// serverless window, while still leaving useful space for a practical answer.
+const MAX_REPLY_TOKENS = 220;
 
 const GENERIC_ERROR = "Sawa is unavailable right now. Please try again.";
 const INVALID_MESSAGE = "Invalid submission.";
@@ -73,15 +82,30 @@ const getClientIp = (req: { headers: Record<string, string | string[]> }) => {
 };
 
 const resolveProviderConfig = (): ProviderConfig | null => {
+  const configuredProvider = process.env.SAWA_MODEL_PROVIDER;
   const provider: Provider =
-    process.env.SAWA_MODEL_PROVIDER === "openai" ? "openai" : "mistral";
+    configuredProvider === "openai" || configuredProvider === "nvidia"
+      ? configuredProvider
+      : "mistral";
 
   const apiKey =
-    provider === "openai" ? process.env.OPENAI_API_KEY : process.env.MISTRAL_API_KEY;
+    provider === "nvidia"
+      ? process.env.NVIDIA_API_KEY
+      : provider === "openai"
+        ? process.env.OPENAI_API_KEY
+        : process.env.MISTRAL_API_KEY;
   const baseUrl =
-    provider === "openai" ? process.env.OPENAI_BASE_URL : process.env.MISTRAL_BASE_URL;
+    provider === "nvidia"
+      ? process.env.NVIDIA_BASE_URL
+      : provider === "openai"
+        ? process.env.OPENAI_BASE_URL
+        : process.env.MISTRAL_BASE_URL;
   const model =
-    provider === "openai" ? process.env.OPENAI_MODEL : process.env.MISTRAL_MODEL;
+    provider === "nvidia"
+      ? process.env.NVIDIA_MODEL
+      : provider === "openai"
+        ? process.env.OPENAI_MODEL
+        : process.env.MISTRAL_MODEL;
 
   if (!apiKey || !baseUrl || !model) return null;
   return { provider, apiKey, baseUrl: baseUrl.replace(/\/+$/, ""), model };
@@ -133,17 +157,23 @@ const buildRequestBody = (config: ProviderConfig, messages: ChatMessage[]) => {
     model: config.model,
     messages,
     stream: true,
+    max_tokens: MAX_REPLY_TOKENS,
   };
   if (config.provider === "openai") {
     // OpenAI's zero-data-retention grant requires store=false once approved.
     body.store = false;
     body.stream_options = { include_usage: true };
+  } else if (config.provider === "nvidia") {
+    // The endpoint buffers and screens a complete reply before sending it.
+    // Disable Nemotron's reasoning trace so it can return visitor-facing text
+    // within the serverless request window.
+    body.chat_template_kwargs = { enable_thinking: false };
   }
   return body;
 };
 
-// Mistral and OpenAI share the Chat Completions delta shape, so one parser
-// covers both and the fallback stays a configuration change.
+// The configured Mistral, OpenAI and NVIDIA Chat Completions endpoints use the
+// same content delta shape; reasoning-only deltas are intentionally ignored.
 export const extractDeltaText = (payload: string): string => {
   try {
     const parsed = JSON.parse(payload);
@@ -154,12 +184,45 @@ export const extractDeltaText = (payload: string): string => {
   }
 };
 
+/*
+ * The chat renders the transcript as plain text - the bubbles are
+ * `whitespace-pre-wrap` with no markdown renderer - so a reply that arrives
+ * with `**bold**` shows its asterisks to the visitor. Models emit markdown
+ * regardless of what the prompt asks for, so the markers are removed here,
+ * at the boundary, rather than trusted away by an instruction.
+ */
+export const toPlainText = (text: string): string =>
+  text
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/(\*\*|__)(.+?)\1/g, "$2")
+    .replace(/(?<![*\w])\*([^*\n]+)\*(?!\*)/g, "$1")
+    .replace(/`+([^`]+)`+/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^[ \t]*[*+-][ \t]+/gm, "- ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
 const sendJson = (res: any, status: number, message: string) => {
   res.status(status).json({ message });
 };
 
 const writeSse = (res: any, event: unknown) => {
   res.write(`data: ${JSON.stringify(event)}\n\n`);
+};
+
+const sendSseText = (res: any, text: string) => {
+  res.status(200);
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  if (typeof res.flushHeaders === "function") res.flushHeaders();
+  writeSse(res, { type: "meta", promptVersion });
+  for (let offset = 0; offset < text.length; offset += 48) {
+    writeSse(res, { type: "delta", text: text.slice(offset, offset + 48) });
+  }
+  writeSse(res, { type: "done", promptVersion });
+  res.end();
 };
 
 export default async function handler(req: any, res: any) {
@@ -190,9 +253,40 @@ export default async function handler(req: any, res: any) {
     sendJson(res, 400, INVALID_MESSAGE);
     return;
   }
+  if (payload?.ageConsentAccepted !== true) {
+    sendJson(res, 400, "Please confirm the age and consent notice before continuing.");
+    return;
+  }
+
+  const messages: ChatMessage[] = [
+    { role: "system", content: promptV1 },
+    ...sanitiseHistory(payload?.history),
+    { role: "user", content: message },
+  ];
+
+  // Repeat safety checks at the trusted server boundary. Client checks remain
+  // useful for UX, but cannot be treated as enforcement because callers can
+  // POST directly to this public endpoint.
+  const detection = detectUserTurn({ text: message, conversationId });
+  if (!detection.intake.ok) {
+    sendJson(res, 400, INVALID_MESSAGE);
+    return;
+  }
+  if (
+    (!detection.behaviour.continueOpenEnded || detection.categories.includes("child_safety")) &&
+    detection.crisis
+  ) {
+    sendSseText(res, detection.crisis.text.en);
+    if (detection.signal) await sendSafetyNotification(detection.signal);
+    return;
+  }
 
   const config = resolveProviderConfig();
   if (!config) {
+    if (detection.crisis) {
+      sendSseText(res, detection.crisis.text.en);
+      return;
+    }
     sendJson(res, 500, GENERIC_ERROR);
     return;
   }
@@ -204,25 +298,22 @@ export default async function handler(req: any, res: any) {
   }
   turnStore.set(conversationId, usedTurns + 1);
 
-  const messages: ChatMessage[] = [
-    { role: "system", content: promptV1 },
-    ...sanitiseHistory(payload?.history),
-    { role: "user", content: message },
-  ];
-
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), getProviderTimeoutMs());
   let aborted = false;
   const onClose = () => {
     // Client vanished mid-stream: stop generation so we stop being billed.
+    if (res.writableEnded) return;
     aborted = true;
     controller.abort();
   };
-  if (typeof req.on === "function") req.on("close", onClose);
+  // IncomingMessage's `close` also fires when the request body has finished.
+  // Listen on the response instead so a normal POST does not cancel generation.
+  if (typeof res.on === "function") res.on("close", onClose);
 
   const detach = () => {
     clearTimeout(timeout);
-    if (typeof req.off === "function") req.off("close", onClose);
+    if (typeof res.off === "function") res.off("close", onClose);
   };
 
   let upstream: any;
@@ -258,10 +349,21 @@ export default async function handler(req: any, res: any) {
   if (typeof res.flushHeaders === "function") res.flushHeaders();
 
   writeSse(res, { type: "meta", promptVersion });
+  // Keep the visitor's stream and idle timer alive while the provider prepares
+  // its first user-facing tokens. The payload is an SSE comment, not content.
+  const heartbeat = setInterval(() => {
+    if (res.writableEnded || res.destroyed) return;
+    try {
+      res.write(": keep-alive\n\n");
+    } catch {
+      // The close handler below aborts upstream work when the visitor leaves.
+    }
+  }, 15_000);
 
   const reader = upstream.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+  let reply = "";
 
   try {
     for (;;) {
@@ -282,11 +384,23 @@ export default async function handler(req: any, res: any) {
         const data = trimmed.slice(5).trim();
         if (data === "[DONE]") continue;
         const text = extractDeltaText(data);
-        if (text) writeSse(res, { type: "delta", text });
+        if (text) reply += text;
       }
     }
 
     if (!aborted) {
+      // Do not expose a prohibited reply token by token. The response is
+      // checked in full, then emitted as bounded SSE chunks.
+      const checked = detectAssistantReply(reply);
+      const safeReply = checked.flagged
+        ? "Akili Sawa cannot offer diagnoses or advice on medication. I can stay with you and help you think about what might help next."
+        : toPlainText(reply);
+      for (let offset = 0; offset < safeReply.length; offset += 48) {
+        writeSse(res, { type: "delta", text: safeReply.slice(offset, offset + 48) });
+        if (offset + 48 < safeReply.length) {
+          await new Promise((resolve) => setTimeout(resolve, 12));
+        }
+      }
       writeSse(res, { type: "done", promptVersion });
     }
   } catch {
@@ -294,6 +408,7 @@ export default async function handler(req: any, res: any) {
       writeSse(res, { type: "error", message: GENERIC_ERROR });
     }
   } finally {
+    clearInterval(heartbeat);
     detach();
     res.end();
   }

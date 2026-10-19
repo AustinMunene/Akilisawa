@@ -50,6 +50,8 @@ Individually:
 - No `any` restrictions — `@typescript-eslint/no-explicit-any` is off because the
   serverless handler signature (`req: any, res: any`) is house style until
   `@vercel/node` is introduced.
+- API handlers run as ESM on Vercel. Relative imports from `api/` into `api/` or
+  `src/` use `.js` specifiers, which NodeNext typechecking resolves to the TypeScript source.
 - Colour comes from the token layer in `src/styles/globals.css` (`@theme inline`), not
   literal hex in components. Dark mode is a `.dark` class on `<html>`, set before paint.
 - Do not commit `dist/`, `coverage/` or `node_modules/`.

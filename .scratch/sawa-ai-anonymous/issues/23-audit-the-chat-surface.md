@@ -5,7 +5,7 @@
 - 20 — Build `SawaChat.tsx` — one component, variant prop
 
 **Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Status:** blocked on live deployment and human review
 
 ## Question
 
@@ -16,6 +16,14 @@ the safety behaviour?
 
 The final verification pass. This is where claims in this map get checked against the running product
 rather than against the tickets.
+
+## Local code review update
+
+The local workspace now includes the age gate, provider switch, server-side safety checks,
+pre-emission reply screening and an optional escalation endpoint. Automated tests cover those code
+paths. This is not the required live audit: no NVIDIA key has been configured, no current staging
+deployment was used for these changes, and no real-device, screen-reader, clinical or adversarial
+live-model review has been performed.
 
 ## Spec compliance
 

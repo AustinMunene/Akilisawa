@@ -58,8 +58,8 @@ export const DEFAULT_ESCALATION_FROM = "no-reply@akilisawa.com";
  * sentence case, no exclamation marks, no emoji.
  */
 export const EXCERPT_DISCLOSURE: BilingualText = {
-  en: "Akili Sawa may keep a short excerpt of this conversation so a person can follow up. The excerpt is capped, time-limited and deleted when it expires. It is never the full conversation.",
-  sw: "Akili Sawa inaweza kuhifadhi kipande kifupi cha mazungumzo haya ili mtu afuatilie. Kipande hicho ni kifupi, kina muda maalum na hufutwa ukiisha. Si mazungumzo yote.",
+  en: "Akili Sawa may send the message that raised a safety concern to its designated support inbox for review. Email retention depends on that inbox's settings. This service is not monitored for emergencies and cannot guarantee an immediate response. The full conversation is not sent.",
+  sw: "Akili Sawa inaweza kutuma ujumbe ulioibua wasiwasi wa usalama kwenye kisanduku maalum cha usaidizi kwa ajili ya kukaguliwa. Muda wa kuhifadhi barua pepe hutegemea mipangilio ya kisanduku hicho. Huduma hii haifuatiliwi kwa dharura na haiwezi kuhakikisha jibu la haraka. Mazungumzo yote hayatatumwa.",
 };
 
 /* A single retained excerpt. The store's unit; never a whole transcript. */

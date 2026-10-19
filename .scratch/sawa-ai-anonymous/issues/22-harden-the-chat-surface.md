@@ -5,7 +5,7 @@
 - 20 — Build `SawaChat.tsx` — one component, variant prop
 
 **Claimed by:** _(unclaimed)_
-**Status:** blocked
+**Status:** in progress
 
 ## Question
 
@@ -16,6 +16,19 @@ mid-answer?
 
 Everything that makes the chat survive contact with reality. The feature is not done until it has
 been broken deliberately.
+
+## Implementation update
+
+Implemented in the local workspace: server-side intake and severity checks; server-side output
+screening before SSE emission; 700-token output cap; age/consent gate on both mounts; idle-stream
+timeout with retry; abort when the tab is backgrounded; retry without duplicating the user's turn;
+and server-side escalation reclassification with a disabled-by-default switch. Focused tests cover
+these seams.
+
+Still open: simulated 2G and real mobile checks; bundle impact and low-data behaviour; an old-browser
+manual check; Vercel duration measurement; durable rate limits; and key absence in the deployed
+bundle after an NVIDIA Preview deployment. Output screening buffers the provider response before
+progressively writing SSE chunks, so it is not provider-token streaming.
 
 ## The cases that matter here
 
