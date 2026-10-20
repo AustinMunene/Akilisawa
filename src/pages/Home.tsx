@@ -48,8 +48,8 @@ const Home = () => {
             </div>
           </div>
           <ImagePanel
-            src="/Mindfulness.jpeg"
-            alt="Mindfulness brain illustration"
+            src="https://res.cloudinary.com/dogeweg3r/image/upload/f_auto,q_auto,w_1600/v1792522186/WhatsApp_Image_2026-10-19_at_14.15.24_ilryoc.jpg"
+            alt="Akili Sawa preventive wellbeing work in practice"
           />
         </div>
       </SectionBackground>
@@ -298,8 +298,8 @@ const Home = () => {
           <div className="flex items-center">
             <div className="w-full">
               <ImagePanel
-                src="/grounded.jpeg"
-                alt="Community landscape"
+                src="https://res.cloudinary.com/dogeweg3r/image/upload/f_auto,q_auto,w_1600/v1792522392/Community_uxg3wh.png"
+                alt="Community members taking part in a local wellbeing session"
               />
             </div>
           </div>
