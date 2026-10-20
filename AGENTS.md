@@ -40,6 +40,7 @@ Individually:
 - `.scratch/sawa-ai-anonymous/` — the tracker for the Sawa AI build. `map.md` is the
   index; `issues/` holds one file per ticket with its question, decision and acceptance
   criteria. Read the ticket before you start the work and update it when you finish.
+  It is gitignored: local planning notes, never committed.
 
 ## Conventions
 
