@@ -43,8 +43,8 @@ const Community = () => {
           </div>
           <div className="w-full">
             <ImagePanel
-              src="https://akilisawa.com/wp-content/uploads/2025/04/acucu-and-aguka.jpg"
-              alt="Community gathering"
+              src="https://res.cloudinary.com/dogeweg3r/image/upload/f_auto,q_auto,w_1600/v1792522392/Community_uxg3wh.png"
+              alt="Community members taking part in a local wellbeing session"
             />
           </div>
         </div>
