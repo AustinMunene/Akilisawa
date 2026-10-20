@@ -177,6 +177,38 @@ describe("streamReply", () => {
     expect(body).not.toHaveProperty("dateOfBirth");
   });
 
+  it("calls the fetcher as a bare function, never as a method of another object", async () => {
+    /*
+     * Browsers brand-check `fetch`: calling it as a property of the options
+     * object makes `this` that object and throws "Illegal invocation" before a
+     * request is sent, so the visitor sees the generic error and the network
+     * stays quiet. Every other fetcher in this file is a plain function and
+     * ignores `this`, which is why only a fetcher written to refuse to be a
+     * method can hold this line.
+     */
+    let calls = 0;
+    const fetcher = function (this: unknown) {
+      if (this !== undefined && this !== globalThis) {
+        throw new TypeError(
+          "Failed to execute 'fetch' on 'Window': Illegal invocation"
+        );
+      }
+      calls += 1;
+      return streamResponse([
+        sseFrames([
+          { type: "meta", promptVersion: "1.2" },
+          { type: "delta", text: "ok" },
+          { type: "done", promptVersion: "1.2" },
+        ]),
+      ]);
+    } as unknown as typeof fetch;
+
+    const result = await streamReply(baseOptions({ fetcher }));
+
+    expect(calls).toBe(1);
+    expect(result).toEqual({ ok: true, text: "ok" });
+  });
+
   it("keeps the partial text when the stream ends without a done frame", async () => {
     const fetcher = (async () =>
       streamResponse([

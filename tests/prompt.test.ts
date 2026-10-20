@@ -14,9 +14,9 @@ import {
  */
 
 describe("Sawa prompt", () => {
-  it("stamps the website-rules production prompt as version 1.2", () => {
-    expect(promptVersion).toBe("1.2");
-    expect(PROMPT_VERSION).toBe("1.2");
+  it("stamps the website-rules production prompt as version 1.3", () => {
+    expect(promptVersion).toBe("1.3");
+    expect(PROMPT_VERSION).toBe("1.3");
     expect(promptVersion).toBe(PROMPT_VERSION);
   });
 
@@ -78,8 +78,11 @@ describe("Sawa prompt", () => {
     expect(promptV1).toContain("trusted adult");
   });
 
-  it("answers in the language the person writes in, Kiswahili included", () => {
-    expect(promptV1).toContain("Kiswahili included");
+  it("matches the person's language, including English-Kiswahili mixing and Sheng", () => {
+    expect(promptV1).toContain("Answer in the language the person writes in");
+    expect(promptV1).toContain("Sheng");
+    expect(promptV1).toContain("natural mix");
+    expect(promptV1).toContain("Niaje, nafeel down sana kwa job");
   });
 
   it("renders every verified support line from the safety pipeline's own list", () => {

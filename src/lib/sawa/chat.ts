@@ -20,6 +20,7 @@
 
 import { promptVersion } from "./prompt";
 import {
+  crisisTextFor,
   detectAssistantReply,
   detectUserTurn,
   type Detection,
@@ -351,9 +352,19 @@ async function readErrorMessage(response: Response): Promise<string> {
 export async function streamReply(options: StreamReplyOptions): Promise<StreamReplyResult> {
   if (options.signal.aborted) return { ok: false, text: "", reason: "aborted" };
 
+  /*
+   * Reached for as a bare function on purpose. `fetch` is brand-checked by the
+   * browser: calling it as a method of another object makes `this` that object
+   * and throws "Illegal invocation" before a request is sent, which reaches the
+   * visitor as the generic error. Test doubles are plain functions and ignore
+   * `this`, so only a real browser exposes the difference; streamReply's own
+   * test suite pins the bare call with a fetcher that refuses to be a method.
+   */
+  const fetcher = options.fetcher;
+
   let response: Response;
   try {
-    response = await options.fetcher(options.endpoint, {
+    response = await fetcher(options.endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
       body: JSON.stringify({
@@ -500,5 +511,5 @@ export function resolveReply(reply: string): ResolvedReply {
 }
 
 /* Re-exported so the component imports one module for the pipeline. */
-export { detectUserTurn, promptVersion };
+export { crisisTextFor, detectUserTurn, promptVersion };
 export type { Detection };

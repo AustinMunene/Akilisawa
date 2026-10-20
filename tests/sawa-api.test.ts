@@ -157,7 +157,7 @@ describe("api/sawa guards", () => {
     const fake = await send();
     expect(fake.status).toBe(200);
     expect(fake.headers["content-type"]).toBe("text/event-stream");
-    expect(fake.headers["cache-control"]).toBe("no-cache");
+    expect(fake.headers["cache-control"]).toBe("no-store");
     expect(fake.headers["access-control-allow-origin"]).toBeUndefined();
     expect(fake.text()).toContain('"type":"meta"');
     expect(fake.text()).toContain(`"promptVersion":"${promptVersion}"`);

@@ -1,9 +1,11 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import {
+  createServer,
   defineConfig,
   loadEnv,
   type Plugin,
+  type UserConfig,
   type ViteDevServer,
 } from "vite";
 import react from "@vitejs/plugin-react";
@@ -25,9 +27,9 @@ import react from "@vitejs/plugin-react";
  * differs - Node's `IncomingMessage`/`ServerResponse` are adapted to the
  * `{ method, headers, body }` / `status().json()` shape the handlers take.
  *
- * It runs in the dev server only: `vite preview` has no SSR module loader,
- * so `npm run preview` still serves a bundle without an API. `npx vercel
- * dev` is the local run that most closely matches production.
+ * It runs in the dev server and in `vite preview`, so both `npm run dev` and
+ * the built bundle served by `npm run preview` can hold a real conversation.
+ * `npx vercel dev` remains the run closest to production.
  *
  * Environment: the handlers read `process.env` (SAWA_MODEL_PROVIDER and the
  * NVIDIA_* / MISTRAL_* / OPENAI_* sets). Vite only exposes `VITE_`-prefixed
@@ -37,6 +39,14 @@ import react from "@vitejs/plugin-react";
  */
 
 const API_ROUTE = /^\/api\/[A-Za-z0-9_-]+$/;
+
+// Where the handlers are imported from and which directory they live in. The
+// dev server loads them through its own SSR loader; the preview server has no
+// loader of its own, so it gets one (see createPreviewLoader).
+type ApiRuntime = {
+  root: string;
+  loadModule: (modulePath: string) => Promise<{ default?: unknown }>;
+};
 
 const loadApiEnv = (mode: string, root: string) => {
   // Prefix "" loads every variable in .env / .env.local / .env.[mode], which
@@ -76,23 +86,80 @@ const readBody = async (req: any): Promise<string> => {
   return Buffer.concat(chunks).toString("utf8");
 };
 
+const NOT_FOUND_MESSAGE = "Not found.";
+
+/*
+ * Runs one handler with the Vercel-shaped `res`, and owns every way a request
+ * can fail: a module that will not load, and a handler that throws. Both fail
+ * closed with the generic message rather than a stack, in dev as in production.
+ */
+const runHandler = async (
+  handler: ((request: any, response: any) => Promise<void>) | undefined,
+  request: any,
+  res: any
+) => {
+  if (!handler) {
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify({ message: "Sawa is unavailable right now. Please try again." }));
+    return;
+  }
+
+  try {
+    await handler(request, res);
+  } catch {
+    if (!res.writableEnded) {
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ message: "Sawa is unavailable right now. Please try again." }));
+    }
+  }
+};
+
+const CORS_METHODS = "GET, POST, OPTIONS";
+
+/*
+ * Local `/api/*` is a convenience for `npm run dev` and `npm run preview` and
+ * must never behave more permissively than the deployed function. Vercel
+ * answers CORS preflights on this project, so the local middleware does the
+ * same, and no `Access-Control-Allow-Origin` is ever sent, which is what keeps
+ * a browser on another origin from reading a reply. Both are bad to discover
+ * only after deploying, so both are mirrored here.
+ */
+const applyApiCors = (res: any) => {
+  res.setHeader?.("Access-Control-Allow-Methods", CORS_METHODS);
+};
+
 const createApiMiddleware =
-  (server: ViteDevServer) => async (req: any, res: any, next: () => void) => {
+  (runtime: ApiRuntime) => async (req: any, res: any, next: () => void) => {
     const pathname: string = (req.url ?? "").split("?")[0] ?? "";
     if (!pathname.startsWith("/api/")) return next();
 
     const name = pathname.slice("/api/".length);
     if (!API_ROUTE.test(pathname)) return next();
 
-    const root = server.config.root;
-    const file = path.join(root, "api", `${name}.ts`);
-    if (!existsSync(file)) return next();
+    const file = path.join(runtime.root, "api", `${name}.ts`);
+    if (!existsSync(file)) {
+      applyApiCors(res);
+      res.statusCode = 404;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ message: NOT_FOUND_MESSAGE }));
+      return;
+    }
+
+    // A preflight is answered the way the platform answers it, and no page or
+    // handler runs: an unrecognised /api/* path is not a page, so a mistyped
+    // endpoint must not be answered with index.html.
+    if (req.method === "OPTIONS") {
+      applyApiCors(res);
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
 
     let handler: ((request: any, response: any) => Promise<void>) | undefined;
     try {
-      const mod = (await server.ssrLoadModule(`/api/${name}.ts`)) as {
-        default?: unknown;
-      };
+      const mod = await runtime.loadModule(`/api/${name}.ts`);
       if (typeof mod.default === "function") {
         handler = mod.default as (request: any, response: any) => Promise<void>;
       }
@@ -100,34 +167,66 @@ const createApiMiddleware =
       handler = undefined;
     }
 
-    if (!handler) {
-      res.statusCode = 500;
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      res.end(JSON.stringify({ message: "Sawa is unavailable right now. Please try again." }));
-      return;
-    }
+    const request = { method: req.method, headers: req.headers, body: "" };
+    if (handler) request.body = await readBody(req);
 
-    const body = await readBody(req);
-    const request = { method: req.method, headers: req.headers, body };
-
-    try {
-      await handler(request, adaptResponse(res));
-    } catch {
-      // Handlers fail closed with a generic message on purpose; do not
-      // surface the stack to the browser in dev either.
-      if (!res.writableEnded) {
-        res.statusCode = 500;
-        res.setHeader("Content-Type", "application/json; charset=utf-8");
-        res.end(JSON.stringify({ message: "Sawa is unavailable right now. Please try again." }));
-      }
-    }
+    applyApiCors(res);
+    await runHandler(handler, request, adaptResponse(res));
   };
+
+/*
+ * `vite preview` serves the built bundle and owns no SSR module loader, so one
+ * is created lazily in middleware mode, purely to import the api/ handlers.
+ * It is created on the first API request, so a preview run that never calls
+ * the endpoint pays nothing, and it uses no config file, which keeps it from
+ * re-entering this plugin.
+ */
+const createPreviewLoader = (root: string) => {
+  let loader: Promise<ViteDevServer> | undefined;
+  return async (modulePath: string) => {
+    loader ??= createServer({
+      root,
+      configFile: false,
+      appType: "custom",
+      logLevel: "silent",
+      server: { middlewareMode: true },
+    });
+    return (await loader).ssrLoadModule(modulePath);
+  };
+};
 
 const localApiPlugin = (): Plugin => ({
   name: "local-api",
+  apply: (config, env) => env.command === "serve",
+  // `vite preview` has one behaviour this project cannot use for a local test:
+  // an unmatched path is answered with index.html and a 200. The deployed site
+  // answers /api/* with a function or a 404, never a page, so the preview
+  // server runs with `appType: "mpa"` instead, which drops only the SPA
+  // fallback and leaves the short-code rule in `vercel.json` to serve
+  // /api/sawa-escalate during a local test.
+  config() {
+    return { preview: { appType: "mpa" } } as UserConfig;
+  },
   configureServer(server) {
     loadApiEnv(server.config.mode, server.config.root);
-    server.middlewares.use(createApiMiddleware(server));
+    server.middlewares.use(
+      createApiMiddleware({
+        root: server.config.root,
+        loadModule: (modulePath) => server.ssrLoadModule(modulePath),
+      })
+    );
+  },
+  configurePreviewServer(server) {
+    // `npm run preview` serves the production bundle, so the handlers read the
+    // production .env set. .env.local still applies, which is where the local
+    // provider keys live.
+    loadApiEnv("production", server.config.root);
+    server.middlewares.use(
+      createApiMiddleware({
+        root: server.config.root,
+        loadModule: createPreviewLoader(server.config.root),
+      })
+    );
   },
 });
 

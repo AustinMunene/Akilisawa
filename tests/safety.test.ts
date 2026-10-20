@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { promptVersion } from "../src/lib/sawa/prompt";
 import {
+  crisisTextFor,
   detectAssistantReply,
   detectUserTurn,
   MAX_EXCERPT_CHARS,
@@ -143,6 +144,23 @@ describe("severity behaviour, per tier", () => {
     expect(result.signal?.conversationId).toBe("conv-high-1");
     expect(result.signal?.promptVersion).toBe(promptVersion);
     expect(result.signal?.createdAt).toBe("2026-10-11T00:00:00.000Z");
+  });
+
+  it("returns the Kiswahili crisis block when the matched phrase is Kiswahili", () => {
+    /*
+     * The mandated copy ships in both languages (crisis-resources-v1.md). A
+     * turn that matches a Kiswahili term must get the Kiswahili block, not the
+     * English one, so the person in crisis reads the language they wrote in.
+     */
+    const kiswahili = detectUserTurn({ text: "nataka kufa" });
+    expect(kiswahili.tier).toBe("high");
+    expect(crisisTextFor(kiswahili)).toBe(kiswahili.crisis?.text.sw);
+    expect(crisisTextFor(kiswahili).startsWith(MANDATED_OPENER.sw)).toBe(true);
+
+    const english = detectUserTurn({ text: "I have been thinking about ending my life" });
+    expect(crisisTextFor(english)).toBe(english.crisis?.text.en);
+
+    expect(crisisTextFor(detectUserTurn({ text: "hello" }))).toBe("");
   });
 
   it("abuse: decline, no crisis copy, no signal", () => {

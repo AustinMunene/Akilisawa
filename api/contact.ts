@@ -42,6 +42,28 @@ const reasonVariants = {
   media: new Set(["Media / Speaking Request"]),
 };
 
+// Every reason the contact form can submit. Anything else is rejected rather
+// than reaching the subject line or the responder-template lookup.
+const allowedReasons = new Set([
+  ...reasonVariants.partnership,
+  ...reasonVariants.research,
+  ...reasonVariants.media,
+]);
+
+// Untrusted lengths are capped before anything is formatted into an email.
+const MAX_FIELD_LENGTHS: Record<string, number> = {
+  fullName: 120,
+  organisation: 160,
+  roleTitle: 120,
+  workEmail: 200,
+  countryRegion: 80,
+  reason: 80,
+  message: 1000,
+  organisationType: 80,
+  researchInterest: 300,
+  mediaOutlet: 120,
+};
+
 const responderTemplates = {
   partnership: {
     subject: "Thank you for your enquiry — Akili Sawa",
@@ -99,6 +121,22 @@ const containsSensitiveContent = (value: string) => {
   return sensitivePhrases.some((phrase) => lower.includes(phrase));
 };
 
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+// Contact fields are visitor-supplied. They are escaped before being placed in
+// the internal HTML email so a submission cannot forge markup or links.
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (character) => HTML_ESCAPES[character] ?? character);
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 const getClientIp = (req: { headers: Record<string, string | string[]> }) => {
   const forwarded = req.headers["x-forwarded-for"];
   if (Array.isArray(forwarded)) return forwarded[0];
@@ -124,44 +162,69 @@ export default async function handler(req: any, res: any) {
     record.count += 1;
   }
 
-  const payload: ContactPayload =
-    typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+  let payload: ContactPayload;
+  try {
+    payload = (
+      typeof req.body === "string" ? JSON.parse(req.body) : req.body
+    ) as ContactPayload;
+  } catch {
+    res.status(400).json({ message: "Invalid submission." });
+    return;
+  }
+
+  if (!isPlainObject(payload)) {
+    res.status(400).json({ message: "Invalid submission." });
+    return;
+  }
 
   if (payload.companyWebsite) {
     res.status(200).json({ message: "Thank you." });
     return;
   }
 
-  if (
-    !payload.fullName ||
-    !payload.organisation ||
-    !payload.roleTitle ||
-    !payload.workEmail ||
-    !payload.countryRegion ||
-    !payload.reason ||
-    !payload.message
-  ) {
+  const requiredFields = [
+    "fullName",
+    "organisation",
+    "roleTitle",
+    "workEmail",
+    "countryRegion",
+    "reason",
+    "message",
+  ] as const;
+
+  const missingOrNotText = requiredFields.some(
+    (field) => typeof payload[field] !== "string" || payload[field].trim() === ""
+  );
+
+  if (missingOrNotText) {
     res.status(400).json({ message: "Invalid submission." });
     return;
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const overLength = Object.entries(MAX_FIELD_LENGTHS).some(([field, max]) => {
+    const value = payload[field as keyof ContactPayload];
+    return value !== undefined && (typeof value !== "string" || value.length > max);
+  });
+
+  if (overLength) {
+    res.status(400).json({ message: "Invalid submission." });
+    return;
+  }
+
+  if (!allowedReasons.has(payload.reason)) {
+    res.status(400).json({ message: "Invalid submission." });
+    return;
+  }
+
+  // Deliberately narrow: no commas, quotes, semicolons or angle brackets, so a
+  // submission cannot smuggle extra recipients or header content.
+  const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   if (!emailRegex.test(payload.workEmail)) {
     res.status(400).json({ message: "Invalid submission." });
     return;
   }
 
-  if ((payload.message || "").length > 1000) {
-    res.status(400).json({ message: "Invalid submission." });
-    return;
-  }
-
-  if ((payload.researchInterest || "").length > 300) {
-    res.status(400).json({ message: "Invalid submission." });
-    return;
-  }
-
-  if (containsSensitiveContent(payload.message || "")) {
+  if (containsSensitiveContent(payload.message)) {
     res.status(400).json({
       message:
         "We cannot process this message. Please contact local emergency services or a trusted healthcare provider.",
@@ -206,7 +269,7 @@ ${payload.message}
       to: "smile@akilisawa.com",
       subject: `New Contact Request: ${payload.reason}`,
       text: internalBody,
-      html: internalBody.replace(/\n/g, "<br />"),
+      html: escapeHtml(internalBody).replace(/\n/g, "<br />"),
     });
 
     await resend.emails.send({

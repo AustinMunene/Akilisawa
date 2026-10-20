@@ -43,6 +43,7 @@ import {
   buildHistory,
   chatReducer,
   checkMessage,
+  crisisTextFor,
   DECLINE_MESSAGE,
   DEFAULT_ENDPOINT,
   detectUserTurn,
@@ -176,7 +177,15 @@ const SawaChat = ({
   const conversationId = useMemo(() => defaultConversationId(), []);
   const doFetch = useMemo<typeof fetch | undefined>(() => {
     if (fetcher) return fetcher;
-    return typeof fetch === "function" ? fetch : undefined;
+    /*
+     * Bound to globalThis so it survives being called in any style. An unbound
+     * `fetch` is brand-checked by the browser and throws "Illegal invocation"
+     * when `this` is anything but the global object, which is a silent failure
+     * here: the visitor sees only the generic error and no request is made.
+     */
+    return typeof globalThis.fetch === "function"
+      ? globalThis.fetch.bind(globalThis)
+      : undefined;
   }, [fetcher]);
 
   const abortRef = useRef<AbortController | null>(null);
@@ -393,12 +402,9 @@ const SawaChat = ({
     if (result.ok) {
       const resolved = resolveReply(result.text);
       appendAssistant(resolved.content, detection);
-      if (
-        plan.thenCrisis &&
-        detection.crisis &&
-        !result.text.includes(detection.crisis.text.en)
-      ) {
-        appendAssistant(detection.crisis.text.en, detection);
+      const crisisText = crisisTextFor(detection);
+      if (plan.thenCrisis && crisisText && !result.text.includes(crisisText)) {
+        appendAssistant(crisisText, detection);
       }
       dispatch({ type: "stream-end" });
       return;
@@ -410,6 +416,20 @@ const SawaChat = ({
         type: "notice",
         notice: { kind: "info", message: STREAM_TRUNCATED_MESSAGE },
       });
+      return;
+    }
+
+    /*
+     * Ticket 20: a request for the system prompt must be declined by the
+     * component, not reported as an outage. api/sawa.ts rejects an intake
+     * failure (injection, PII solicitation, oversized turn) with 400 before
+     * generation, so the bounded refusal keeps the visitor in the conversation
+     * instead of telling them Sawa is down and inviting a retry that cannot
+     * succeed.
+     */
+    if (result.reason === "http" && result.status === 400) {
+      dispatch({ type: "stream-end" });
+      appendAssistant(DECLINE_MESSAGE, detection);
       return;
     }
 
@@ -487,7 +507,7 @@ const SawaChat = ({
 
     if (!plan.callModel) {
       if (plan.immediate === "crisis" && detection.crisis) {
-        appendAssistant(detection.crisis.text.en, detection);
+        appendAssistant(crisisTextFor(detection), detection);
       } else {
         appendAssistant(DECLINE_MESSAGE, detection);
       }

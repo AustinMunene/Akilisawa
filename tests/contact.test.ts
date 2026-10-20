@@ -62,15 +62,25 @@ const send = async (overrides: Record<string, unknown> = {}) => {
   return { calls, last };
 };
 
+const { sentEmails } = vi.hoisted(() => ({
+  sentEmails: [] as Record<string, unknown>[],
+}));
+
 vi.mock("resend", () => ({
   Resend: class {
-    emails = { send: vi.fn().mockResolvedValue({ id: "test" }) };
+    emails = {
+      send: vi.fn(async (payload: Record<string, unknown>) => {
+        sentEmails.push(payload);
+        return { id: "test" };
+      }),
+    };
   },
 }));
 
 describe("api/contact validation", () => {
   beforeEach(() => {
     process.env.RESEND_API_KEY = "test-key";
+    sentEmails.length = 0;
   });
 
   it("rejects every method other than POST", async () => {
@@ -190,5 +200,56 @@ describe("api/contact validation", () => {
   it("parses a JSON string body, as Vercel delivers it", async () => {
     const { last } = await send({ body: JSON.stringify(validPayload) });
     expect(last().status).toBe(200);
+  });
+
+  it("rejects malformed JSON instead of throwing", async () => {
+    const { last } = await send({ body: '{"fullName":' });
+    expect(last().status).toBe(400);
+  });
+
+  it("rejects a body that is not a plain object", async () => {
+    const { last } = await send({ body: [] });
+    expect(last().status).toBe(400);
+  });
+
+  it("rejects a reason outside the form's allowlist", async () => {
+    /*
+     * The reason reaches the email subject. An unlisted value could carry a
+     * newline and a forged header, so only the six form options are accepted.
+     */
+    const { last } = await send({
+      body: {
+        ...validPayload,
+        reason: "Research Collaboration\r\nBcc: attacker@example.org",
+      },
+    });
+    expect(last().status).toBe(400);
+  });
+
+  it("rejects an email address carrying a second recipient", async () => {
+    const { last } = await send({
+      body: { ...validPayload, workEmail: "amina@example.org,attacker@example.org" },
+    });
+    expect(last().status).toBe(400);
+  });
+
+  it("caps fields that are not otherwise length-checked", async () => {
+    const { last } = await send({
+      body: { ...validPayload, fullName: "a".repeat(121) },
+    });
+    expect(last().status).toBe(400);
+  });
+
+  it("escapes visitor text in the internal HTML email", async () => {
+    await send({
+      body: {
+        ...validPayload,
+        message: 'Hello <script>alert(1)</script> & "friends"',
+      },
+    });
+    const html = String(sentEmails[0]?.html ?? "");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("&amp;");
   });
 });

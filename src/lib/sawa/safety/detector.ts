@@ -58,6 +58,20 @@ export type Detection = {
   readonly signal: SafetySignal | null;
 };
 
+/*
+ * Crisis copy is mandated in both languages (crisis-resources-v1.md). The
+ * lexicon already records the language of the phrase that matched, so a turn
+ * that matched a Kiswahili term gets the vetted Kiswahili block rather than
+ * the English one.
+ */
+export function crisisTextFor(detection: Detection): string {
+  if (!detection.crisis) return "";
+  const matchedKiswahili = detection.matches.some(
+    (match) => match.entry.lang === "sw"
+  );
+  return matchedKiswahili ? detection.crisis.text.sw : detection.crisis.text.en;
+}
+
 export type DetectionInput = {
   readonly text: string;
   readonly conversationId?: string;

@@ -30,7 +30,11 @@
 // runs. `tsconfig.api.json` now uses NodeNext so the verification gate catches
 // extensionless imports in the API's deployed module graph.
 import { promptV1, promptVersion } from "../src/lib/sawa/prompt.js";
-import { detectAssistantReply, detectUserTurn } from "../src/lib/sawa/safety/detector.js";
+import {
+  crisisTextFor,
+  detectAssistantReply,
+  detectUserTurn,
+} from "../src/lib/sawa/safety/detector.js";
 import { sendSafetyNotification } from "./_sawaEscalation.js";
 
 type Provider = "mistral" | "openai" | "nvidia";
@@ -213,7 +217,7 @@ const writeSse = (res: any, event: unknown) => {
 const sendSseText = (res: any, text: string) => {
   res.status(200);
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Cache-Control", "no-store");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
   if (typeof res.flushHeaders === "function") res.flushHeaders();
@@ -276,7 +280,7 @@ export default async function handler(req: any, res: any) {
     (!detection.behaviour.continueOpenEnded || detection.categories.includes("child_safety")) &&
     detection.crisis
   ) {
-    sendSseText(res, detection.crisis.text.en);
+    sendSseText(res, crisisTextFor(detection));
     if (detection.signal) await sendSafetyNotification(detection.signal);
     return;
   }
@@ -284,7 +288,7 @@ export default async function handler(req: any, res: any) {
   const config = resolveProviderConfig();
   if (!config) {
     if (detection.crisis) {
-      sendSseText(res, detection.crisis.text.en);
+      sendSseText(res, crisisTextFor(detection));
       return;
     }
     sendJson(res, 500, GENERIC_ERROR);
@@ -343,7 +347,7 @@ export default async function handler(req: any, res: any) {
 
   res.status(200);
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Cache-Control", "no-store");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
   if (typeof res.flushHeaders === "function") res.flushHeaders();

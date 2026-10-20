@@ -29,18 +29,7 @@
       href="/apple-touch-icon.png"
     />
     <title>Akili Sawa</title>
-    <script>
-      // Honour an explicit dark-mode choice while keeping light mode as default.
-      (function () {
-        try {
-          var stored = localStorage.getItem("akisawa-theme");
-          var dark = stored === "dark";
-          if (dark) document.documentElement.classList.add("dark");
-        } catch (e) {
-          /* storage blocked - fall through to the light default */
-        }
-      })();
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>
