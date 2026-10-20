@@ -82,6 +82,18 @@ describe("SawaAi page", () => {
     }
   });
 
+  it("orders the page as context, boundary, then conversation", () => {
+    const html = render();
+    const threeWays = html.indexOf("Three ways to use Sawa");
+    const boundary = html.indexOf("What Sawa can and cannot do");
+    const chat = html.indexOf('id="sawa-ai-chat"');
+    const faq = html.indexOf("Common questions");
+    expect(threeWays).toBeGreaterThan(-1);
+    expect(boundary).toBeGreaterThan(threeWays);
+    expect(chat).toBeGreaterThan(boundary);
+    expect(faq).toBeGreaterThan(chat);
+  });
+
   it("keeps the safety copy honest: mechanism, not a live readout", () => {
     const html = render();
     expect(html).toContain("not a live readout of this conversation");

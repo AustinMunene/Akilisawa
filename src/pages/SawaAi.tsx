@@ -26,10 +26,10 @@ const SawaAi = () => {
   return (
     <div>
       {/*
-       * §8 hero. Product first: the chat mounts directly under the heading so the
-       * opening message and input sit within the first screen (the §67 principle),
-       * with the explanatory paragraph below rather than between the hero and the
-       * conversation.
+       * §8 hero. The heading, the §8 paragraph, the non-clinical disclaimer and
+       * the CTA stay in the first screen; the conversation itself now sits below
+       * the §10 and §13 bands (product-order change, 2026-10-20, see ticket 10),
+       * so this CTA is the one-click route to the chat from the top of the page.
        */}
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
         <div className="max-w-3xl space-y-6">
@@ -40,19 +40,6 @@ const SawaAi = () => {
             <h1 className="text-balance">Meet Sawa AI.</h1>
             <h2 className="text-balance">A conversation can be a place to start.</h2>
           </div>
-
-          {/*
-           * The working chat (ticket 20). The wrapper keeps the fixed minimum
-           * height and the `#sawa-ai-chat` anchor the hero CTA scrolls to, so
-           * the transcript and composer land without reflowing the hero.
-           */}
-          <Card>
-            <div id="sawa-ai-chat" className="flex min-h-[24rem] flex-col">
-              <SawaAgeGate>
-                <SawaChat variant="page" />
-              </SawaAgeGate>
-            </div>
-          </Card>
 
           <p className="text-base text-muted md:text-lg">
             Sawa AI is Akili Sawa's AI-powered wellbeing companion, designed to
@@ -75,7 +62,8 @@ const SawaAi = () => {
       {/*
        * §10 access levels. Level 1 is live and visually marked; Levels 2 and 3
        * are described without a control that implies a capability we do not
-       * have. The §13 scope band and §14 answers slot below this.
+       * have. The §13 band and the conversation slot below this, the §14
+       * answers last.
        */}
       <SectionBackground variant="mid" className="pt-0">
         <div className="space-y-8">
@@ -183,6 +171,36 @@ const SawaAi = () => {
         </div>
       </SectionBackground>
 
+      {/*
+       * The conversation (ticket 20), now placed after the §10 access levels and
+       * the §13 boundary band so a visitor meets the product with its context
+       * already set. `#sawa-ai-chat` stays on the wrapper: the hero CTA and the
+       * Level 1 card both scroll to it, and the fixed minimum height keeps the
+       * transcript and composer from reflowing the page.
+       */}
+      <SectionBackground variant="gradient" className="pt-0">
+        <div className="space-y-6">
+          <div className="max-w-3xl space-y-3">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
+              Talk to Sawa AI
+            </p>
+            <h2 className="text-balance">Start when you are ready.</h2>
+            <p className="text-base text-muted md:text-lg">
+              No account is needed to begin, and the conversation is held in this
+              browser rather than on our servers.
+            </p>
+          </div>
+
+          <Card>
+            <div id="sawa-ai-chat" className="flex min-h-[24rem] flex-col">
+              <SawaAgeGate>
+                <SawaChat variant="page" />
+              </SawaAgeGate>
+            </div>
+          </Card>
+        </div>
+      </SectionBackground>
+
       <SectionBackground variant="mid">
         <Card>
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -206,9 +224,9 @@ const SawaAi = () => {
       </SectionBackground>
 
       {/*
-       * §67 six-question FAQ (ticket 14). Placed last, below the closing CTA
-       * and before the site footer, so the product is met first and the
-       * explanations follow.
+       * §67 six-question FAQ (ticket 14). Placed last, below the conversation
+       * and the closing CTA, so the six answers sit below the product as §67
+       * requires.
        */}
       <SectionBackground variant="light" className="pt-0">
         <Faq67 />
