@@ -10,6 +10,22 @@ const Privacy = () => {
           </p>
           <h1 className="text-balance">Data Protection &amp; Privacy</h1>
         </div>
+        <div className="mt-8 max-w-3xl rounded-3xl border border-brand-line bg-brand-soft/60 p-6 dark:bg-panel/70">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
+            Registered data controller
+          </p>
+          <p className="mt-3 text-base text-text md:text-lg">
+            Akili Sawa is a registered data controller with the Office of the
+            Data Protection Commissioner.
+          </p>
+          <p className="mt-3 text-sm text-muted">
+            Our certificate of registration, issued under the Data Protection
+            Act, 2019, records Akili Sawa in the category of data controller and
+            confirms that personal data is processed lawfully, fairly and
+            securely. The certificate can be shared with partners, participants
+            and regulators on request.
+          </p>
+        </div>
       </Section>
 
       <Section variant="mid" className="pt-0">
@@ -164,9 +180,17 @@ const Privacy = () => {
           <div className="space-y-4">
             <h2>Compliance and ethics</h2>
             <p className="text-sm text-muted">
-              Akili Sawa aligns its data practices with applicable data protection
-              laws and ethical standards relevant to the jurisdictions in which it
-              operates, including Kenya and international research collaborations.
+              Akili Sawa is a registered data controller with the Office of the
+              Data Protection Commissioner, the independent regulator established
+              under Kenya&apos;s Data Protection Act, 2019. Our certificate of
+              registration records Akili Sawa in the category of data
+              controller and is available on request.
+            </p>
+            <p className="text-sm text-muted">
+              Beyond registration, we align our data practices with applicable
+              data protection laws and ethical standards relevant to the
+              jurisdictions in which we operate, including Kenya and
+              international research collaborations.
             </p>
             <p className="text-sm text-muted">
               We regularly review our data practices to ensure they remain

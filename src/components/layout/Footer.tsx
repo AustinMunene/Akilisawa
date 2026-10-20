@@ -49,6 +49,13 @@ const Footer = () => {
             </a>
           </div>
           <p className="mt-3">
+            Akili Sawa is a registered data controller with the Office of the
+            Data Protection Commissioner, Kenya.{" "}
+            <Link to="/privacy" className="link-underline">
+              Data Protection &amp; Privacy
+            </Link>
+          </p>
+          <p className="mt-3">
             Akili Sawa provides non-clinical, preventive mental wellbeing
             support and does not offer diagnosis, therapy, or crisis services.
           </p>
