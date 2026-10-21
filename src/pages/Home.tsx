@@ -48,7 +48,7 @@ const Home = () => {
             </div>
           </div>
           <ImagePanel
-            src="https://res.cloudinary.com/dogeweg3r/image/upload/f_auto,q_auto,w_1600/v1792522186/WhatsApp_Image_2026-10-19_at_14.15.24_ilryoc.jpg"
+            src="/home-hero-wellbeing.jpg"
             alt="Akili Sawa preventive wellbeing work in practice"
           />
         </div>
@@ -298,7 +298,7 @@ const Home = () => {
           <div className="flex items-center">
             <div className="w-full">
               <ImagePanel
-                src="https://res.cloudinary.com/dogeweg3r/image/upload/f_auto,q_auto,w_1600/v1792522392/Community_uxg3wh.png"
+                src="/community-session.jpg"
                 alt="Community members taking part in a local wellbeing session"
               />
             </div>

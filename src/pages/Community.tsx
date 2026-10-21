@@ -43,7 +43,7 @@ const Community = () => {
           </div>
           <div className="w-full">
             <ImagePanel
-              src="https://res.cloudinary.com/dogeweg3r/image/upload/f_auto,q_auto,w_1600/v1792522392/Community_uxg3wh.png"
+              src="/community-session.jpg"
               alt="Community members taking part in a local wellbeing session"
             />
           </div>
