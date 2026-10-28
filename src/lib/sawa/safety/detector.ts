@@ -23,7 +23,9 @@ import { promptVersion } from "../prompt.js";
 import {
   applyUserTurnRules,
   checkAssistantReply,
+  classifyMatches,
   MAX_USER_TURN_CHARS,
+  type Classification,
   type IntakeIssue,
   type IntakeResult,
   type ReplyCheck,
@@ -156,5 +158,30 @@ export function detectAssistantReply(reply: string): ReplyCheck {
   return checkAssistantReply(reply);
 }
 
+/*
+ * The crisis classification on its own, without the chat turn's intake rules.
+ *
+ * The feedback form (ticket 29) needs to know whether a free-text comment
+ * carries crisis content, and `detectUserTurn` is the wrong tool for it: its
+ * intake rules are about a conversation with a model (prompt injection,
+ * soliciting someone's personal details), and neither means anything for a
+ * form field that reaches no model. Flagging "remember my name" as an
+ * intake issue would reject a perfectly ordinary comment.
+ *
+ * What the feedback form needs is the lexicon and the tiering, and nothing
+ * else. So the seam is here, in the module that owns the lexicon, and one
+ * place decides what counts as a crisis for both the chat and the form.
+ *
+ * The tier is returned rather than a boolean because the caller's response
+ * depends on it: a high-severity comment gets the full crisis block, an
+ * elevated one gets the shorter support block, and both come from
+ * crisisCopy.ts so the copy is the mandated copy.
+ */
+export function classifyCrisisContent(text: string): Classification {
+  if (typeof text !== "string") return { tier: "low", categories: [] };
+  return classifyMatches(matchLexicon(text));
+}
+
 // Re-exported so consumers need only the detector entry point.
 export { matchLexicon, MAX_USER_TURN_CHARS };
+export type { Classification };

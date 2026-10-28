@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/pilots",
+      "destination": "/partnerships",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!@vite(?:/|$)|@react-refresh(?:/|$)|src/|node_modules/|api(?:/|$)).*)",

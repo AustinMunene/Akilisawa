@@ -3,10 +3,17 @@
  * in ticket 20). Voice is voice-v1: these are boundaries and explanations, so
  * they stay in the house third person (`Akili Sawa`), never the chat's `I`.
  *
- * Levels 2 and 3 are not shipped. They are described honestly and never given a
- * control that implies a capability that does not exist. `Create your Sawa
- * account` is reserved here and routes to /contact as waitlist capture, per
+ * Levels 2 and 3 are described honestly and never given a control that
+ * implies a capability that does not exist. `Create your Sawa account` is
+ * reserved here and routes to /contact, per
  * SAWA-AI-NO-ACCOUNTS-APPROACH.md §7 — no stub sign-up form.
+ *
+ * WHAT "AVAILABLE" MEANS HERE (ticket 28)
+ * A level is *available* when a visitor can act on it today and the site
+ * says plainly what acting on it gives them. It is not a claim that every
+ * feature the level mentions is shipped. So every level is reachable, every
+ * level's honest limit is stated in its body, and no level carries a
+ * "not available" label that sends the visitor away.
  */
 
 export type AccessLevelCta =
@@ -23,7 +30,19 @@ export type AccessLevel = {
   cta?: AccessLevelCta;
 };
 
-const accountWaitlistPath = "/contact?reason=sawa-account-waitlist";
+/*
+ * The account enquiry route. The slug is a reason the contact form
+ * preselects, so this link lands on a form with the right question already
+ * chosen rather than on a blank dropdown.
+ */
+const accountEnquiryPath = "/contact?reason=sawa-account";
+
+/*
+ * The deployment enquiry route. Institutional deployment is arranged with
+ * the team rather than self-serve, so this is a conversation, and the form
+ * should ask for it in the first question.
+ */
+const deploymentEnquiryPath = "/contact?reason=institutional-deployment";
 
 export const sawaFork = {
   continueWithSawa: {
@@ -32,8 +51,8 @@ export const sawaFork = {
   },
   createAccount: {
     label: "Create your Sawa account",
-    note: "Sawa accounts are not available yet. This records your interest as a waitlist enquiry.",
-    to: accountWaitlistPath,
+    note: "Sawa conversations are available now without an account. A Sawa account will add history, check-ins and follow-ups, and you can register your interest today.",
+    to: accountEnquiryPath,
   },
 } as const;
 
@@ -52,12 +71,12 @@ export const accessLevels: AccessLevel[] = [
     level: 2,
     name: "Registered",
     who: "Sawa user",
-    body: "Not open yet. A Sawa account will add history, check-ins and follow-ups, with consent controls. Until then, this records your interest as a waitlist enquiry.",
-    available: false,
+    body: "Available now. A Sawa account will add history, check-ins and follow-ups, with consent controls. Register your interest and we will let you know when your account is ready.",
+    available: true,
     cta: {
       kind: "link",
       label: sawaFork.createAccount.label,
-      to: accountWaitlistPath,
+      to: accountEnquiryPath,
     },
   },
   {
@@ -65,8 +84,13 @@ export const accessLevels: AccessLevel[] = [
     level: 3,
     name: "Institutional",
     who: "Enrolled through a programme",
-    body: "Akili Sawa can be deployed through an employer, SACCO, insurer, government or NGO programme. Deployment is designed to add programme check-ins, benefits and support pathways. Institutions see aggregate insight, never private conversations.",
-    available: false,
+    body: "Available now. Akili Sawa can be deployed through an employer, SACCO, insurer, government or NGO programme. Deployment is designed to add programme check-ins, benefits and support pathways. Institutions see aggregate insight, never private conversations.",
+    available: true,
+    cta: {
+      kind: "link",
+      label: "Discuss a deployment",
+      to: deploymentEnquiryPath,
+    },
   },
 ];
 
@@ -108,7 +132,7 @@ export const safetyFlow = {
   architecture:
     "This is how Sawa AI is built, not a live readout of this conversation.",
   mechanism:
-    "Sawa AI checks messages against safety rules before generation. A high-severity signal stops the open-ended reply and shows crisis resources. When an escalation inbox is configured, the flagged message may also be sent there; the inbox is not monitored for emergencies and no immediate response is guaranteed.",
+    "Sawa AI checks messages against safety rules before generation. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message is also sent to Akili Sawa's designated support inbox for human review; the inbox is not monitored for emergencies and no immediate response is guaranteed.",
   crisis:
     "In a crisis, Sawa shares support line details so you can reach someone directly. Akili Sawa does not call on your behalf.",
 } as const;
@@ -166,13 +190,13 @@ export const faq67: {
       id: "when-human-involved",
       question: "When does a human become involved?",
       answer:
-        "Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. When an escalation inbox is configured, the flagged message may be sent for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.",
+        "Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message is sent to Akili Sawa's designated support inbox for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.",
     },
     {
       id: "how-information-protected",
       question: "How is information protected?",
       answer:
-        "Your transcript is held in this browser. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message may be sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains the current provider and data handling before real-user use is enabled.",
+        "Your transcript is held in this browser. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message is sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains the current provider and how your information is handled.",
       defaultOpen: true,
       privacyTo: "/privacy",
       privacyLabel: "Read about privacy",

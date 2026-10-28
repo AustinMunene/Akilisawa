@@ -13,7 +13,7 @@ export const navLinks: NavItem[] = [
   { label: "Our Prevention Model", path: "/prevention-model" },
   { label: "Insights", path: "/insights" },
   { label: "Ethics & Safeguarding", path: "/ethics" },
-  { label: "Pilots & Partnerships", path: "/pilots" },
+  { label: "Partnerships", path: "/partnerships" },
   { label: "Talk to Sawa AI", path: "/sawa-ai" },
   { label: "Contact", path: "/contact" },
 ];
@@ -33,7 +33,7 @@ export const footerColumns: FooterColumn[] = [
     title: "Partners",
     links: [
       { label: "For Organisations", path: "/for-organisations" },
-      { label: "Pilots & Partnerships", path: "/pilots" },
+      { label: "Partnerships", path: "/partnerships" },
       { label: "Contact", path: "/contact" },
     ],
   },

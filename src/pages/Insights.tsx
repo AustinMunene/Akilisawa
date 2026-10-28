@@ -123,7 +123,7 @@ const Insights = () => {
             <h2>How to Read These Insights</h2>
             <p className="text-sm text-muted">
               Insights are developed selectively, informed by learning from
-              pilots, research collaborations, and system design work.
+              engagements, research collaborations, and system design work.
             </p>
             <p className="text-sm text-muted">They are intended to:</p>
             <ul className="space-y-2 text-sm text-muted">

@@ -1,18 +1,39 @@
 import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import SectionBackground from "../components/layout/SectionBackground";
 import { Button } from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import ImagePanel from "../components/ui/ImagePanel";
+import {
+  contactReasons,
+  findContactReason,
+  resolveContactReasonSlug,
+} from "../lib/contact";
 
 const Contact = () => {
+  /*
+   * The prefill (ticket 28).
+   *
+   * Three links across the site point at `/contact?reason=...`. The form
+   * used to ignore the query string entirely, so a visitor who clicked
+   * "Available now" on the Sawa AI page landed on a form with the reason
+   * dropdown still empty, and the value the link carried was not even in
+   * the API's allowlist.
+   */
+  const [searchParams] = useSearchParams();
+  const prefilledReason = useMemo(
+    () => resolveContactReasonSlug(searchParams.get("reason"))?.value ?? "",
+    [searchParams]
+  );
+
   const [formData, setFormData] = useState({
     fullName: "",
     organisation: "",
     roleTitle: "",
     workEmail: "",
     countryRegion: "",
-    reason: "",
+    reason: prefilledReason,
     organisationType: "",
     researchInterest: "",
     mediaOutlet: "",
@@ -23,20 +44,16 @@ const Contact = () => {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
   );
+  const [statusMessage, setStatusMessage] = useState("");
 
-  const requiresOrgType = useMemo(
-    () =>
-      [
-        "Pilot or Partnership Discussion",
-        "Insurance / Financial Institution Collaboration",
-        "Employer / Workforce Program",
-        "General Organisational Enquiry",
-      ].includes(formData.reason),
-    [formData.reason]
-  );
-
-  const requiresResearch = formData.reason === "Research Collaboration";
-  const requiresMedia = formData.reason === "Media / Speaking Request";
+  /*
+   * Which extra field this reason asks for comes from the shared reason
+   * list, so the form and the API agree on what a given reason means.
+   */
+  const requires = findContactReason(formData.reason)?.requires ?? null;
+  const requiresOrgType = requires === "organisationType";
+  const requiresResearch = requires === "researchInterest";
+  const requiresMedia = requires === "mediaOutlet";
 
   const handleChange = (
     event: ChangeEvent<
@@ -85,6 +102,7 @@ const Contact = () => {
     if (Object.keys(nextErrors).length > 0) return;
 
     setStatus("loading");
+    setStatusMessage("");
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -93,6 +111,21 @@ const Contact = () => {
       });
 
       if (!response.ok) {
+        /*
+         * A message carrying crisis content is refused so it is not
+         * emailed to staff as a business enquiry. The visitor is pointed at
+         * real help instead, which is the point of the refusal, so it is
+         * shown rather than swallowed by the generic error.
+         */
+        const body = (await response.json().catch(() => null)) as {
+          message?: string;
+          support?: boolean;
+        } | null;
+        if (body?.support && body.message) {
+          setStatus("error");
+          setStatusMessage(body.message);
+          return;
+        }
         setStatus("error");
         return;
       }
@@ -130,8 +163,8 @@ const Contact = () => {
             <h1 className="text-balance">Get in Touch</h1>
             <p className="text-base text-muted md:text-lg">
               We engage with organisations, researchers, and institutions
-              interested in preventive mental wellbeing pilots, partnerships, and
-              learning collaborations.
+              interested in preventive mental wellbeing partnerships, scoped
+              engagements, and learning collaborations.
             </p>
             <p className="text-sm text-muted">
               Akili Sawa does not provide individual therapy, diagnosis, or crisis
@@ -235,12 +268,11 @@ const Contact = () => {
                     required
                   >
                     <option value="">Select one</option>
-                    <option>Pilot or Partnership Discussion</option>
-                    <option>Insurance / Financial Institution Collaboration</option>
-                    <option>Research Collaboration</option>
-                    <option>Employer / Workforce Program</option>
-                    <option>General Organisational Enquiry</option>
-                    <option>Media / Speaking Request</option>
+                    {contactReasons.map((reason) => (
+                      <option key={reason.value} value={reason.value}>
+                        {reason.value}
+                      </option>
+                    ))}
                   </select>
                   {errors.reason ? (
                     <p className={errorClass}>{errors.reason}</p>
@@ -341,9 +373,20 @@ const Contact = () => {
               </label>
 
               {status === "error" ? (
-                <p className={`text-sm ${errorClass}`}>
-                  We could not send your message. Please try again later.
-                </p>
+                statusMessage ? (
+                  /*
+                   * A redirect to support, not a form error. It is set in the
+                   * text colour rather than the error colour, because
+                   * nothing went wrong with the form.
+                   */
+                  <p className="text-sm text-text" role="status">
+                    {statusMessage}
+                  </p>
+                ) : (
+                  <p className={`text-sm ${errorClass}`}>
+                    We could not send your message. Please try again later.
+                  </p>
+                )
               ) : null}
 
                 <div className="flex items-center justify-between gap-4">

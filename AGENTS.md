@@ -37,9 +37,11 @@ Individually:
   they are covered by `tsconfig.api.json`. Adding a handler without checking it is the
   failure mode ticket 03 existed to close.
 - `tests/` — `vitest`, `node` environment. One file per area, e.g. `tests/contact.test.ts`.
-- `.scratch/sawa-ai-anonymous/` — the tracker for the Sawa AI build. `map.md` is the
-  index; `issues/` holds one file per ticket with its question, decision and acceptance
-  criteria. Read the ticket before you start the work and update it when you finish.
+- `.scratch/sawa-ai-anonymous/` — the tracker for this work. `map.md` is the index
+  for the Sawa AI build; `map-site-works.md` is the index for the follow-up map
+  (tickets 26–30: mail delivery, vocabulary, access levels, feedback). `issues/`
+  holds one file per ticket with its question, decision and acceptance criteria.
+  Read the ticket before you start the work and update it when you finish.
   It is gitignored: local planning notes, never committed.
 
 ## Conventions
@@ -55,4 +57,8 @@ Individually:
   `src/` use `.js` specifiers, which NodeNext typechecking resolves to the TypeScript source.
 - Colour comes from the token layer in `src/styles/globals.css` (`@theme inline`), not
   literal hex in components. Dark mode is a `.dark` class on `<html>`, set before paint.
+- **The Resend SDK does not throw on an API error.** It resolves with
+  `{ data: null, error }`. Every send must check `result.error` before reporting
+  success — see `docs/adr/mail-delivery-contract-v1.md`. A handler that awaits a
+  send and returns 200 has not checked anything.
 - Do not commit `dist/`, `coverage/` or `node_modules/`.

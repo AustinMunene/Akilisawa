@@ -14,9 +14,9 @@ import {
  */
 
 describe("Sawa prompt", () => {
-  it("stamps the website-rules production prompt as version 1.3", () => {
-    expect(promptVersion).toBe("1.3");
-    expect(PROMPT_VERSION).toBe("1.3");
+  it("stamps the website-rules production prompt as version 1.4", () => {
+    expect(promptVersion).toBe("1.4");
+    expect(PROMPT_VERSION).toBe("1.4");
     expect(promptVersion).toBe(PROMPT_VERSION);
   });
 
@@ -63,7 +63,24 @@ describe("Sawa prompt", () => {
   it("encodes what the pages promise: no account, transcript held in this browser", () => {
     expect(promptV1).toContain("no account and no sign-in");
     expect(promptV1).toContain("held in this browser rather than on our servers");
-    expect(promptV1).toContain("Sawa accounts, history, check-ins and follow-ups are not available");
+  });
+
+  /*
+   * The prompt and the page have to agree (ticket 28). The old line told
+   * the model to say accounts "are not available", which the /sawa-ai
+   * access levels contradicted. The model now says Sawa is available to
+   * talk to now and points an account question at the contact page.
+   */
+  it("agrees with the page that Sawa is available to talk to now", () => {
+    expect(promptV1).toContain("Sawa is available to talk to now");
+    expect(promptV1).toContain("register their interest through the contact page");
+  });
+
+  it("does not tell the model to call the product unavailable", () => {
+    expect(promptV1).not.toContain(
+      "Sawa accounts, history, check-ins and follow-ups are not available"
+    );
+    expect(promptV1.toLowerCase()).not.toContain("are not available");
   });
 
   it("encodes the §67 privacy and human-review disclosures verbatim in substance", () => {

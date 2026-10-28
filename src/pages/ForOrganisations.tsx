@@ -30,7 +30,7 @@ const ForOrganisations = () => {
               risk, improve behavioural follow-through, and strengthen outcomes without expanding clinical liability.
             </p>
             <div className="flex flex-wrap gap-4">
-              <ButtonLink to="/pilots">Explore Pilots &amp; Partnerships</ButtonLink>
+              <ButtonLink to="/partnerships">Explore Partnerships</ButtonLink>
               <ButtonLink to="/prevention-model" variant="secondary">
                 Our Prevention Model
               </ButtonLink>
@@ -81,14 +81,14 @@ const ForOrganisations = () => {
                   Typical use cases:
                 </p>
                 <ul className="space-y-2 text-sm text-muted">
-                  <li>Claims-adjacent prevention pilots</li>
+                  <li>Claims-adjacent prevention engagements</li>
                   <li>Member resilience programs</li>
                   <li>Low-bandwidth outreach to rural or informal populations</li>
                 </ul>
               </div>
               <div className="mt-4">
-                <ButtonLink to="/pilots" variant="tertiary">
-                  Explore Insurance Pilots →
+                <ButtonLink to="/partnerships" variant="tertiary">
+                  Explore Insurance Engagements →
                 </ButtonLink>
               </div>
             </Card>
@@ -110,7 +110,7 @@ const ForOrganisations = () => {
               </div>
               <div className="mt-4">
                 <ButtonLink to="/contact" variant="tertiary">
-                  Discuss a Workforce Pilot →
+                  Discuss a Workforce Engagement →
                 </ButtonLink>
               </div>
             </Card>
@@ -149,11 +149,11 @@ const ForOrganisations = () => {
             <Card eyebrow="Step 1" title="Scoping &amp; Alignment">
               Define objectives, operating context, and impact outcomes.
             </Card>
-            <Card eyebrow="Step 2" title="Pilot Design">
+            <Card eyebrow="Step 2" title="Engagement Design">
               Establish delivery scope, measurement, and stakeholder roles.
             </Card>
             <Card eyebrow="Step 3" title="Ethical Review &amp; Delivery">
-              Run pilots with safeguarding protocols and transparent reporting.
+              Run engagements with safeguarding protocols and transparent reporting.
             </Card>
             <Card eyebrow="Step 4" title="Learning &amp; Scale Decisions">
               Translate findings into scalable, sustainable programs.
@@ -180,14 +180,14 @@ const ForOrganisations = () => {
             </ButtonLink>
           </div>
           <div className="space-y-6">
-            <h2>Pilots &amp; Partnerships</h2>
+            <h2>Partnerships &amp; Engagements</h2>
             <p className="max-w-2xl text-base text-muted md:text-lg">
-              We co-design pilots in confidence, with clear privacy expectations
+              We co-design engagements in confidence, with clear privacy expectations
               for partners, participants, and data handling to protect all
               stakeholders.
             </p>
-            <ButtonLink to="/pilots" variant="tertiary">
-              Explore Pilots &amp; Partnerships →
+            <ButtonLink to="/partnerships" variant="tertiary">
+              Explore Partnerships →
             </ButtonLink>
           </div>
         </div>

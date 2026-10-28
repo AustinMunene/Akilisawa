@@ -1,4 +1,14 @@
-import { Resend } from "resend";
+import {
+  contactReasonValues,
+  findContactReason,
+  type ContactReasonVariant,
+} from "../src/lib/contact.js";
+import { classifyCrisisContent } from "../src/lib/sawa/safety/detector.js";
+import {
+  sendMail,
+  sender,
+  teamRecipient,
+} from "./_mail.js";
 
 type ContactPayload = {
   fullName: string;
@@ -18,37 +28,32 @@ const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const rateLimitStore = new Map<string, { count: number; start: number }>();
 
-const sensitivePhrases = [
-  "suicide",
-  "self-harm",
-  "kill myself",
-  "kill me",
-  "end my life",
-  "abuse",
-  "assault",
-  "rape",
-  "trauma",
-  "emergency",
-];
+/*
+ * The crisis guard for the contact form.
+ *
+ * It used to be a flat list of ten words, including "trauma" and "emergency",
+ * so a B2B enquiry about a trauma-informed programme or an emergency
+ * response team was rejected. That is the anti-pattern the safety lexicon
+ * exists not to reproduce (gap-analysis item 7.10).
+ *
+ * Now it is the same bilingual lexicon the chat uses, and it refuses only on
+ * the tiers that mean the person needs help rather than a reply: `high` and
+ * `elevated`. A message that merely mentions trauma, or a substance-crisis
+ * programme, is an enquiry, and it is answered.
+ *
+ * The levels 2 and 3 routes on /sawa-ai send individual visitors here, so
+ * the guard has to work for a person as well as for an organisation.
+ */
+const REFUSED_TIERS = new Set(["high", "elevated"]);
 
-const reasonVariants = {
-  partnership: new Set([
-    "Pilot or Partnership Discussion",
-    "Insurance / Financial Institution Collaboration",
-    "Employer / Workforce Program",
-    "General Organisational Enquiry",
-  ]),
-  research: new Set(["Research Collaboration"]),
-  media: new Set(["Media / Speaking Request"]),
-};
-
-// Every reason the contact form can submit. Anything else is rejected rather
-// than reaching the subject line or the responder-template lookup.
-const allowedReasons = new Set([
-  ...reasonVariants.partnership,
-  ...reasonVariants.research,
-  ...reasonVariants.media,
-]);
+/*
+ * Every reason the contact form can submit, taken from the shared list so
+ * the dropdown and the allowlist cannot drift apart. Anything else is
+ * rejected rather than reaching the subject line or the responder-template
+ * lookup. The reason reaches the email subject, so an unlisted value could
+ * carry a newline and a forged header.
+ */
+const allowedReasons = new Set<string>(contactReasonValues);
 
 // Untrusted lengths are capped before anything is formatted into an email.
 const MAX_FIELD_LENGTHS: Record<string, number> = {
@@ -69,7 +74,7 @@ const responderTemplates = {
     subject: "Thank you for your enquiry — Akili Sawa",
     body: `Thank you for reaching out to Akili Sawa.
 
-We have received your enquiry regarding a potential collaboration or pilot. Our team reviews all partnership requests to ensure alignment with our preventive, non-clinical scope.
+We have received your enquiry regarding a potential collaboration or engagement. Our team reviews all partnership requests to ensure alignment with our preventive, non-clinical scope.
 
 If there is a fit, we will follow up to propose a scoping conversation.
 
@@ -96,6 +101,28 @@ Media and speaking requests are reviewed on a case-by-case basis. We will be in 
 Kind regards,
 Akili Sawa Team`,
   },
+  sawaAccount: {
+    subject: "Thank you for your Sawa account enquiry - Akili Sawa",
+    body: `Thank you for reaching out to Akili Sawa about a Sawa account.
+
+Sawa conversations are available now without an account, and the conversation is held in your browser. A Sawa account will add history, check-ins, and follow-ups, with consent controls you can see and change.
+
+Your enquiry has been received and will be reviewed by our team.
+
+Kind regards,
+Akili Sawa Team`,
+  },
+  institutional: {
+    subject: "Thank you for your deployment enquiry - Akili Sawa",
+    body: `Thank you for reaching out to Akili Sawa about an institutional deployment.
+
+Akili Sawa can be deployed through an employer, SACCO, insurer, government, or NGO programme. Deployment is designed to add programme check-ins, benefits, and support pathways, and institutions see aggregate insight rather than private conversations.
+
+Your enquiry has been received and we will follow up to propose a scoping conversation.
+
+Kind regards,
+Akili Sawa Team`,
+  },
   fallback: {
     subject: "Thank you for contacting Akili Sawa",
     body: `Thank you for reaching out to Akili Sawa.
@@ -109,16 +136,17 @@ Akili Sawa Team`,
   },
 };
 
-const getVariantKey = (reason: string) => {
-  if (reasonVariants.partnership.has(reason)) return "partnership";
-  if (reasonVariants.research.has(reason)) return "research";
-  if (reasonVariants.media.has(reason)) return "media";
-  return "fallback";
-};
+const getVariantKey = (reason: string): ContactReasonVariant =>
+  findContactReason(reason)?.variant ?? "fallback";
 
-const containsSensitiveContent = (value: string) => {
-  const lower = value.toLowerCase();
-  return sensitivePhrases.some((phrase) => lower.includes(phrase));
+/*
+ * Whether the message needs a person rather than a reply. The tiers come
+ * from the shared safety lexicon, so the contact form and the chat agree on
+ * what counts as crisis content.
+ */
+const needsSupportNotReply = (value: string) => {
+  const classification = classifyCrisisContent(value);
+  return REFUSED_TIERS.has(classification.tier);
 };
 
 const HTML_ESCAPES: Record<string, string> = {
@@ -224,8 +252,14 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  if (containsSensitiveContent(payload.message)) {
+  if (needsSupportNotReply(payload.message)) {
+    /*
+     * `support` tells the form this refusal is a redirect to help, not a
+     * problem with what was typed. The visitor is shown where to get
+     * support, which is the whole point of the guard.
+     */
     res.status(400).json({
+      support: true,
       message:
         "We cannot process this message. Please contact local emergency services or a trusted healthcare provider.",
     });
@@ -238,8 +272,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const resend = new Resend(resendApiKey);
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "no-reply@akilisawa.com";
+  const fromEmail = sender();
   const timestamp = new Date().toISOString();
   const variant = responderTemplates[getVariantKey(payload.reason)];
 
@@ -263,25 +296,49 @@ Message:
 ${payload.message}
 `.trim();
 
-  try {
-    await resend.emails.send({
-      from: fromEmail,
-      to: "smile@akilisawa.com",
-      subject: `New Contact Request: ${payload.reason}`,
-      text: internalBody,
-      html: escapeHtml(internalBody).replace(/\n/g, "<br />"),
-    });
+  /*
+   * THE DELIVERY CONTRACT (ticket 26).
+   *
+   * The Resend SDK does not throw on an API error: it resolves with
+   * `{ data: null, error }`. The handler this replaced awaited the send
+   * inside a try/catch that could never fire, and answered `200 ok` on
+   * every failed send - telling every enquirer their message had been
+   * received while dropping it. The live site did this for as long as the
+   * domain was unverified.
+   *
+   * The two copies have different weights:
+   *   - The TEAM copy is load-bearing. If it fails the enquiry is gone, so
+   *     the request must fail and the visitor is told to try again.
+   *   - The VISITOR's acknowledgement is best-effort. The enquiry has
+   *     already landed, and failing the request would invite a duplicate
+   *     into the same inbox.
+   */
+  const teamCopy = await sendMail({
+    from: fromEmail,
+    to: teamRecipient(),
+    subject: `New Contact Request: ${payload.reason}`,
+    text: internalBody,
+    html: escapeHtml(internalBody).replace(/\n/g, "<br />"),
+  });
 
-    await resend.emails.send({
-      from: fromEmail,
-      to: payload.workEmail,
-      subject: variant.subject,
-      text: variant.body,
-      html: variant.body.replace(/\n/g, "<br />"),
-    });
-
-    res.status(200).json({ message: "ok" });
-  } catch (error) {
+  if (!teamCopy.ok) {
+    if (teamCopy.reason === "not-configured") {
+      res.status(500).json({ message: "Email service not configured." });
+      return;
+    }
     res.status(500).json({ message: "Unable to send message." });
+    return;
   }
+
+  // The enquiry is safe. A failed acknowledgement is not worth a retry.
+  await sendMail({
+    from: fromEmail,
+    to: payload.workEmail,
+    subject: variant.subject,
+    text: variant.body,
+    html: variant.body.replace(/\n/g, "<br />"),
+  });
+
+  res.status(200).json({ message: "ok" });
 }
+

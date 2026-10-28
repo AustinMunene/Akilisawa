@@ -150,7 +150,7 @@ const Home = () => {
                     Researchers &amp; Funders
                   </h3>
                   <p className="text-sm text-muted">
-                    Partner on evidence-led pilots that capture behavioural
+                    Partner on evidence-led engagements that capture behavioural
                     outcomes and scalable prevention insights.
                   </p>
                   <ButtonLink to="/for-organisations" variant="tertiary">
@@ -270,14 +270,14 @@ const Home = () => {
             </ButtonLink>
           </div>
           <div className="space-y-6">
-            <h2>Pilots, Partnerships &amp; Evidence</h2>
+            <h2>Partnerships, Engagements &amp; Evidence</h2>
             <p className="max-w-2xl text-base text-muted md:text-lg">
-              We co-design pilots with aligned partners to validate prevention
+              We co-design engagements with aligned partners to validate prevention
               outcomes, refine delivery in real settings, and build evidence that
               supports responsible scale.
             </p>
-            <ButtonLink to="/pilots" variant="tertiary">
-              Explore Pilots &amp; Partnerships →
+            <ButtonLink to="/partnerships" variant="tertiary">
+              Explore Partnerships →
             </ButtonLink>
           </div>
         </div>

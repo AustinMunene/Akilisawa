@@ -4,24 +4,33 @@ import Card from "../components/ui/Card";
 import IconContainer from "../components/ui/IconContainer";
 import ImagePanel from "../components/ui/ImagePanel";
 
-const Pilots = () => {
+/*
+ * Partnerships, engagements and learning collaborations (ticket 27).
+ *
+ * This page was `/pilots`. The word "pilot" is gone from the site:
+ * an *engagement* is a scoped, time-bound collaboration with a partner on
+ * defined success measures, a *partnership* is the relationship, and a
+ * *deployment* is the act of going live. See
+ * docs/adr/vocabulary-engagement-v1.md.
+ */
+const Partnerships = () => {
   return (
     <div>
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
-        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">
           <div className="max-w-3xl space-y-6">
             <div className="space-y-3">
               <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
                 Evidence-driven. Ethically bounded. Purpose-built for scale.
               </p>
               <h1 className="text-balance">
-                Pilots, Partnerships, and Learning Collaborations
+                Partnerships, Engagements, and Learning Collaborations
               </h1>
             </div>
             <p className="max-w-2xl text-base text-muted md:text-lg">
               Akili Sawa partners with insurers, employers, researchers, and
-              institutions to design, test, and scale preventive mental wellbeing
-              interventions.
+              institutions to design, deliver, and scale preventive mental
+              wellbeing interventions.
             </p>
             <div className="flex flex-wrap gap-4">
               <ButtonLink to="#partnership-pathways">
@@ -42,12 +51,13 @@ const Pilots = () => {
       <SectionBackground variant="mid" className="pt-0">
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-4">
-            <h2>What We Mean by Pilots</h2>
+            <h2>What We Mean by an Engagement</h2>
             <p className="max-w-3xl text-base text-muted md:text-lg">
-              Pilots are structured, time-bound collaborations designed to test
-              preventive mental wellbeing interventions in real-world settings.
-              They allow partners to assess feasibility, engagement, behavioural
-              outcomes, and ethical delivery — before broader rollout.
+              An engagement is a structured, time-bound collaboration designed
+              to deliver a preventive mental wellbeing intervention in
+              real-world settings. It gives partners a way to assess
+              feasibility, engagement, behavioural outcomes, and ethical
+              delivery — before a wider rollout.
             </p>
           </div>
           <Card>
@@ -130,20 +140,20 @@ const Pilots = () => {
                       <path d="M4 10h16" />
                       <path d="M6 6h12" />
                       <path d="M8 14h8" />
-                      <path d="M5 18h14" />
+                      <path d="M5 18h13" />
                     </svg>
                   </IconContainer>
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
-                      Insurance &amp; Financial Services Pilots
+                      Insurance &amp; Financial Services Engagements
                     </p>
                     <h3 className="mt-1 text-lg font-semibold text-text">
-                      Insurance &amp; Financial Institution Pilots
+                      Insurance &amp; Financial Institution Engagements
                     </h3>
                   </div>
                 </div>
                 <p className="text-sm text-muted">
-                  Akili Sawa is engaged in paid pilots with insurance and
+                  Akili Sawa is engaged in paid work with insurance and
                   financial institutions exploring prevention-led approaches to
                   member wellbeing, claims mitigation, and engagement.
                 </p>
@@ -158,7 +168,7 @@ const Pilots = () => {
                   </ul>
                 </div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark dark:text-brand">
-                  Pilot phase (partner names confidential)
+                  Engagement phase (partner names confidential)
                 </p>
               </div>
             </Card>
@@ -199,14 +209,14 @@ const Pilots = () => {
               objectives.
             </Card>
             <Card eyebrow="Step 2" title="Scoping &amp; Design">
-              Definition of pilot structure, delivery format, safeguards, and
-              success measures.
+              Definition of engagement structure, delivery format, safeguards,
+              and success measures.
             </Card>
             <Card eyebrow="Step 3" title="Agreement &amp; Governance">
               NDA (where required), ethical alignment, and implementation
               planning.
             </Card>
-            <Card eyebrow="Step 4" title="Pilot Delivery &amp; Learning">
+            <Card eyebrow="Step 4" title="Delivery &amp; Learning">
               Deployment, monitoring, and shared learning.
             </Card>
           </div>
@@ -253,10 +263,10 @@ const Pilots = () => {
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <h2 className="text-xl md:text-2xl">
-                Ready to scope a pilot?
+                Ready to scope an engagement?
               </h2>
               <p className="text-sm text-muted">
-                Start with a structured, ethical, prevention-first pilot.
+                Start with a structured, ethical, prevention-first engagement.
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -278,4 +288,4 @@ const Pilots = () => {
   );
 };
 
-export default Pilots;
+export default Partnerships;

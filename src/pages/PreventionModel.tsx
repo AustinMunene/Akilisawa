@@ -253,8 +253,8 @@ const PreventionModel = () => {
             </div>
             <div className="flex flex-wrap gap-4">
               <ButtonLink to="/for-organisations">For Organisations</ButtonLink>
-              <ButtonLink to="/pilots" variant="secondary">
-                Pilots &amp; Partnerships
+              <ButtonLink to="/partnerships" variant="secondary">
+                Partnerships
               </ButtonLink>
               <ButtonLink to="/contact" variant="tertiary">
                 Contact Us

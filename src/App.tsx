@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 
 const About = lazy(() => import("./pages/About"));
@@ -21,7 +21,7 @@ const PreventiveLayerOfCare = lazy(
   () => import("./pages/insights/PreventiveLayerOfCare")
 );
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Pilots = lazy(() => import("./pages/Pilots"));
+const Partnerships = lazy(() => import("./pages/Partnerships"));
 const PreventionModel = lazy(() => import("./pages/PreventionModel"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const SafeguardingFramework = lazy(() => import("./pages/SafeguardingFramework"));
@@ -51,7 +51,14 @@ const App = () => {
             element={<EthicalDeliveryFragileContexts />}
           />
           <Route path="ethics" element={<Ethics />} />
-          <Route path="pilots" element={<Pilots />} />
+          {/*
+            The old /pilots URL is kept alive as a redirect. It is in
+            bookmarks, in shared links and in the planning documents, and a
+            visitor who follows one should reach the page rather than a 404
+            (ticket 27).
+          */}
+          <Route path="pilots" element={<Navigate to="/partnerships" replace />} />
+          <Route path="partnerships" element={<Partnerships />} />
           <Route path="about" element={<About />} />
           <Route path="evidence-impact" element={<EvidenceImpact />} />
           <Route path="community" element={<Community />} />

@@ -41,20 +41,33 @@ describe("SawaAi page", () => {
     expect(html).toContain("Akili Sawa is not a therapist, clinician or crisis service.");
   });
 
-  it("renders the three §10 access levels, marking only Level 1 as available", () => {
+  /*
+   * The three access levels (ticket 28). A level is "available" when a
+   * visitor can act on it today and the page says plainly what acting on
+   * it gives them. All three are reachable, so none of them carries a
+   * "not available" label that sends the visitor away.
+   */
+  it("renders the three §10 access levels, all of them available", () => {
     const html = render();
     expect(html).toContain("Three ways to use Sawa");
     expect(html).toContain("Level 1");
     expect(html).toContain("Level 2");
     expect(html).toContain("Level 3");
     expect(html).toContain("Available now");
-    expect(html.match(/Not available yet/g)?.length).toBe(2);
+    expect(html).not.toContain("Not available yet");
   });
 
-  it("routes the account CTA to /contact as waitlist capture, not a stub form", () => {
+  it("gives every level a way to act on it", () => {
     const html = render();
+    expect(html).toContain("Talk to Sawa AI");
     expect(html).toContain("Create your Sawa account");
-    expect(html).toContain("/contact?reason=sawa-account-waitlist");
+    expect(html).toContain("Discuss a deployment");
+  });
+
+  it("routes the account and deployment levels to a form that preselects the reason", () => {
+    const html = render();
+    expect(html).toContain("/contact?reason=sawa-account");
+    expect(html).toContain("/contact?reason=institutional-deployment");
   });
 
   it("keeps the institutional copy free of surveillance implications", () => {
@@ -98,7 +111,10 @@ describe("SawaAi page", () => {
     const html = render();
     expect(html).toContain("not a live readout of this conversation");
     expect(html).toContain(
-      "the flagged message may also be sent there; the inbox is not monitored for emergencies"
+      "The flagged message is also sent to Akili Sawa's designated support inbox"
+    );
+    expect(html).toContain(
+      "the inbox is not monitored for emergencies and no immediate response is guaranteed"
     );
     expect(html).toContain("Akili Sawa does not call on your behalf");
   });

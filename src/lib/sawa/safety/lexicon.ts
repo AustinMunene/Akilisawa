@@ -70,14 +70,48 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "hakuna sababu ya kuishi", lang: "sw", category: "suicidal_ideation", tier: high },
   { term: "bora nife", lang: "sw", category: "suicidal_ideation", tier: high },
 
+  /*
+   * Inflected forms (ticket 29).
+   *
+   * A lexicon that lists one form of a phrase misses the people it exists
+   * for. Kiswahili verbs inflect for subject and tense, so "nataka kufa"
+   * (I want to die) did not match "ninataka kufa" (I really want to die)
+   * or "nasitaki kuishi" (I do not want to live). The turn classified as
+   * `low`, which means no crisis copy and no escalation: under-classifying
+   * distress, the failure this module refuses to make.
+   *
+   * These are listed explicitly, as separate entries, rather than derived
+   * by stripping prefixes off a word. A stripper has to guess where a
+   * prefix ends, and a wrong guess turns a benign word into a crisis
+   * signal. An explicit list can be read and signed off by the person who
+   * has to sign the safety pipeline off, and the file already worked this
+   * way: "kujikata" and "najikata" were already both listed.
+   */
+  { term: "ninataka kufa", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "ninitaka kufa", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nasitaki kuishi", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "ninasitaki kuishi", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nasitaki kuendelea", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "haina sababu ya kuishi", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nibora nife", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nimekumaliza maisha yangu", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nalimaliza maisha yangu", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nimekujiuwa", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nimekujiua", lang: "sw", category: "suicidal_ideation", tier: high },
+  { term: "nilikujiuwa", lang: "sw", category: "suicidal_ideation", tier: high },
+
   // High: self-harm.
-  { term: "self harm", lang: "en", category: "self_harm", tier: high },
-  { term: "selfharm", lang: "en", category: "self_harm", tier: high },
   { term: "cut myself", lang: "en", category: "self_harm", tier: high },
   { term: "cutting myself", lang: "en", category: "self_harm", tier: high },
+  { term: "kill myself", lang: "en", category: "self_harm", tier: high },
+  { term: "killing myself", lang: "en", category: "self_harm", tier: high },
   { term: "hurt myself", lang: "en", category: "self_harm", tier: high },
   { term: "hurting myself", lang: "en", category: "self_harm", tier: high },
   { term: "harm myself", lang: "en", category: "self_harm", tier: high },
+  { term: "harming myself", lang: "en", category: "self_harm", tier: high },
+  { term: "self harm", lang: "en", category: "self_harm", tier: high },
+  { term: "selfharm", lang: "en", category: "self_harm", tier: high },
+  { term: "self harming", lang: "en", category: "self_harm", tier: high },
   { term: "burning myself", lang: "en", category: "self_harm", tier: high },
   { term: "starve myself", lang: "en", category: "self_harm", tier: high },
 
@@ -86,6 +120,14 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "kujikata", lang: "sw", category: "self_harm", tier: high },
   { term: "najikata", lang: "sw", category: "self_harm", tier: high },
   { term: "kujichoma", lang: "sw", category: "self_harm", tier: high },
+
+  // Inflected forms of the Kiswahili self-harm infinitives (ticket 29).
+  { term: "nimekujikata", lang: "sw", category: "self_harm", tier: high },
+  { term: "nilikujikata", lang: "sw", category: "self_harm", tier: high },
+  { term: "nimekatakata", lang: "sw", category: "self_harm", tier: high },
+  { term: "nimekujidhuru", lang: "sw", category: "self_harm", tier: high },
+  { term: "nimekujiumiza", lang: "sw", category: "self_harm", tier: high },
+  { term: "nimekujichoma", lang: "sw", category: "self_harm", tier: high },
 
   // High: indirect reference, the euphemisms a word list misses.
   { term: "joining my brother", lang: "en", category: "indirect_reference", tier: high, indirect: true },
@@ -126,6 +168,9 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "beats me", lang: "en", category: "gbv", tier: elevated },
   { term: "abusive partner", lang: "en", category: "gbv", tier: elevated },
   { term: "forced me", lang: "en", category: "gbv", tier: elevated },
+  { term: "was abused", lang: "en", category: "gbv", tier: elevated },
+  { term: "abused me", lang: "en", category: "gbv", tier: elevated },
+  { term: "being abused", lang: "en", category: "gbv", tier: elevated },
 
   { term: "nibakwa", lang: "sw", category: "gbv", tier: elevated },
   { term: "kubakwa", lang: "sw", category: "gbv", tier: elevated },
@@ -151,6 +196,12 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "siwezi kuacha kunywa", lang: "sw", category: "substance_crisis", tier: elevated },
   { term: "madawa ya kulevya", lang: "sw", category: "substance_crisis", tier: elevated },
   { term: "pombe kupita kiasi", lang: "sw", category: "substance_crisis", tier: elevated },
+
+  // Inflected forms of the Kiswahili elevated entries (ticket 29).
+  { term: "nimepindukia dawa", lang: "sw", category: "substance_crisis", tier: elevated },
+  { term: "nalipindukia dawa", lang: "sw", category: "substance_crisis", tier: elevated },
+  { term: "nimekubakwa", lang: "sw", category: "gbv", tier: elevated },
+  { term: "nimekuwa na washa", lang: "sw", category: "distress", tier: elevated },
 
   // Elevated: child safety, including under-18 disclosure.
   { term: "i am 12", lang: "en", category: "child_safety", tier: elevated },
@@ -230,13 +281,32 @@ const APOSTROPHES = /['\u2019`]/g;
 const NON_WORD = /[^\p{L}\p{N}]+/gu;
 
 /*
+ * "i'm" is expanded to "i am" before the apostrophe is stripped, because the
+ * lexicon's child-safety ages are written "i am 16" and a visitor writes
+ * "I'm 16". Stripping the apostrophe alone turns the second into "im 16",
+ * which matches nothing, so the age disclosure is missed.
+ *
+ * Only this one contraction is expanded. The others do not need it: the
+ * lexicon lists both the contracted and the expanded form of each ("dont
+ * want to live" alongside "do not want to live"), so stripping the
+ * apostrophe already leaves a match.
+ */
+const CONTRACTIONS: readonly (readonly [RegExp, string])[] = [
+  [/\bi['\u2019]m\b/gi, "i am"],
+];
+
+/*
  * Normalising both the lexicon and the incoming text the same way makes the
  * match apostrophe-insensitive ("cannot" vs "can't"), punctuation-insensitive
  * and whitespace-insensitive, and makes it case-insensitive without a regex
  * per entry. Used for the substring test only, never for anything a user sees.
  */
 export function normalise(text: string): string {
-  return text
+  let expanded = text;
+  for (const [pattern, replacement] of CONTRACTIONS) {
+    expanded = expanded.replace(pattern, replacement);
+  }
+  return expanded
     .normalize("NFKC")
     .toLowerCase()
     .replace(APOSTROPHES, "")

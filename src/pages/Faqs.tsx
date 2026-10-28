@@ -233,13 +233,13 @@ const Faqs = () => {
           </div>
 
           <div className="space-y-4">
-            <h2>Partnerships &amp; Pilots</h2>
+            <h2>Partnerships &amp; Engagements</h2>
             <details className="rounded-card border border-line bg-surface p-5">
               <summary className="cursor-pointer text-sm font-semibold text-text">
-                What does a typical pilot involve?
+                What does a typical engagement involve?
               </summary>
               <div className="mt-3 space-y-3 text-sm text-muted">
-                <p>Pilots are:</p>
+                <p>Engagements are:</p>
                 <ul className="space-y-2">
                   <li>Time-bound</li>
                   <li>Clearly scoped</li>
@@ -251,12 +251,12 @@ const Faqs = () => {
             </details>
             <details className="rounded-card border border-line bg-surface p-5">
               <summary className="cursor-pointer text-sm font-semibold text-text">
-                Are pilots paid?
+                Are engagements paid?
               </summary>
               <div className="mt-3 space-y-3 text-sm text-muted">
                 <p>
-                  Many pilots are paid engagements, particularly with
-                  institutional partners.
+                  Many engagements are paid, particularly with institutional
+                  partners.
                 </p>
                 <p>
                   Commercial terms are discussed during scoping and shared under
@@ -339,7 +339,7 @@ const Faqs = () => {
                 <p>Organisations can get in touch via the Contact page to request:</p>
                 <ul className="space-y-2">
                   <li>A scoping conversation</li>
-                  <li>A pilot or partnership discussion</li>
+                  <li>A partnership discussion</li>
                   <li>A research collaboration</li>
                 </ul>
                 <p>

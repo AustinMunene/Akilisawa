@@ -62,17 +62,15 @@ const send = async (overrides: Record<string, unknown> = {}) => {
   return { calls, last };
 };
 
-const { sentEmails } = vi.hoisted(() => ({
+const { sentEmails, sendMock } = vi.hoisted(() => ({
   sentEmails: [] as Record<string, unknown>[],
+  sendMock: vi.fn(),
 }));
 
 vi.mock("resend", () => ({
   Resend: class {
     emails = {
-      send: vi.fn(async (payload: Record<string, unknown>) => {
-        sentEmails.push(payload);
-        return { id: "test" };
-      }),
+      send: sendMock,
     };
   },
 }));
@@ -81,6 +79,11 @@ describe("api/contact validation", () => {
   beforeEach(() => {
     process.env.RESEND_API_KEY = "test-key";
     sentEmails.length = 0;
+    sendMock.mockReset();
+    sendMock.mockImplementation(async (payload: Record<string, unknown>) => {
+      sentEmails.push(payload);
+      return { data: { id: "test" }, error: null };
+    });
   });
 
   it("rejects every method other than POST", async () => {
@@ -145,16 +148,55 @@ describe("api/contact validation", () => {
    * must be refused and redirected to real help, never emailed to staff.
    */
   it("refuses crisis language and points to emergency services", async () => {
-    for (const phrase of ["suicide", "self-harm", "kill myself", "rape", "trauma"]) {
+    for (const phrase of ["suicide", "self-harm", "kill myself"]) {
       const { last } = await send({ body: { ...validPayload, message: `I am thinking about ${phrase}.` } });
       expect(last().status, `"${phrase}" should be refused`).toBe(400);
       expect(last().body.message).toContain("emergency services");
     }
   });
 
+  /*
+   * The anti-pattern this replaced. The old filter was a flat list of ten
+   * words including "trauma" and "emergency", so a B2B enquiry about a
+   * trauma-informed programme or an emergency response team was rejected
+   * (gap-analysis item 7.10). The guard is now the safety lexicon, and it
+   * refuses on the tiers that mean the person needs help rather than a
+   * reply.
+   */
+  it("accepts a business enquiry that uses ordinary wellbeing vocabulary", async () => {
+    for (const phrase of ["trauma", "emergency", "substance misuse"]) {
+      const { last } = await send({
+        body: {
+          ...validPayload,
+          message: `We run a ${phrase} support programme for employers and would like to discuss a partnership.`,
+        },
+      });
+      expect(last().status, `"${phrase}" should be accepted`).toBe(200);
+    }
+  });
+
   it("matches crisis phrases case-insensitively", async () => {
     const { last } = await send({ body: { ...validPayload, message: "SUICIDE" } });
     expect(last().status).toBe(400);
+  });
+
+  /*
+   * The `support` flag tells the form this refusal is a redirect to help
+   * rather than a problem with what was typed, so it can show the resources
+   * instead of a generic error.
+   */
+  it("marks a crisis refusal so the form can show the support copy", async () => {
+    const { last } = await send({
+      body: { ...validPayload, message: "I am thinking about suicide." },
+    });
+    expect(last().status).toBe(400);
+    expect((last().body as { support?: boolean }).support).toBe(true);
+  });
+
+  it("does not mark an ordinary rejection as a support case", async () => {
+    const { last } = await send({ body: { ...validPayload, message: "" } });
+    expect(last().status).toBe(400);
+    expect((last().body as { support?: boolean }).support).toBeUndefined();
   });
 
   it("accepts a clean, valid submission", async () => {
@@ -251,5 +293,115 @@ describe("api/contact validation", () => {
     expect(html).toContain("&lt;script&gt;");
     expect(html).not.toContain("<script>");
     expect(html).toContain("&amp;");
+  });
+});
+
+/*
+ * The delivery contract (ticket 26).
+ *
+ * These tests exist because the handler shipped a defect that reported
+ * success on every failed send. The Resend SDK resolves with
+ * `{ data: null, error }` and never throws, so the old `try/catch` never
+ * fired and the handler answered `200 ok` having sent nothing.
+ *
+ * The failure semantics decided here:
+ *   - The TEAM copy is load-bearing. If it fails, the enquiry is lost, so
+ *     the handler must not claim it was received. The visitor is told to
+ *     try again.
+ *   - The VISITOR's acknowledgement is best-effort. If the team copy
+ *     landed, the enquiry is safe, and failing the whole request would
+ *     make a visitor who was never acknowledged resubmit a duplicate.
+ */
+describe("api/contact delivery", () => {
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "test-key";
+    sentEmails.length = 0;
+    sendMock.mockReset();
+    sendMock.mockImplementation(async (payload: Record<string, unknown>) => {
+      sentEmails.push(payload);
+      return { data: { id: "test" }, error: null };
+    });
+  });
+
+  it("sends the enquiry to the team and an acknowledgement to the visitor", async () => {
+    await send();
+    expect(sentEmails).toHaveLength(2);
+    expect(sentEmails[0]?.to).toBe("smile@akilisawa.com");
+    expect(sentEmails[1]?.to).toBe("amina@example.org");
+  });
+
+  it("takes the team address from CONTACT_TO_EMAIL when it is set", async () => {
+    process.env.CONTACT_TO_EMAIL = "team@example.test";
+    await send();
+    expect(sentEmails[0]?.to).toBe("team@example.test");
+    delete process.env.CONTACT_TO_EMAIL;
+  });
+
+  it("fails the request when the provider rejects the team copy", async () => {
+    /*
+     * The regression. The provider answers with an error object and the
+     * promise resolves, so a handler that only catches exceptions reports
+     * success here. The live site did exactly this: every enquirer was
+     * told their message had been received, and every message was dropped.
+     */
+    sendMock.mockResolvedValue({
+      data: null,
+      error: {
+        name: "validation_error",
+        message: "The akilisawa.com domain is not verified.",
+        statusCode: 403,
+      },
+    });
+    const { last } = await send();
+    expect(last().status).toBe(500);
+    expect(last().body.message).toBe("Unable to send message.");
+  });
+
+  it("fails the request when the provider throws", async () => {
+    sendMock.mockRejectedValue(new Error("socket hang up"));
+    const { last } = await send();
+    expect(last().status).toBe(500);
+    expect(last().body.message).toBe("Unable to send message.");
+  });
+
+  it("keeps the enquiry when only the visitor's acknowledgement fails", async () => {
+    /*
+     * The team copy landed, so the enquiry is safe. Failing the request
+     * would tell a visitor to resubmit something we already have, and the
+     * duplicate would land in the same inbox.
+     */
+    sendMock
+      .mockResolvedValueOnce({ data: { id: "team" }, error: null })
+      .mockResolvedValueOnce({
+        data: null,
+        error: {
+          name: "validation_error",
+          message: "Recipient rejected.",
+          statusCode: 422,
+        },
+      });
+    const { last } = await send();
+    expect(last().status).toBe(200);
+    expect(last().body.message).toBe("ok");
+  });
+
+  it("does not leak the provider's error message to the visitor", async () => {
+    sendMock.mockResolvedValue({
+      data: null,
+      error: {
+        name: "validation_error",
+        message: "The akilisawa.com domain is not verified.",
+        statusCode: 403,
+      },
+    });
+    const { last } = await send();
+    expect(last().body.message).not.toContain("not verified");
+  });
+
+  it("reports a missing API key as a configuration problem", async () => {
+    delete process.env.RESEND_API_KEY;
+    const { last } = await send();
+    expect(last().status).toBe(500);
+    expect(last().body.message).toBe("Email service not configured.");
   });
 });

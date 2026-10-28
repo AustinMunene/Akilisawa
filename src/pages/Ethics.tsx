@@ -231,7 +231,7 @@ const Ethics = () => {
             public health principles, and field experience. Program design and
             delivery are reviewed to ensure alignment with partner requirements,
             ethical standards, and safeguarding expectations. External advisors
-            and research partners may support oversight on specific pilots.
+            and research partners may support oversight on specific engagements.
           </p>
         </div>
       </SectionBackground>
@@ -252,8 +252,8 @@ const Ethics = () => {
               <ButtonLink to="/prevention-model">
                 Our Prevention Model
               </ButtonLink>
-              <ButtonLink to="/pilots" variant="secondary">
-                Pilots &amp; Partnerships
+              <ButtonLink to="/partnerships" variant="secondary">
+                Partnerships
               </ButtonLink>
               <ButtonLink to="/for-organisations" variant="secondary">
                 For Organisations

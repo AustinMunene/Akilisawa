@@ -4,6 +4,7 @@ import SectionBackground from "../components/layout/SectionBackground";
 import Faq67 from "../components/sawa/Faq67";
 import SawaAgeGate from "../components/sawa/SawaAgeGate";
 import SawaChat from "../components/sawa/SawaChat";
+import SawaFeedback from "../components/sawa/SawaFeedback";
 import Badge from "../components/ui/Badge";
 import { Button, ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
@@ -60,10 +61,11 @@ const SawaAi = () => {
       </SectionBackground>
 
       {/*
-       * §10 access levels. Level 1 is live and visually marked; Levels 2 and 3
-       * are described without a control that implies a capability we do not
-       * have. The §13 band and the conversation slot below this, the §14
-       * answers last.
+       * §10 access levels (ticket 28). All three are available: a visitor
+       * can act on every one of them today, and each card says plainly
+       * what acting on it gives them. The old copy badged two of them
+       * "Not available yet" and gave one no control at all, which sent
+       * visitors away from a product that was live.
        */}
       <SectionBackground variant="mid" className="pt-0">
         <div className="space-y-8">
@@ -83,11 +85,7 @@ const SawaAi = () => {
                 title={level.name}
               >
                 <div className="space-y-4">
-                  {level.available ? (
-                    <Badge>Available now</Badge>
-                  ) : (
-                    <Badge>Not available yet</Badge>
-                  )}
+                  <Badge>Available now</Badge>
                   <p>{level.who}</p>
                   <p>{level.body}</p>
                   {level.cta?.kind === "scroll" ? (
@@ -199,6 +197,16 @@ const SawaAi = () => {
             </div>
           </Card>
         </div>
+      </SectionBackground>
+
+      {/*
+       * The feedback band (ticket 29). It sits below the conversation and
+       * above the organisation CTA, so it reads as a coda to the product
+       * rather than an interruption to it. The §67 answers still come
+       * last, because the product comes first.
+       */}
+      <SectionBackground variant="mid" className="pt-0">
+        <SawaFeedback />
       </SectionBackground>
 
       <SectionBackground variant="mid">

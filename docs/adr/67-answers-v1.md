@@ -1,12 +1,12 @@
 # 67 answers (v1)
-Status: Draft (HITL review)
-Version: 1.0-draft
+Status: adopted (2026-10-09, amended 2026-10-21)
+Version: 1.1
 
 The six questions below must appear below the immediately accessible product. Answers use house voice (Akili Sawa/we), British English, sentence case. Each is concise enough to scan in under a minute.
 
 1. What is Sawa?
 
-   Akili Sawa is a preventive, non-clinical support companion. Sawa is an AI conversation interface designed to help people reflect, clarify and explore next steps in a safe, bounded space. It is not a replacement for professional care.
+   Sawa AI is a preventive, non-clinical support companion. Sawa is an AI conversation interface designed to help people reflect, clarify and explore next steps in a safe, bounded space. It is not a replacement for professional care.
 
 2. What can Sawa do?
 
@@ -18,14 +18,17 @@ The six questions below must appear below the immediately accessible product. An
 
 4. When does a human become involved?
 
-   Akili Sawa is designed for safe, self-directed reflection. A qualified person becomes involved when safety signals indicate a need for human review or follow-up, or when you choose to connect with a professional. Specific escalation paths depend on the context and are explained clearly when relevant.
+   Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message is sent to Akili Sawa's designated support inbox for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.
 
 5. How is information protected?
 
-   Akili Sawa takes privacy seriously. Information is handled in line with good practice for privacy and security. Any retention is limited, disclosed and time-limited where it occurs. We do not assume consent to share private details; sharing happens only as described and with clear disclosure.
+   Your transcript is held in this browser. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message is sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains the current provider and how your information is handled.
 
 6. How does institutional deployment work?
 
-   Akili Sawa can be deployed in organisational settings to support prevention and early navigation. Deployments are configured with clear boundaries, appropriate safeguards and roles. Institutional access is designed to protect individual privacy: organisations see aggregated insights where relevant, never private conversation details.
+   Sawa AI can be deployed in organisational settings to support prevention and early navigation. Deployments are configured with clear boundaries, appropriate safeguards and roles. Institutional access is designed to protect individual privacy: organisations see aggregated insights where relevant, never private conversation details.
 
-Notes: The non-clinical disclaimer (preventive, non-clinical; not a therapist/diagnostician) is explicit in answers 1 and 3. Product comes first; these answers come below. This is v1 draft for HITL review.
+Notes: The non-clinical disclaimer (preventive, non-clinical; not a therapist/diagnostician) is explicit in answers 1 and 3. Product comes first; these answers come below.
+
+Amendment, 21 October 2026 (ticket 28): answers 4, 5 and 6 now state what the site actually does rather than what it might do. The escalation inbox is configured and receives flagged excerpts, so "may be sent" became "is sent"; the "not monitored for emergencies" caveat is unchanged, because nobody has confirmed staffing. Answer 5 lost the phrase "before real-user use is enabled", which described a pre-launch state the site is no longer in. The copy in `src/lib/sawa/copy.ts` is what ships; this file is the source it is written from.
+

@@ -26,8 +26,8 @@ const EvidenceImpact = () => {
               <ButtonLink to="/prevention-model">
                 Explore Our Prevention Model
               </ButtonLink>
-              <ButtonLink to="/pilots" variant="secondary">
-                Pilots &amp; Partnerships
+              <ButtonLink to="/partnerships" variant="secondary">
+                Partnerships
               </ButtonLink>
             </div>
           </div>
@@ -85,7 +85,7 @@ const EvidenceImpact = () => {
               effectiveness using methods appropriate to context and scale.
             </p>
             <ul className="space-y-2 text-sm text-muted">
-              <li>Pilot evaluations</li>
+              <li>Engagement evaluations</li>
               <li>Quasi-experimental designs</li>
               <li>Randomized Controlled Trials (RCTs), where appropriate</li>
               <li>Qualitative learning and implementation research</li>
@@ -124,11 +124,11 @@ const EvidenceImpact = () => {
               </li>
               <li>Engagement across low-bandwidth digital channels</li>
               <li>
-                Institutional uptake through paid pilots and research collaborations
+                Institutional uptake through paid engagements and research collaborations
               </li>
             </ul>
             <p className="text-sm text-muted">
-              Comprehensive impact metrics will be shared as pilots mature and
+              Comprehensive impact metrics will be shared as engagements mature and
               evaluations are completed.
             </p>
           </div>
@@ -151,14 +151,14 @@ const EvidenceImpact = () => {
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <h2 className="text-xl md:text-2xl">
-                Ready to design evidence-forward pilots?
+                Ready to design evidence-forward engagements?
               </h2>
               <p className="text-sm text-muted">
                 Partner with Akili Sawa on evaluation-ready prevention programs.
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <ButtonLink to="/pilots">Pilots &amp; Partnerships</ButtonLink>
+              <ButtonLink to="/partnerships">Partnerships</ButtonLink>
               <ButtonLink to="/ethics" variant="secondary">
                 Ethics &amp; Safeguarding
               </ButtonLink>

@@ -25,8 +25,8 @@ const About = () => {
             <ButtonLink to="/prevention-model">
               Explore Our Prevention Model
             </ButtonLink>
-            <ButtonLink to="/pilots" variant="secondary">
-              Pilots &amp; Partnerships
+            <ButtonLink to="/partnerships" variant="secondary">
+              Partnerships
             </ButtonLink>
           </div>
         </div>
@@ -86,8 +86,8 @@ const About = () => {
               wellbeing solutions. Ethical delivery, clear referral pathways, and
               scalable methods are embedded in every program.
             </p>
-            <ButtonLink to="/pilots" variant="tertiary">
-              Pilots &amp; Partnerships
+            <ButtonLink to="/partnerships" variant="tertiary">
+              Partnerships
             </ButtonLink>
           </div>
         </div>
@@ -99,7 +99,7 @@ const About = () => {
             <div className="space-y-2">
               <h2 className="text-xl md:text-2xl">Why Partners Trust Us</h2>
               <ul className="space-y-2 text-sm text-muted">
-                <li>Institutional pilots underway</li>
+                <li>Institutional engagements underway</li>
                 <li>Research collaborations</li>
                 <li>Scalable, evidence-informed methodology</li>
               </ul>
