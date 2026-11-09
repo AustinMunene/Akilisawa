@@ -263,6 +263,31 @@ numbers after the support line had been shown (now a per-turn reminder,
 or three short lines), "Mon–Fri" becoming "Mon, Fri", a repeated apology,
 and a privacy answer that left out the AI provider and the support team.
 
+## 13. Support lines come after the follow-up, not before (9 November)
+
+The brief's ladder asks Sawa to explore and ask about safety before reaching
+for a script. Showing the support lines the moment a phrase was detected did
+the opposite: numbers arrived before Sawa understood anything. Now
+(`assistantTurns`, chat.ts):
+
+- Sawa's reply, with its safety question, comes first; the support lines are
+  carried to its next reply, once the person has answered.
+- Possible immediate danger ("afraid to go home tonight", "not safe at home",
+  marked `immediate` in the lexicon) still gets the lines at once.
+- A stated intention or suicide still gets the fixed crisis block at once,
+  and it replaces anything waiting.
+- The floor for someone who never replies is the composer footnote, always
+  visible: "In an emergency, call 999 or 112".
+- The WhatsApp card now arrives with the support lines, and the "This didn't
+  help" button sits at the end of the turn, after them.
+
+Also: the server lists the questions Sawa has already asked on each turn and
+tells the model not to repeat them, and the worked example in HOW TO SOUND is
+now an everyday conversation, so the H4 replay tests that the feel carries
+over rather than a memorised script. Known: Sawa occasionally still repeats
+a short "What happened?" when the person has not answered it; the replay
+check flags it.
+
 ## Open, before release
 
 - Clinical review is replaced by the owner's decision in section 6. A clinician

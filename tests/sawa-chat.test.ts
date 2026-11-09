@@ -519,38 +519,61 @@ describe("the safety pipeline's place in the turn", () => {
 describe("assistantTurns: what Sawa adds after the visitor's message", () => {
   const urge = detectUserTurn({ text: "I wanna hurt someone", conversationId: "turns-1" });
   const urgePlan = planTurn(urge);
+  const low = detectUserTurn({ text: "my brother", conversationId: "turns-1" });
+  const lowPlan = planTurn(low);
 
-  it("adds the reply, then the support line the first time", () => {
+  it("asks first: the support line waits for the next reply", () => {
     expect(
       assistantTurns({ detection: urge, plan: urgePlan, previous: [], reply: { text: "Is anyone in danger?" }, language: "en" }),
-    ).toEqual(["Is anyone in danger?", HARM_URGE_SUPPORT.en]);
+    ).toEqual({ turns: ["Is anyone in danger?"], pending: HARM_URGE_SUPPORT.en });
   });
 
-  it("does not repeat the support line once it has been shown", () => {
+  it("delivers the waiting line after the follow-up reply", () => {
+    expect(
+      assistantTurns({
+        detection: low,
+        plan: lowPlan,
+        previous: [],
+        reply: { text: "What did he do?" },
+        language: "en",
+        pending: HARM_URGE_SUPPORT.en,
+      }),
+    ).toEqual({ turns: ["What did he do?", HARM_URGE_SUPPORT.en], pending: null });
+  });
+
+  it("gives the lines at once for possible immediate danger", () => {
+    const home = detectUserTurn({ text: "I am afraid to go home tonight", conversationId: "turns-3" });
+    const outcome = assistantTurns({ detection: home, plan: planTurn(home), previous: [], reply: { text: "Are you safe right now?" }, language: "en" });
+    expect(outcome.turns).toHaveLength(2);
+    expect(outcome.turns[1]).toContain("1195");
+    expect(outcome.pending).toBeNull();
+  });
+
+  it("never shows a block twice in a conversation", () => {
     const previous: ChatBubble[] = [{ id: "s", role: "assistant", content: HARM_URGE_SUPPORT.en }];
     expect(
       assistantTurns({ detection: urge, plan: urgePlan, previous, reply: { text: "What did he do?" }, language: "en" }),
-    ).toEqual(["What did he do?"]);
+    ).toEqual({ turns: ["What did he do?"], pending: null });
   });
 
   it("replaces a reply that only parrots the support line with a listening line", () => {
     const previous: ChatBubble[] = [{ id: "s", role: "assistant", content: HARM_URGE_SUPPORT.en }];
     expect(
-      assistantTurns({ detection: urge, plan: urgePlan, previous, reply: { text: HARM_URGE_SUPPORT.en }, language: "en" }),
+      assistantTurns({ detection: urge, plan: urgePlan, previous, reply: { text: HARM_URGE_SUPPORT.en }, language: "en" }).turns,
     ).toEqual(["I'm here, and I want to understand. What happened?"]);
   });
 
   it("passes the server's fixed safety copy through untouched", () => {
     expect(
       assistantTurns({ detection: urge, plan: urgePlan, previous: [], reply: { text: HARM_TO_OTHERS_BLOCK.en, safety: true }, language: "en" }),
-    ).toEqual([HARM_TO_OTHERS_BLOCK.en]);
+    ).toEqual({ turns: [HARM_TO_OTHERS_BLOCK.en], pending: null });
   });
 
-  it("answers a high turn with the crisis block and no model call", () => {
+  it("answers a high turn with the crisis block, which replaces anything waiting", () => {
     const high = detectUserTurn({ text: "I want to kill myself", conversationId: "turns-2" });
-    expect(assistantTurns({ detection: high, plan: planTurn(high), previous: [], language: "en" })).toEqual([
-      CRISIS_BLOCK.en,
-    ]);
+    expect(
+      assistantTurns({ detection: high, plan: planTurn(high), previous: [], language: "en", pending: HARM_URGE_SUPPORT.en }),
+    ).toEqual({ turns: [CRISIS_BLOCK.en], pending: null });
   });
 });
 

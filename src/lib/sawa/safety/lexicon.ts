@@ -28,6 +28,11 @@ export type LexiconEntry = {
   readonly tier: SeverityTier;
   readonly indirect?: boolean;
   /**
+   * Possible immediate danger ("afraid to go home tonight"). The support lines
+   * come with Sawa's first reply instead of after a follow-up question.
+   */
+  readonly immediate?: boolean;
+  /**
    * Words that cancel the match when they come straight after the term:
    * "hurt her" is a risk, "hurt her feelings" is not.
    */
@@ -251,13 +256,13 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "threatens me", lang: "en", category: "gbv", tier: elevated },
   { term: "threatened me", lang: "en", category: "gbv", tier: elevated },
   { term: "threatening me", lang: "en", category: "gbv", tier: elevated },
-  { term: "afraid to go home", lang: "en", category: "gbv", tier: elevated },
-  { term: "scared to go home", lang: "en", category: "gbv", tier: elevated },
-  { term: "frightened to go home", lang: "en", category: "gbv", tier: elevated },
-  { term: "afraid of going home", lang: "en", category: "gbv", tier: elevated },
-  { term: "scared of going home", lang: "en", category: "gbv", tier: elevated },
-  { term: "not safe at home", lang: "en", category: "gbv", tier: elevated },
-  { term: "unsafe at home", lang: "en", category: "gbv", tier: elevated },
+  { term: "afraid to go home", lang: "en", category: "gbv", tier: elevated, immediate: true },
+  { term: "scared to go home", lang: "en", category: "gbv", tier: elevated, immediate: true },
+  { term: "frightened to go home", lang: "en", category: "gbv", tier: elevated, immediate: true },
+  { term: "afraid of going home", lang: "en", category: "gbv", tier: elevated, immediate: true },
+  { term: "scared of going home", lang: "en", category: "gbv", tier: elevated, immediate: true },
+  { term: "not safe at home", lang: "en", category: "gbv", tier: elevated, immediate: true },
+  { term: "unsafe at home", lang: "en", category: "gbv", tier: elevated, immediate: true },
 
   { term: "nibakwa", lang: "sw", category: "gbv", tier: elevated },
   { term: "kubakwa", lang: "sw", category: "gbv", tier: elevated },
@@ -272,9 +277,9 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "amenitishia", lang: "sw", category: "gbv", tier: elevated },
   { term: "ananitishia", lang: "sw", category: "gbv", tier: elevated },
   { term: "alinitishia", lang: "sw", category: "gbv", tier: elevated },
-  { term: "naogopa kurudi nyumbani", lang: "sw", category: "gbv", tier: elevated },
-  { term: "naogopa kwenda nyumbani", lang: "sw", category: "gbv", tier: elevated },
-  { term: "siko salama nyumbani", lang: "sw", category: "gbv", tier: elevated },
+  { term: "naogopa kurudi nyumbani", lang: "sw", category: "gbv", tier: elevated, immediate: true },
+  { term: "naogopa kwenda nyumbani", lang: "sw", category: "gbv", tier: elevated, immediate: true },
+  { term: "siko salama nyumbani", lang: "sw", category: "gbv", tier: elevated, immediate: true },
 
   // Elevated: substance crisis.
   { term: "overdose", lang: "en", category: "substance_crisis", tier: elevated },

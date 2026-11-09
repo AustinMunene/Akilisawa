@@ -259,6 +259,8 @@ const SawaChat = ({
   const clearButtonRef = useRef<HTMLButtonElement | null>(null);
   const keepButtonRef = useRef<HTMLButtonElement | null>(null);
   const pinnedRef = useRef(true);
+  // A support block waiting for the next reply (assistantTurns, chat.ts).
+  const pendingSupportRef = useRef<string | null>(null);
 
   /*
    * Throttled live region (ticket 22). Only committed assistant turns are ever
@@ -473,15 +475,16 @@ const SawaChat = ({
     if (result.ok) {
       // The turn's rules live in assistantTurns (chat.ts), shared with the
       // replay suite.
-      for (const content of assistantTurns({
+      const outcome = assistantTurns({
         detection,
         plan,
         previous: state.messages,
         reply: { text: result.text, ...(result.safety ? { safety: true } : {}) },
         language,
-      })) {
-        appendAssistant(content, detection);
-      }
+        pending: pendingSupportRef.current,
+      });
+      pendingSupportRef.current = outcome.pending;
+      for (const content of outcome.turns) appendAssistant(content, detection);
       dispatch({ type: "stream-end" });
       return;
     }
@@ -597,9 +600,15 @@ const SawaChat = ({
     dispatch({ type: "user", message: remember(toBubble(stored)) });
 
     if (!plan.callModel) {
-      for (const content of assistantTurns({ detection, plan, previous: state.messages, language })) {
-        appendAssistant(content, detection);
-      }
+      const outcome = assistantTurns({
+        detection,
+        plan,
+        previous: state.messages,
+        language,
+        pending: pendingSupportRef.current,
+      });
+      pendingSupportRef.current = outcome.pending;
+      for (const content of outcome.turns) appendAssistant(content, detection);
       if (plan.escalate && detection.signal) {
         await escalate(detection.signal);
       }
@@ -681,6 +690,7 @@ const SawaChat = ({
     abortRef.current = null;
     conversationStore.clear();
     lastTurnRef.current = null;
+    pendingSupportRef.current = null;
     pinnedRef.current = true;
     if (announceTimerRef.current !== null) {
       clearTimeout(announceTimerRef.current);
@@ -737,7 +747,10 @@ const SawaChat = ({
                 <div key={message.id} className="space-y-3">
                   <MessageBubble message={message} />
                   {reportable.has(message.id) && !message.partial ? (
-                    <SawaReplyReport message={reportable.get(message.id)!} reply={message.content} />
+                    <SawaReplyReport
+                      message={reportable.get(message.id)!.message}
+                      reply={reportable.get(message.id)!.reply}
+                    />
                   ) : null}
                   {anchor && whatsappNumber ? (
                     <SawaWhatsAppCard

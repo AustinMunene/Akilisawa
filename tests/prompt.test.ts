@@ -5,6 +5,8 @@ import {
   PROMPT_VERSION,
   promptFor,
   promptV1,
+  questionsAsked,
+  withReplyLanguage,
   promptVersion,
 } from "../src/lib/sawa/prompt";
 
@@ -173,9 +175,23 @@ describe("Sawa prompt", () => {
     expect(promptV1).toContain("HOW TO SOUND");
     expect(promptV1).toContain("never the same question twice");
     expect(promptV1).toContain("Do not repeat disclaimers, safety checks, support lines or numbers");
-    expect(promptV1).toContain("Copy that feel, never the exact words.");
+    expect(promptV1).toContain("Copy that feel, never the exact words, and use it in every kind of conversation");
     expect(promptV1).toContain("Never say the conversation stays only in the browser");
     expect(promptV1).toContain("Never reuse a sentence from earlier in the conversation");
+  });
+
+  it("reminds the model, on the turn, of the questions it has already asked", () => {
+    const asked = questionsAsked([
+      { role: "user", content: "I wanna hurt someone" },
+      { role: "assistant", content: "I hear you. Is anyone in danger right now?" },
+      { role: "assistant", content: "If anyone is in danger right now, call 999 or 112." },
+      { role: "user", content: "why do you care?" },
+      { role: "assistant", content: "I do care. What happened?" },
+    ]);
+    expect(asked).toEqual(["Is anyone in danger right now?", "What happened?"]);
+    const note = withReplyLanguage("you are not listening", "en", { asked });
+    expect(note).toContain('You have already asked: "Is anyone in danger right now?" "What happened?"');
+    expect(withReplyLanguage("hello", "en")).not.toContain("already asked");
   });
 
   it("forbids em and en dashes, and itself contains none", () => {

@@ -275,3 +275,13 @@ const FIXED_SAFETY_COPY: ReadonlySet<string> = (() => {
 export function isFixedSafetyCopy(text: string): boolean {
   return FIXED_SAFETY_COPY.has(text.trim());
 }
+
+const HIGH_SAFETY_COPY: ReadonlySet<string> = new Set(
+  [CRISIS_BLOCK, HARM_TO_OTHERS_BLOCK].flatMap((text) => [text.en.trim(), text.sw.trim()]),
+);
+
+/** The level a fixed block belongs to, or null for anything else. */
+export function fixedSafetyTier(text: string): "high" | "elevated" | null {
+  if (HIGH_SAFETY_COPY.has(text.trim())) return "high";
+  return isFixedSafetyCopy(text) ? "elevated" : null;
+}

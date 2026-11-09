@@ -20,6 +20,7 @@
  */
 
 import type { SawaLanguage } from "./language";
+import { fixedSafetyTier } from "./safety/crisisCopy";
 import type { SeverityTier } from "./safety/tiers";
 
 export const WHATSAPP_EXCERPT_MAX = 500;
@@ -106,27 +107,21 @@ type Turn = {
 export type WhatsAppAnchor = { readonly excerpt: string; readonly tier: SeverityTier };
 
 /**
- * Which assistant turns get the WhatsApp card, and with which excerpt.
- *
- * An elevated turn is two assistant bubbles (Sawa's reply, then the support
- * block) that both carry the safety result, so the card goes under the LAST
- * bubble of a run, once. The excerpt is the user turn that started the run.
- * Abuse aimed at Sawa never gets the card.
+ * Which bubbles get the WhatsApp card, and with which excerpt: the support
+ * and crisis blocks, so the card arrives with the support lines (which may
+ * come a reply later than the message that raised them). The excerpt is the
+ * visitor's most recent message. Abuse aimed at Sawa never gets the card.
  */
 export function whatsappAnchors(messages: readonly Turn[]): Map<string, WhatsAppAnchor> {
   const anchors = new Map<string, WhatsAppAnchor>();
-  const flagged = (turn: Turn | undefined) =>
-    turn?.role === "assistant" &&
-    (turn.safety?.tier === "elevated" || turn.safety?.tier === "high");
-
   let lastUser = "";
-  messages.forEach((turn, index) => {
+  for (const turn of messages) {
     if (turn.role === "user") {
       lastUser = turn.content;
-      return;
+      continue;
     }
-    if (!flagged(turn) || flagged(messages[index + 1])) return;
-    anchors.set(turn.id, { excerpt: lastUser, tier: turn.safety!.tier });
-  });
+    const tier = fixedSafetyTier(turn.content);
+    if (tier) anchors.set(turn.id, { excerpt: lastUser, tier });
+  }
   return anchors;
 }

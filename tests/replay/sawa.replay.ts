@@ -48,7 +48,7 @@ function ratios(text: string) {
 function phrases(text: string): string[] {
   return (text.match(/[^.?!\n,]+[.?!,]?/g) ?? [])
     .map((phrase) => phrase.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " "))
-    .filter((phrase) => phrase.length >= 20);
+    .filter((phrase) => phrase.length >= 12);
 }
 
 let ipCounter = 0;
@@ -102,6 +102,7 @@ async function replay(scenario: Scenario): Promise<TurnRecord[]> {
   let messages: ChatBubble[] = [{ id: "opening", role: "assistant", content: chatCopy[language].opening }];
   const records: TurnRecord[] = [];
   let nextId = 0;
+  let pending: string | null = null;
 
   for (const turn of scenario.turns) {
     if (turn.language) language = turn.language;
@@ -130,7 +131,9 @@ async function replay(scenario: Scenario): Promise<TurnRecord[]> {
       }
       reply = outcome;
     }
-    const sawa = assistantTurns({ detection, plan, previous, reply, language });
+    const outcome = assistantTurns({ detection, plan, previous, reply, language, pending });
+    pending = outcome.pending;
+    const sawa = [...outcome.turns];
     messages = [...messages, ...sawa.map((content) => ({ id: `a${(nextId += 1)}`, role: "assistant" as const, content }))];
 
     const expectation = turn.expect ?? {};
@@ -142,6 +145,7 @@ async function replay(scenario: Scenario): Promise<TurnRecord[]> {
     }
     if (expectation.noModel && plan.callModel) failures.push("the model was called; expected the fixed safety path");
     for (const pattern of expectation.must ?? []) if (!pattern.test(all)) failures.push(`missing ${pattern}`);
+    for (const pattern of expectation.mustNotInTurn ?? []) if (pattern.test(all)) failures.push(`turn contains ${pattern}`);
     for (const pattern of expectation.mustNot ?? []) {
       if (pattern.test(modelReply)) failures.push(`reply contains ${pattern}`);
     }

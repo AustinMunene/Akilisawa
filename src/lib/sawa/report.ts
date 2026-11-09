@@ -49,22 +49,31 @@ export function buildReport(input: {
 }
 
 /*
- * Which assistant turns get the button, mapped to the visitor message each
- * one answered: Sawa's own replies only. Not the opening line (nothing to
- * answer), and not the system's fixed safety copy (not Sawa's words).
+ * Which bubbles get the button, and what it reports: one per turn, under the
+ * LAST bubble Sawa added (so it sits after any support lines, not between
+ * them and the reply), reporting the visitor's message and Sawa's own reply.
+ * Turns with no reply of Sawa's own (the opening line, a crisis block alone)
+ * get no button.
  */
 export function reportableReplies(
   messages: readonly { readonly id: string; readonly role: "user" | "assistant"; readonly content: string }[],
-): Map<string, string> {
-  const reportable = new Map<string, string>();
+): Map<string, { readonly message: string; readonly reply: string }> {
+  const reportable = new Map<string, { message: string; reply: string }>();
   let lastUser: string | null = null;
-  for (const message of messages) {
+  let reply: string | null = null;
+  messages.forEach((message, index) => {
     if (message.role === "user") {
       lastUser = message.content;
-    } else if (lastUser !== null && !isFixedSafetyCopy(message.content)) {
-      reportable.set(message.id, lastUser);
+      reply = null;
+      return;
     }
-  }
+    if (!isFixedSafetyCopy(message.content)) reply = message.content;
+    const next = messages[index + 1];
+    const endOfTurn = !next || next.role === "user";
+    if (endOfTurn && lastUser !== null && reply !== null) {
+      reportable.set(message.id, { message: lastUser, reply });
+    }
+  });
   return reportable;
 }
 

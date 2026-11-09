@@ -599,8 +599,16 @@ export type { Detection };
  *   - no model call (high, abuse): the crisis block or the decline;
  *   - fixed safety copy from the server: shown as it is, nothing added;
  *   - a model reply: guarded (resolveReply), and replaced by a listening line
- *     if it only repeats a support block; then the support block, once per
- *     conversation, when the turn calls for one.
+ *     if it only repeats a support block.
+ *
+ * WHEN THE SUPPORT LINES COME (9 November). The brief's ladder says explore
+ * and ask about safety before reaching for a script. So on a turn that calls
+ * for support, Sawa's reply (with its safety question) comes first and the
+ * support lines are carried to the NEXT reply, once the person has answered.
+ * Possible immediate danger ("afraid to go home tonight") is the exception:
+ * the lines come at once. The floor for someone who never replies is the
+ * footnote under the composer, always visible: "In an emergency, call 999 or
+ * 112". A block is never shown twice in a conversation.
  */
 export type ReplyOutcome = { readonly text: string; readonly safety?: boolean };
 
@@ -613,6 +621,16 @@ export function supportAlreadyShown(messages: readonly ChatBubble[]): boolean {
   return messages.some((message) => message.role === "assistant" && isFixedSafetyCopy(message.content));
 }
 
+export type TurnOutcome = {
+  readonly turns: readonly string[];
+  /** A support block to show after the next reply, or null. */
+  readonly pending: string | null;
+};
+
+function supportIsImmediate(detection: Detection): boolean {
+  return detection.matches.some((match) => match.entry.immediate === true);
+}
+
 export function assistantTurns(args: {
   readonly detection: Detection;
   readonly plan: TurnPlan;
@@ -620,24 +638,38 @@ export function assistantTurns(args: {
   readonly previous: readonly ChatBubble[];
   readonly reply?: ReplyOutcome;
   readonly language: SawaLanguage;
-}): string[] {
+  /** The block carried from the previous turn, if any. */
+  readonly pending?: string | null;
+}): TurnOutcome {
   const { detection, plan, previous, reply, language } = args;
+  const pending = args.pending ?? null;
   const copy = chatCopy[language];
   if (!plan.callModel) {
-    return [plan.immediate === "crisis" && detection.crisis ? crisisTextFor(detection) : copy.decline];
+    const crisis = plan.immediate === "crisis" && detection.crisis;
+    // A crisis block carries every line a pending one would, so it replaces it.
+    return {
+      turns: [crisis ? crisisTextFor(detection) : copy.decline],
+      pending: crisis ? null : pending,
+    };
   }
-  if (!reply) return [];
-  if (reply.safety) return [reply.text];
+  if (!reply) return { turns: [], pending };
+  if (reply.safety) return { turns: [reply.text], pending: null };
 
   const resolved = resolveReply(reply.text);
   const turns = [isFixedSafetyCopy(resolved.content) ? copy.listening : resolved.content];
-  const crisisText = crisisTextFor(detection);
-  const alreadyShown = previous.some(
-    (message) => message.role === "assistant" && message.content === crisisText,
-  );
-  if (plan.thenCrisis && crisisText && !alreadyShown && !reply.text.includes(crisisText)) {
-    turns.push(crisisText);
+  const shown = (text: string) =>
+    previous.some((message) => message.role === "assistant" && message.content === text);
+
+  const due = plan.thenCrisis ? crisisTextFor(detection) : "";
+  const fresh = due && !shown(due) && !reply.text.includes(due) ? due : "";
+  let carry: string | null = null;
+  if (fresh && supportIsImmediate(detection)) turns.push(fresh);
+  else if (fresh) carry = fresh;
+
+  if (pending && !shown(pending) && !turns.includes(pending)) {
+    turns.push(pending);
+    if (carry === pending) carry = null;
   }
-  return turns;
+  return { turns, pending: carry };
 }
 

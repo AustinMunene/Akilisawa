@@ -15,6 +15,7 @@ import {
   whatsappMessage,
   whatsappPrivacyNote,
 } from "../src/lib/sawa/whatsapp";
+import { CRISIS_BLOCK, crisisResponseFor } from "../src/lib/sawa/safety/crisisCopy";
 
 /*
  * The Akili Sawa WhatsApp line: switched off until a number is configured,
@@ -60,36 +61,28 @@ describe("the WhatsApp message", () => {
 
 describe("where the WhatsApp card goes", () => {
   const user = (id: string, content: string) => ({ id, role: "user" as const, content });
-  const sawa = (id: string, tier?: "low" | "elevated" | "high" | "abuse") => ({
-    id,
-    role: "assistant" as const,
-    content: "...",
-    ...(tier ? { safety: { tier } } : {}),
-  });
+  const sawa = (id: string, content = "...") => ({ id, role: "assistant" as const, content });
 
-  it("goes once, under the last bubble of a flagged run, with the visitor's message", () => {
+  it("arrives with the support lines, carrying the visitor's latest message", () => {
     const anchors = whatsappAnchors([
       sawa("open"),
       user("u1", "My partner threatens me"),
-      sawa("reply", "elevated"),
-      sawa("support", "elevated"),
-      user("u2", "thanks"),
-      sawa("plain"),
+      sawa("reply"),
+      user("u2", "yes I am safe for now"),
+      sawa("reply2"),
+      sawa("support", crisisResponseFor("elevated", ["gbv"])!.text.en),
     ]);
-    expect([...anchors.keys()]).toEqual(["support"]);
-    expect(anchors.get("support")).toEqual({ excerpt: "My partner threatens me", tier: "elevated" });
+    expect([...anchors.entries()]).toEqual([["support", { excerpt: "yes I am safe for now", tier: "elevated" }]]);
   });
 
-  it("goes under a crisis message, but never under low turns or abuse", () => {
+  it("goes under a crisis block as high, and never under ordinary replies", () => {
     const anchors = whatsappAnchors([
       user("u1", "I want to kill myself"),
-      sawa("crisis", "high"),
+      sawa("crisis", CRISIS_BLOCK.en),
       user("u2", "you are stupid"),
-      sawa("decline", "abuse"),
-      user("u3", "tired"),
-      sawa("low", "low"),
+      sawa("decline", "Akili Sawa cannot continue with that message."),
     ]);
-    expect([...anchors.keys()]).toEqual(["crisis"]);
+    expect([...anchors.entries()]).toEqual([["crisis", { excerpt: "I want to kill myself", tier: "high" }]]);
   });
 });
 

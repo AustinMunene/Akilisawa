@@ -29,7 +29,7 @@
 // function dies at module load with ERR_MODULE_NOT_FOUND before the handler
 // runs. `tsconfig.api.json` now uses NodeNext so the verification gate catches
 // extensionless imports in the API's deployed module graph.
-import { promptFor, promptVersion, withReplyLanguage } from "../src/lib/sawa/prompt.js";
+import { promptFor, promptVersion, questionsAsked, withReplyLanguage } from "../src/lib/sawa/prompt.js";
 import {
   crisisTextFor,
   detectAssistantReply,
@@ -268,12 +268,16 @@ export default async function handler(req: any, res: any) {
   // Anything but "sw" is English, the site default.
   const language = payload?.language === "sw" ? "sw" : "en";
 
+  const history = sanitiseHistory(payload?.history);
   const messages: ChatMessage[] = [
     { role: "system", content: promptFor(language) },
-    ...sanitiseHistory(payload?.history),
+    ...history,
     {
       role: "user",
-      content: withReplyLanguage(message, language, { supportShown: payload?.supportShown === true }),
+      content: withReplyLanguage(message, language, {
+        supportShown: payload?.supportShown === true,
+        asked: questionsAsked(history),
+      }),
     },
   ];
 

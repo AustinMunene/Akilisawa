@@ -68,7 +68,8 @@ describe("which replies can be reported", () => {
       { id: "a1", role: "assistant", content: "Is anyone in danger right now?" },
       { id: "s1", role: "assistant", content: HARM_URGE_SUPPORT.en },
     ]);
-    expect([...map.entries()]).toEqual([["a1", "I wanna hurt someone"]]);
+    // One button per turn, after the support line, reporting Sawa's own reply.
+    expect([...map.entries()]).toEqual([["s1", { message: "I wanna hurt someone", reply: "Is anyone in danger right now?" }]]);
   });
 });
 

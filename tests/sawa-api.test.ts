@@ -237,7 +237,10 @@ describe("api/sawa guards", () => {
     const [, init] = vi.mocked(fetch).mock.calls[0] ?? [];
     const sent = JSON.parse(String((init as RequestInit).body));
     const last = sent.messages[sent.messages.length - 1];
-    expect(last).toEqual({ role: "user", content: withReplyLanguage("Habari, naomba usaidizi", "sw") });
+    expect(last).toEqual({
+      role: "user",
+      content: withReplyLanguage("Habari, naomba usaidizi", "sw", { asked: ["Hi, what is on your mind?"] }),
+    });
     expect(last.content).not.toContain("Support lines have already been shown");
     // Earlier turns are passed through untouched.
     expect(sent.messages[1]).toEqual({ role: "user", content: "Hello" });
