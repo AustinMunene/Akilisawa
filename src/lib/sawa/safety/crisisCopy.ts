@@ -134,88 +134,79 @@ export const CRISIS_BLOCK: BilingualText = {
  * the verified list above (999/112, 1199, 1195, Befrienders); no new resource
  * is introduced. See docs/adr/sawa-feedback-response-v1.md sections 5 and 6.
  */
+// Short on purpose (9 November): someone this close to violence will not read
+// eleven paragraphs. Four short ones: what is happening, the emergency line,
+// one step for each side, and who to talk to.
 export const HARM_TO_OTHERS_BLOCK: BilingualText = {
   en: [
-    "It sounds like someone may be in danger of being hurt. Thank you for telling us.",
-    "Akili Sawa cannot handle this alone, but there are people in Kenya who are ready to help now, free of charge.",
-    "If anyone is in immediate danger, call 999 or 112. This is the national emergency line, run by the Kenya police. It is free from any phone in Kenya, even with no airtime. Akili Sawa cannot call on your behalf.",
-    "If someone is threatening or hurting you, try to get to a safe place, near other people, before anything else.",
-    "If you are afraid of what you might do, put distance between yourself and the other person now, and anything you could use to hurt them.",
-    "To talk to someone, any time, day or night:",
-    "- Kenya Red Cross, mental health and psychosocial support: 1199",
-    "- Gender-based violence support: 1195",
-    "At other times:",
-    "- Befrienders Kenya, confidential emotional support: 0722 178 177, Monday to Friday 09:00-17:00, call, SMS or WhatsApp",
-    "If one number does not connect, try the next.",
+    "It sounds like someone could get hurt. Thank you for telling us.",
+    "If anyone is in danger right now, call 999 or 112. It is free from any phone, even with no airtime. Akili Sawa cannot call for you.",
+    "If you are afraid of what you might do, step away from the person now. If someone is hurting you, get somewhere safe, near other people.",
+    "To talk to someone any time: Kenya Red Cross on 1199, or gender-based violence support on 1195.",
   ].join("\n\n"),
   sw: [
     "Inaonekana kuna mtu anaweza kuumizwa. Asante kwa kutujulisha.",
-    "Akili Sawa haiwezi kushughulikia hili peke yake, lakini kuna watu nchini Kenya walio tayari kusaidia sasa hivi, bila malipo.",
-    "Kama kuna mtu yuko hatarini sasa hivi, piga 999 au 112. Hii ni nambari ya dharura ya taifa, inayoendeshwa na polisi wa Kenya. Ni bure kutoka kwa simu yoyote nchini Kenya, hata kama huna salio. Akili Sawa haiwezi kupiga simu kwa niaba yako.",
-    "Kama kuna mtu anakutishia au anakuumiza, jaribu kwanza kufika mahali salama, karibu na watu wengine.",
-    "Kama unaogopa kile unaweza kufanya, jitenge na huyo mtu sasa hivi, na uweke mbali chochote unaweza kutumia kumuumiza.",
-    "Ili kuongea na mtu, wakati wowote, mchana au usiku:",
-    "- Kenya Red Cross, usaidizi wa afya ya akili na kisaikolojia: 1199",
-    "- Usaidizi wa unyanyasaji wa kijinsia (GBV): 1195",
-    "Nyakati nyingine:",
-    "- Befrienders Kenya, usaidizi wa faragha wa kihisia: 0722 178 177, Jumatatu hadi Ijumaa 09:00-17:00, simu, SMS au WhatsApp",
-    "Kama nambari moja haifunguki, jaribu inayofuata.",
+    "Kama kuna mtu yuko hatarini sasa hivi, piga 999 au 112. Ni bure kutoka kwa simu yoyote, hata bila salio. Akili Sawa haiwezi kukupigia simu.",
+    "Kama unaogopa kile unaweza kufanya, jitenge na huyo mtu sasa hivi. Kama kuna mtu anakuumiza, nenda mahali salama, karibu na watu wengine.",
+    "Kuongea na mtu wakati wowote: Kenya Red Cross kwa 1199, au usaidizi wa unyanyasaji wa kijinsia kwa 1195.",
   ].join("\n\n"),
 };
 
-const HARM_TO_OTHERS_RESOURCES = ["emergency", "krcs", "gbv", "befrienders"] as const;
+const HARM_TO_OTHERS_RESOURCES = ["emergency", "krcs", "gbv"] as const;
+
+/*
+ * Elevated harm to others: an urge, a feeling or a fear of what one might do
+ * ("I wanna hurt someone"). Sawa's own reply does the work: it stays calm,
+ * asks whether anyone is in danger and asks what happened. This is the one
+ * line that follows it, as the feedback's "current risk" step asks: a direct
+ * safety question in the reply, one specialist line after it, keep the
+ * person engaged. Kiswahili pending review.
+ */
+export const HARM_URGE_SUPPORT: BilingualText = {
+  en: "If anyone is in danger right now, call 999 or 112. To talk to someone any time, call Kenya Red Cross on 1199.",
+  sw: "Kama kuna mtu yuko hatarini sasa hivi, piga 999 au 112. Kuongea na mtu wakati wowote, piga Kenya Red Cross kwa 1199.",
+};
 
 export type CrisisResponse = {
   readonly text: BilingualText;
   readonly resourceIds: readonly string[];
 };
 
-const ELEVATED_OPENER: BilingualText = {
-  en: "Thank you for telling us. What you are carrying sounds heavy, and Akili Sawa cannot handle it alone. There are people in Kenya who are ready to help you, free of charge.",
-  sw: "Asante kwa kutujulisha. Kile unachobeba ni kizito, na Akili Sawa haiwezi kushughulikia hili peke yake. Kuna watu nchini Kenya walio tayari kukusaidia, bila malipo.",
-};
-
-const ELEVATED_SUPPORT: BilingualText = {
-  en: [
-    "To talk to someone:",
-    "- Kenya Red Cross, mental health and psychosocial support: 1199",
-    "- Befrienders Kenya, confidential emotional support: 0722 178 177, Monday to Friday 09:00-17:00, call, SMS or WhatsApp",
-  ].join("\n"),
-  sw: [
-    "Ili kuzungumza na mtu:",
-    "- Kenya Red Cross, usaidizi wa afya ya akili na kisaikolojia: 1199",
-    "- Befrienders Kenya, usaidizi wa faragha wa kihisia: 0722 178 177, Jumatatu hadi Ijumaa 09:00-17:00, simu, SMS au WhatsApp",
-  ].join("\n"),
-};
-
-const ELEVATED_CLOSE: BilingualText = {
-  en: "If one number does not connect, try the next.",
-  sw: "Ikiwa nambari moja haifunguki, jaribu inayofuata.",
+/*
+ * Elevated: Sawa's own reply comes first and carries the conversation; these
+ * short lines follow it. Until 9 November this was a nine-line block with a
+ * scripted opener, which read as a leaflet to someone afraid to go home
+ * tonight. Now: the line that matches the need, then who to talk to. Every
+ * number is from the verified list above. Kiswahili pending review.
+ */
+const ELEVATED_TALK: BilingualText = {
+  en: "To talk to someone any time, call Kenya Red Cross on 1199, or Befrienders Kenya on 0722 178 177 (Monday to Friday, 09:00 to 17:00).",
+  sw: "Kuongea na mtu wakati wowote, piga Kenya Red Cross kwa 1199, au Befrienders Kenya kwa 0722 178 177 (Jumatatu hadi Ijumaa, 09:00 hadi 17:00).",
 };
 
 const SPECIALIST_LINES: Record<
   "gbv" | "substance_crisis" | "child_safety",
-  { id: string; line: BilingualText }
+  { ids: readonly string[]; line: BilingualText }
 > = {
   gbv: {
-    id: "gbv",
+    ids: ["emergency", "gbv"],
     line: {
-      en: "- Gender-based violence support: 1195",
-      sw: "- Usaidizi wa unyanyasaji wa kijinsia (GBV): 1195",
+      en: "If you are in danger right now, call 999 or 112. Gender-based violence support (violence or threats): 1195, any time.",
+      sw: "Kama uko hatarini sasa hivi, piga 999 au 112. Usaidizi wa unyanyasaji wa kijinsia (vurugu au vitisho): 1195, wakati wowote.",
     },
   },
   substance_crisis: {
-    id: "nacada",
+    ids: ["nacada"],
     line: {
-      en: "- Alcohol and drug support (NACADA): 1192",
-      sw: "- Usaidizi wa pombe na madawa ya kulevya (NACADA): 1192",
+      en: "For alcohol or drugs, NACADA is on 1192, any time.",
+      sw: "Kwa pombe au madawa ya kulevya, NACADA ni 1192, wakati wowote.",
     },
   },
   child_safety: {
-    id: "childline",
+    ids: ["childline"],
     line: {
-      en: "- Children and young people (Childline Kenya): 116",
-      sw: "- Watoto na vijana (Childline Kenya): 116",
+      en: "For anyone under 18, Childline Kenya is on 116, any time.",
+      sw: "Kwa walio chini ya miaka 18, Childline Kenya ni 116, wakati wowote.",
     },
   },
 };
@@ -224,28 +215,11 @@ const SPECIALIST_KEYS = ["gbv", "substance_crisis", "child_safety"] as const;
 
 function buildElevated(categories: readonly SignalCategory[]): CrisisResponse {
   const specialists = SPECIALIST_KEYS.filter((key) => categories.includes(key));
-  const resourceIds = ["krcs", "befrienders", ...specialists.map((key) => SPECIALIST_LINES[key].id)];
-
-  if (specialists.length === 0) {
-    return {
-      text: {
-        en: `${ELEVATED_OPENER.en}\n\n${ELEVATED_SUPPORT.en}\n\n${ELEVATED_CLOSE.en}`,
-        sw: `${ELEVATED_OPENER.sw}\n\n${ELEVATED_SUPPORT.sw}\n\n${ELEVATED_CLOSE.sw}`,
-      },
-      resourceIds,
-    };
-  }
-
-  const labels = { en: "At other times, or for specialist support:", sw: "Nyakati nyingine, au kwa usaidizi maalum:" };
-  const enLines = specialists.map((key) => SPECIALIST_LINES[key].line.en).join("\n");
-  const swLines = specialists.map((key) => SPECIALIST_LINES[key].line.sw).join("\n");
-
+  const lines = (language: "en" | "sw") =>
+    [...specialists.map((key) => SPECIALIST_LINES[key].line[language]), ELEVATED_TALK[language]].join("\n\n");
   return {
-    text: {
-      en: `${ELEVATED_OPENER.en}\n\n${ELEVATED_SUPPORT.en}\n\n${labels.en}\n${enLines}\n\n${ELEVATED_CLOSE.en}`,
-      sw: `${ELEVATED_OPENER.sw}\n\n${ELEVATED_SUPPORT.sw}\n\n${labels.sw}\n${swLines}\n\n${ELEVATED_CLOSE.sw}`,
-    },
-    resourceIds,
+    text: { en: lines("en"), sw: lines("sw") },
+    resourceIds: ["krcs", "befrienders", ...specialists.flatMap((key) => SPECIALIST_LINES[key].ids)],
   };
 }
 
@@ -267,6 +241,37 @@ export function crisisResponseFor(
       resourceIds: CRISIS_RESOURCES.map((resource) => resource.id),
     };
   }
+  if (tier === "elevated" && categories.includes("harm_to_others")) {
+    return { text: HARM_URGE_SUPPORT, resourceIds: ["emergency", "krcs"] };
+  }
   if (tier === "elevated") return buildElevated(categories);
   return null;
+}
+
+/*
+ * Every fixed block the safety pipeline can show, in both languages. Used to
+ * keep this copy out of the history sent to the model: it is the system
+ * speaking, not Sawa, and a model that sees "itself" say the support line
+ * twice starts repeating it instead of listening (found in testing,
+ * 9 November).
+ */
+const FIXED_SAFETY_COPY: ReadonlySet<string> = (() => {
+  const texts = new Set<string>();
+  const add = (text: BilingualText) => {
+    texts.add(text.en.trim());
+    texts.add(text.sw.trim());
+  };
+  add(CRISIS_BLOCK);
+  add(HARM_TO_OTHERS_BLOCK);
+  add(HARM_URGE_SUPPORT);
+  // Every combination of specialist lines the elevated block can carry.
+  for (let mask = 0; mask < 1 << SPECIALIST_KEYS.length; mask += 1) {
+    const categories = SPECIALIST_KEYS.filter((_key, index) => mask & (1 << index));
+    add(buildElevated(categories).text);
+  }
+  return texts;
+})();
+
+export function isFixedSafetyCopy(text: string): boolean {
+  return FIXED_SAFETY_COPY.has(text.trim());
 }

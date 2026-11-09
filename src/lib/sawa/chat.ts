@@ -31,6 +31,7 @@ import {
   detectUserTurn,
   type Detection,
 } from "./safety/detector";
+import { isFixedSafetyCopy } from "./safety/crisisCopy";
 import type { ReplyCategory } from "./safety/rules";
 import type { SafetyTierResult } from "./store";
 
@@ -239,9 +240,16 @@ export type OutgoingHistory = readonly {
   readonly content: string;
 }[];
 
+/*
+ * Fixed safety copy is left out: it is the system speaking, not Sawa. Sent as
+ * Sawa's own turns, it taught the model to answer every message with the
+ * support line instead of listening (9 November). The prompt already tells
+ * the model that support lines are added after its reply.
+ */
 export function buildHistory(messages: readonly ChatBubble[]): OutgoingHistory {
   return messages
     .filter((message) => message.content.trim().length > 0)
+    .filter((message) => message.role === "user" || !isFixedSafetyCopy(message.content))
     .slice(-MAX_HISTORY)
     .map((message) => ({ role: message.role, content: message.content }));
 }
@@ -256,7 +264,8 @@ export function buildHistory(messages: readonly ChatBubble[]): OutgoingHistory {
  * ------------------------------------------------------------------ */
 
 export type SseEvent =
-  | { readonly type: "meta"; readonly promptVersion: string }
+  /** `safety` = the server answered with fixed safety copy, not the model. */
+  | { readonly type: "meta"; readonly promptVersion: string; readonly safety?: boolean }
   | { readonly type: "delta"; readonly text: string }
   | { readonly type: "done" }
   | { readonly type: "error"; readonly message: string };
@@ -273,7 +282,11 @@ export function parseSseEvent(data: string): SseEvent | null {
   switch (record.type) {
     case "meta":
       return typeof record.promptVersion === "string"
-        ? { type: "meta", promptVersion: record.promptVersion }
+        ? {
+            type: "meta",
+            promptVersion: record.promptVersion,
+            ...(record.safety === true ? { safety: true } : {}),
+          }
         : null;
     case "delta":
       return typeof record.text === "string" ? { type: "delta", text: record.text } : null;
@@ -318,6 +331,13 @@ export type StreamReplyResult = {
   readonly reason?: StreamFailureReason;
   readonly status?: number;
   readonly message?: string;
+  /**
+   * The server answered with fixed safety copy instead of a model reply, so
+   * the client must not add a support block of its own on top. Happens when
+   * the server's safety check rates the turn higher than the client's did
+   * (a page loaded before a deploy, or a provider outage).
+   */
+  readonly safety?: boolean;
 };
 
 export type StreamReplyOptions = {
@@ -329,6 +349,8 @@ export type StreamReplyOptions = {
   readonly fetcher: typeof fetch;
   /** The visitor's chosen reply language; api/sawa.ts treats absent as English. */
   readonly language?: SawaLanguage;
+  /** A support block is already in the transcript (see supportAlreadyShown). */
+  readonly supportShown?: boolean;
   readonly onDelta?: (text: string) => void;
   readonly onMeta?: (version: string) => void;
   /** Shortens the idle timer in tests; production uses STREAM_IDLE_TIMEOUT_MS. */
@@ -391,6 +413,7 @@ export async function streamReply(options: StreamReplyOptions): Promise<StreamRe
         message: options.message,
         history: options.history,
         language: options.language ?? "en",
+        ...(options.supportShown ? { supportShown: true } : {}),
       }),
       signal: options.signal,
     });
@@ -414,11 +437,13 @@ export async function streamReply(options: StreamReplyOptions): Promise<StreamRe
   let buffer = "";
   let text = "";
   let sawDone = false;
+  let safetyReply = false;
   let streamError: string | undefined;
 
   const apply = (events: readonly SseEvent[]) => {
     for (const event of events) {
       if (event.type === "meta") {
+        if (event.safety) safetyReply = true;
         options.onMeta?.(event.promptVersion);
       } else if (event.type === "delta") {
         text += event.text;
@@ -476,7 +501,7 @@ export async function streamReply(options: StreamReplyOptions): Promise<StreamRe
   if (streamError) return { ok: false, text, reason: "http", message: streamError };
   if (!sawDone) return { ok: false, text, reason: "truncated" };
   if (text.trim().length === 0) return { ok: false, text, reason: "empty" };
-  return { ok: true, text };
+  return safetyReply ? { ok: true, text, safety: true } : { ok: true, text };
 }
 
 /* ------------------------------------------------------------------ *
@@ -546,6 +571,9 @@ export function resolveReply(reply: string): ResolvedReply {
  */
 const LIST_DASH = /^([ \t]*)[\u2013\u2014\u2015][ \t]*/gm;
 const RANGE_DASH = /(\d)[\u2013\u2014\u2015](?=\d)/g;
+// An en dash between two words is a range too ("Mon\u2013Fri"): a comma there
+// would read as two separate days.
+const WORD_RANGE_DASH = /([A-Za-z])\u2013(?=[A-Za-z])/g;
 const INLINE_DASH = /[ \t]*[\u2013\u2014\u2015]+[ \t]*/g;
 const CLOSES_CLAUSE = /^(?:[.,;:!?)\n]|$)/;
 
@@ -553,6 +581,7 @@ export function withoutDashes(text: string): string {
   return text
     .replace(LIST_DASH, "$1- ")
     .replace(RANGE_DASH, "$1-")
+    .replace(WORD_RANGE_DASH, "$1 to ")
     .replace(INLINE_DASH, (match: string, offset: number, whole: string) =>
       CLOSES_CLAUSE.test(whole.slice(offset + match.length)) ? "" : ", "
     );
@@ -561,3 +590,54 @@ export function withoutDashes(text: string): string {
 /* Re-exported so the component imports one module for the pipeline. */
 export { crisisTextFor, detectUserTurn, promptVersion };
 export type { Detection };
+
+/*
+ * What Sawa adds to the transcript for one turn, after the visitor's message.
+ *
+ * The single place these rules live, so the chat and the replay suite
+ * (tests/replay) run the same logic:
+ *   - no model call (high, abuse): the crisis block or the decline;
+ *   - fixed safety copy from the server: shown as it is, nothing added;
+ *   - a model reply: guarded (resolveReply), and replaced by a listening line
+ *     if it only repeats a support block; then the support block, once per
+ *     conversation, when the turn calls for one.
+ */
+export type ReplyOutcome = { readonly text: string; readonly safety?: boolean };
+
+/*
+ * Whether a support block is already in the transcript. Sent with each turn so
+ * the server can remind the model, on that turn, not to recite the numbers
+ * again: a rule at the top of a long prompt was not enough (replay H4).
+ */
+export function supportAlreadyShown(messages: readonly ChatBubble[]): boolean {
+  return messages.some((message) => message.role === "assistant" && isFixedSafetyCopy(message.content));
+}
+
+export function assistantTurns(args: {
+  readonly detection: Detection;
+  readonly plan: TurnPlan;
+  /** The transcript before this turn. */
+  readonly previous: readonly ChatBubble[];
+  readonly reply?: ReplyOutcome;
+  readonly language: SawaLanguage;
+}): string[] {
+  const { detection, plan, previous, reply, language } = args;
+  const copy = chatCopy[language];
+  if (!plan.callModel) {
+    return [plan.immediate === "crisis" && detection.crisis ? crisisTextFor(detection) : copy.decline];
+  }
+  if (!reply) return [];
+  if (reply.safety) return [reply.text];
+
+  const resolved = resolveReply(reply.text);
+  const turns = [isFixedSafetyCopy(resolved.content) ? copy.listening : resolved.content];
+  const crisisText = crisisTextFor(detection);
+  const alreadyShown = previous.some(
+    (message) => message.role === "assistant" && message.content === crisisText,
+  );
+  if (plan.thenCrisis && crisisText && !alreadyShown && !reply.text.includes(crisisText)) {
+    turns.push(crisisText);
+  }
+  return turns;
+}
+

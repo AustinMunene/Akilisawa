@@ -77,25 +77,55 @@ describe("feedback benchmark: threats and fear of going home", () => {
 
 describe("feedback plan benchmark: harm to others and controlling behaviour", () => {
   it.each([
-    "I want to hurt someone.",
     "I'm going to kill somebody",
-    "I am afraid I will hurt someone",
-    "Nataka kuua mtu",
-  ])("treats %j as high, with the harm-to-others block, not the suicide one", (text) => {
+    "I am going to hurt someone tonight",
+    "I will kill him",
+    "Nitamuua",
+    "He tried to stab me",
+    "my brother. I'm going to hurt him tonight when he gets home",
+    "I'll hurt her if she comes back",
+  ])("treats a stated intention or violence happening, %j, as high", (text) => {
     const { detection, plan } = turn(text);
     expect(detection.tier).toBe("high");
     expect(detection.categories).toContain("harm_to_others");
     expect(plan.callModel).toBe(false);
+    expect(plan.escalate).toBe(true);
     expect(crisisTextFor(detection)).not.toMatch(/suicide|kujiua/);
   });
 
-  it("does not treat everyday phrasing about others as intent to harm", () => {
+  it.each([
+    "I wanna hurt someone",
+    "I want to hurt someone.",
+    "I want to kill someone, my boss is unbearable",
+    "I feel like hurting someone right now",
+    "I'm scared I'll hurt someone",
+    "Nataka kuua mtu",
+  ])("keeps talking about an urge, %j, and asks about danger, with support after", (text) => {
+    const { detection, plan } = turn(text);
+    expect(detection.tier).toBe("elevated");
+    expect(detection.categories).toContain("harm_to_others");
+    expect(plan.callModel).toBe(true);
+    expect(plan.thenCrisis).toBe(true);
+    expect(plan.escalate).toBe(false);
+    expect(crisisTextFor(detection)).toMatch(/999 (or|au) 112/);
+  });
+
+  it("does not treat everyday phrasing about others as a risk", () => {
     for (const text of [
       "I don't want to hurt someone's feelings by saying no.",
+      "I don't want to hurt her feelings",
+      "Leaving would hurt his pride",
+      "Telling him the truth will hurt his feelings",
+      "Moving away is going to hurt her chances at school",
       "I was so angry I could kill someone, but I'm calmer now.",
     ]) {
       expect(turn(text).detection.categories).not.toContain("harm_to_others");
     }
+  });
+
+  it("still catches the risk when a harmless use comes first", () => {
+    const { detection } = turn("I don't want to hurt her feelings, but I want to hurt her badly");
+    expect(detection.categories).toContain("harm_to_others");
   });
 
   it("keeps talking but adds specialist support for a threat", () => {

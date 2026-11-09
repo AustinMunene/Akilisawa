@@ -159,3 +159,6 @@ Akili Sawa_ final site.html
 
 # Internal deliverables (marked private and confidential): kept out of git
 docs/deliverables/
+
+# Sawa replay transcripts (npm run replay)
+reports/

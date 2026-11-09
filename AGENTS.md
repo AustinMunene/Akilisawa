@@ -22,6 +22,7 @@ Individually:
 | `npm run test` | `vitest run`, once, non-interactive |
 | `npm run test:watch` | `vitest` in watch mode, for while you work |
 | `npm run test:coverage` | `vitest run --coverage` (v8 provider) |
+| `npm run replay` | Replays real Sawa conversations (`tests/replay/scenarios.ts`) against the live model; needs `.env.local` keys; transcript in `reports/replay/latest.md`. Not part of `verify`. Run it after any prompt or safety change |
 | `npm run build` | `tsc -b` then `vite build` — the production bundle |
 | `npm run dev` | Vite dev server |
 | `npm run preview` | Serve the last production build |

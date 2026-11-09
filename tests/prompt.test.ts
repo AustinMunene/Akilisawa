@@ -15,9 +15,9 @@ import {
  */
 
 describe("Sawa prompt", () => {
-  it("stamps the one-language production prompt as version 1.6", () => {
-    expect(promptVersion).toBe("1.6");
-    expect(PROMPT_VERSION).toBe("1.6");
+  it("stamps the graded risk-to-others prompt as version 1.7", () => {
+    expect(promptVersion).toBe("1.7");
+    expect(PROMPT_VERSION).toBe("1.7");
     expect(promptVersion).toBe(PROMPT_VERSION);
   });
 
@@ -108,7 +108,7 @@ describe("Sawa prompt", () => {
     expect(promptV1).toContain("When the situation is unclear");
     expect(promptV1).toContain("controlling or threatening behaviour");
     expect(promptV1).toContain("possible immediate danger");
-    expect(promptV1).toContain("intent to harm another person");
+    expect(promptV1).toContain("a stated intention to harm another person");
     expect(promptV1).toContain("acknowledge what they are going through");
     expect(promptV1).toContain("Do not withhold help until they answer");
     expect(promptV1).toContain("Do not give emergency numbers when no emergency has been indicated");
@@ -157,6 +157,25 @@ describe("Sawa prompt", () => {
     expect(promptV1).toContain("Mungu akubariki");
     // The register example must follow its own rule.
     expect(promptV1).not.toContain("Pole sana, maze");
+  });
+
+  it("stays with someone who has an urge to hurt someone, and asks about danger at once", () => {
+    expect(promptV1).toContain("saying it out loud is a reason to stay, not to stop");
+    expect(promptV1).toContain("Ask directly whether anyone is in danger right now, then ask what happened");
+    expect(promptV1).toContain("Keep the reply short, two or three sentences");
+    expect(promptV1).toContain("Do not list phone numbers");
+    expect(promptV1).toContain("Never repeat a support line, a crisis message or a list of numbers yourself");
+    expect(promptV1).toContain("they are telling you they do not feel heard");
+    expect(promptV1).toContain("a stated intention to harm another person");
+  });
+
+  it("asks for a human conversation in every situation, not a script", () => {
+    expect(promptV1).toContain("HOW TO SOUND");
+    expect(promptV1).toContain("never the same question twice");
+    expect(promptV1).toContain("Do not repeat disclaimers, safety checks, support lines or numbers");
+    expect(promptV1).toContain("Copy that feel, never the exact words.");
+    expect(promptV1).toContain("Never say the conversation stays only in the browser");
+    expect(promptV1).toContain("Never reuse a sentence from earlier in the conversation");
   });
 
   it("forbids em and en dashes, and itself contains none", () => {

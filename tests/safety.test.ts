@@ -17,6 +17,7 @@ import {
 import {
   CRISIS_BLOCK,
   HARM_TO_OTHERS_BLOCK,
+  HARM_URGE_SUPPORT,
   CRISIS_RESOURCES,
   crisisResponseFor,
   MANDATED_OPENER,
@@ -245,8 +246,8 @@ describe("harm-to-others crisis block", () => {
   });
 
   it("does not assume who is at risk, because a victim can match the same words", () => {
-    expect(HARM_TO_OTHERS_BLOCK.en.startsWith("It sounds like someone may be in danger of being hurt.")).toBe(true);
-    expect(HARM_TO_OTHERS_BLOCK.en).toContain("If someone is threatening or hurting you");
+    expect(HARM_TO_OTHERS_BLOCK.en.startsWith("It sounds like someone could get hurt.")).toBe(true);
+    expect(HARM_TO_OTHERS_BLOCK.en).toContain("If someone is hurting you");
     expect(HARM_TO_OTHERS_BLOCK.en).toContain("If you are afraid of what you might do");
   });
 
@@ -261,11 +262,29 @@ describe("harm-to-others crisis block", () => {
 
   it("cites only verified numbers, never dispatches, no exclamation marks", () => {
     const text = `${HARM_TO_OTHERS_BLOCK.en} ${HARM_TO_OTHERS_BLOCK.sw}`;
-    for (const needed of ["999", "112", "1199", "1195", "0722 178 177"]) expect(text).toContain(needed);
+    for (const needed of ["999", "112", "1199", "1195"]) expect(text).toContain(needed);
     for (const forbidden of ["0800", "1190", "911", "Niskize"]) expect(text).not.toContain(forbidden);
-    expect(HARM_TO_OTHERS_BLOCK.en).toContain("Akili Sawa cannot call on your behalf.");
+    expect(HARM_TO_OTHERS_BLOCK.en).toContain("Akili Sawa cannot call for you.");
     expect(/\bI\b/.test(HARM_TO_OTHERS_BLOCK.en)).toBe(false);
     expect(text.includes("!")).toBe(false);
+  });
+});
+
+describe("harm-to-others copy is short enough to read in a crisis", () => {
+  it("keeps the stated-intention message to four short paragraphs", () => {
+    for (const text of [HARM_TO_OTHERS_BLOCK.en, HARM_TO_OTHERS_BLOCK.sw]) {
+      expect(text.split("\n\n")).toHaveLength(4);
+      expect(text.length).toBeLessThan(520);
+    }
+  });
+
+  it("follows an urge with one line, not a block", () => {
+    for (const text of [HARM_URGE_SUPPORT.en, HARM_URGE_SUPPORT.sw]) {
+      expect(text).not.toContain("\n");
+      expect(text.length).toBeLessThan(140);
+      expect(text).toMatch(/999 (or|au) 112/);
+      expect(text).toContain("1199");
+    }
   });
 });
 

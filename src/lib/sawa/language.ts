@@ -186,6 +186,8 @@ export type SawaChatCopy = {
   readonly turnCapFallback: string;
   /** Shown in place of the server's English cap copy when Kiswahili is chosen. */
   readonly limitReached: string;
+  /** Shown instead of a model reply that only repeated a support line. */
+  readonly listening: string;
   readonly thinking: string;
   readonly stillThinking: string;
   readonly clear: string;
@@ -231,6 +233,7 @@ export const chatCopy: Readonly<Record<SawaLanguage, SawaChatCopy>> = {
       "This conversation has reached its turn limit. Your transcript stays in this browser; you can begin a new conversation whenever you like.",
     limitReached:
       "Sawa has reached its message limit for now. You can start a new conversation, or try again later.",
+    listening: "I'm here, and I want to understand. What happened?",
     thinking: "Sawa is thinking",
     stillThinking: "Still working on a reply",
     clear: "Clear conversation",
@@ -276,6 +279,7 @@ export const chatCopy: Readonly<Record<SawaLanguage, SawaChatCopy>> = {
       "Hii chat imefika limit ya zamu. Chat yako inabaki kwa hii browser; unaweza kuanza chat mpya wakati wowote.",
     limitReached:
       "Sawa imefika limit ya messages kwa sasa. Unaweza kuanza chat mpya, ama ujaribu tena baadaye kidogo.",
+    listening: "Niko hapa, na nataka kuelewa. Nini kilitokea?",
     thinking: "Sawa anafikiria",
     stillThinking: "Bado anaandika jibu, ngoja kidogo",
     clear: "Futa chat",
@@ -391,6 +395,7 @@ export const privacyCopy: Readonly<Record<SawaLanguage, SawaPrivacyCopy>> = {
           "The messages you type and Sawa's replies. They are held in this browser tab, not in an account on our servers.",
           "Your date of birth is checked in your browser and is not sent or saved. The tab records only that you completed the age and consent steps.",
           "There is no account, so we do not ask for your name, email address or phone number. Your language choice is saved in this browser.",
+          "If a reply does not help, you can press \"This didn't help\" under it and choose to send that one exchange to the Akili Sawa team: your message, Sawa's reply and any comment you add. It is emailed to the team so they can improve Sawa. Nothing else from the conversation is sent, and nothing is sent unless you press Send.",
         ],
       },
       {
@@ -460,6 +465,7 @@ export const privacyCopy: Readonly<Record<SawaLanguage, SawaPrivacyCopy>> = {
           "Ujumbe unaoandika na majibu ya Sawa. Vinahifadhiwa kwenye kichupo hiki cha kivinjari, si kwenye akaunti kwenye seva zetu.",
           "Tarehe yako ya kuzaliwa inakaguliwa kwenye kivinjari chako na haitumwi wala kuhifadhiwa. Kichupo kinahifadhi tu kwamba ulikamilisha hatua za umri na ridhaa.",
           "Hakuna akaunti, kwa hivyo hatuombi jina lako, barua pepe wala nambari ya simu. Lugha uliyochagua inahifadhiwa kwenye kivinjari hiki.",
+          "Jibu likikosa kukusaidia, unaweza kubonyeza \"Hili halikusaidia\" chini yake na kuchagua kutuma mazungumzo hayo mamoja kwa timu ya Akili Sawa: ujumbe wako, jibu la Sawa na maoni yoyote utakayoongeza. Yanatumwa kwa barua pepe kwa timu ili waboreshe Sawa. Hakuna kingine kutoka kwa mazungumzo kinachotumwa, na hakuna kinachotumwa usipobonyeza Tuma.",
         ],
       },
       {

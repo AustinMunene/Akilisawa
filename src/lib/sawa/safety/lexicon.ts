@@ -27,6 +27,11 @@ export type LexiconEntry = {
   readonly category: SignalCategory;
   readonly tier: SeverityTier;
   readonly indirect?: boolean;
+  /**
+   * Words that cancel the match when they come straight after the term:
+   * "hurt her" is a risk, "hurt her feelings" is not.
+   */
+  readonly unlessFollowedBy?: readonly string[];
 };
 
 export type LexiconMatch = {
@@ -143,43 +148,75 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "kujiunga na wazazi wangu", lang: "sw", category: "indirect_reference", tier: high, indirect: true },
   { term: "kuwa na ndugu yangu", lang: "sw", category: "indirect_reference", tier: high, indirect: true },
 
-  // High: risk to others.
+  // Risk to others, graded by what the person says (9 November). A stated
+  // intention or violence happening is `high`: the fixed harm-to-others
+  // message, no conversation, escalation. An urge, a feeling or a fear of
+  // what one might do ("I wanna hurt someone", "I'm scared I'll hurt
+  // someone") is `elevated`: it is often anger, or someone asking for help,
+  // so Sawa stays in the conversation, asks at once whether anyone is in
+  // danger, and the support lines follow its reply. A turn that moves to a
+  // stated intention trips `high` on its own words.
+  //
+  // "kill him / her / them" stays `high` even though it is sometimes a joke:
+  // lethal intent toward a named person costs too much to miss. Bare "hurt
+  // someone" and "could kill someone" are left out: they catch everyday
+  // speech ("hurt someone's feelings", "so angry I could kill someone").
+
+  // High: stated intention, or violence happening.
   { term: "kill him", lang: "en", category: "harm_to_others", tier: high },
   { term: "kill her", lang: "en", category: "harm_to_others", tier: high },
   { term: "kill them", lang: "en", category: "harm_to_others", tier: high },
-  { term: "hurt him", lang: "en", category: "harm_to_others", tier: high },
-  { term: "hurt her", lang: "en", category: "harm_to_others", tier: high },
   { term: "stab", lang: "en", category: "harm_to_others", tier: high },
-  // Intent toward an unnamed person ("I want to hurt someone"). Rated `low`
-  // before 9 November although the feedback plan's benchmark expects `high`.
-  // Phrased as intent on purpose: a bare "hurt someone" would also catch "I
-  // don't want to hurt someone's feelings", and "could kill someone" is
-  // everyday exaggeration; a false `high` ends the conversation.
-  { term: "want to hurt someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "want to hurt somebody", lang: "en", category: "harm_to_others", tier: high },
   { term: "going to hurt someone", lang: "en", category: "harm_to_others", tier: high },
   { term: "going to hurt somebody", lang: "en", category: "harm_to_others", tier: high },
   { term: "gonna hurt someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "wanna hurt someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "want to kill someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "want to kill somebody", lang: "en", category: "harm_to_others", tier: high },
   { term: "going to kill someone", lang: "en", category: "harm_to_others", tier: high },
   { term: "going to kill somebody", lang: "en", category: "harm_to_others", tier: high },
   { term: "gonna kill someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "wanna kill someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "afraid i will hurt someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "scared i will hurt someone", lang: "en", category: "harm_to_others", tier: high },
-  { term: "afraid i might hurt someone", lang: "en", category: "harm_to_others", tier: high },
+  // A stated intention toward a named person ("I'm going to hurt him
+  // tonight"). Without these, "hurt him" alone would rate it an urge.
+  { term: "going to hurt him", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "going to hurt her", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "going to hurt them", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "gonna hurt him", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "gonna hurt her", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "gonna hurt them", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "will hurt him", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "will hurt her", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "will hurt them", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "ill hurt him", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "ill hurt her", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "ill hurt them", lang: "en", category: "harm_to_others", tier: high, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
 
   { term: "kumuua", lang: "sw", category: "harm_to_others", tier: high },
-  { term: "kumdhuru", lang: "sw", category: "harm_to_others", tier: high },
-  { term: "kuwadhuru", lang: "sw", category: "harm_to_others", tier: high },
   { term: "kuchoma moto", lang: "sw", category: "harm_to_others", tier: high },
-  // As above, in Kiswahili. Needs the Kiswahili reviewer.
-  { term: "kumuumiza mtu", lang: "sw", category: "harm_to_others", tier: high },
-  { term: "kuua mtu", lang: "sw", category: "harm_to_others", tier: high },
+  // Needs the Kiswahili reviewer.
   { term: "nitamuua", lang: "sw", category: "harm_to_others", tier: high },
   { term: "nitamuumiza", lang: "sw", category: "harm_to_others", tier: high },
+
+  // Elevated: an urge, a feeling, or a fear of what one might do.
+  { term: "hurt him", lang: "en", category: "harm_to_others", tier: elevated, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "hurt her", lang: "en", category: "harm_to_others", tier: elevated, unlessFollowedBy: ["feelings", "feeling", "pride", "chances"] },
+  { term: "want to hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "want to hurt somebody", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "wanna hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "want to kill someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "want to kill somebody", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "wanna kill someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "feel like hurting someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "feel like killing someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "afraid i will hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "scared i will hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "afraid i might hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "scared i might hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "afraid ill hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+  { term: "scared ill hurt someone", lang: "en", category: "harm_to_others", tier: elevated },
+
+  { term: "kumdhuru", lang: "sw", category: "harm_to_others", tier: elevated },
+  { term: "kuwadhuru", lang: "sw", category: "harm_to_others", tier: elevated },
+  // Needs the Kiswahili reviewer.
+  { term: "kumuumiza mtu", lang: "sw", category: "harm_to_others", tier: elevated },
+  { term: "kuua mtu", lang: "sw", category: "harm_to_others", tier: elevated },
 
   // Elevated: gender-based violence.
   { term: "rape", lang: "en", category: "gbv", tier: elevated },
@@ -372,16 +409,31 @@ export function normalise(text: string): string {
     .replace(/\s+/g, " ");
 }
 
-const NEEDLES: readonly { entry: LexiconEntry; needle: string }[] = LEXICON.map(
-  (entry) => ({ entry, needle: ` ${normalise(entry.term)} ` }),
-);
+const NEEDLES: readonly {
+  entry: LexiconEntry;
+  needle: string;
+  exceptions: readonly string[];
+}[] = LEXICON.map((entry) => ({
+  entry,
+  needle: ` ${normalise(entry.term)} `,
+  exceptions: (entry.unlessFollowedBy ?? []).map((word) => `${normalise(word)} `),
+}));
 
 export function matchLexicon(text: string): LexiconMatch[] {
   const haystack = ` ${normalise(text)} `;
   const matches: LexiconMatch[] = [];
-  for (const { entry, needle } of NEEDLES) {
-    const index = haystack.indexOf(needle);
-    if (index !== -1) matches.push({ entry, index });
+  for (const { entry, needle, exceptions } of NEEDLES) {
+    // Every occurrence is checked: "hurt her feelings ... I will hurt her"
+    // must still match on the second one.
+    let index = haystack.indexOf(needle);
+    while (index !== -1) {
+      const after = haystack.slice(index + needle.length);
+      if (!exceptions.some((exception) => after.startsWith(exception))) {
+        matches.push({ entry, index });
+        break;
+      }
+      index = haystack.indexOf(needle, index + 1);
+    }
   }
   return matches;
 }

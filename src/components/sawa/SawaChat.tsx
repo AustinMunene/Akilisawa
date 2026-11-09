@@ -53,17 +53,17 @@ import type { SafetySignal } from "../../lib/sawa/safety/detector";
 import {
   ANNOUNCE_THROTTLE_MS,
   announcementText,
+  assistantTurns,
+  supportAlreadyShown,
   buildHistory,
   chatReducer,
   checkMessage,
-  crisisTextFor,
   DEFAULT_ENDPOINT,
   detectUserTurn,
   initialChatState,
   MAX_MESSAGE_CHARS,
   planTurn,
   promptVersion,
-  resolveReply,
   streamReply,
   toBubble,
   type ChatBubble,
@@ -75,6 +75,8 @@ import {
 import { configuredWhatsAppNumber, whatsappAnchors } from "../../lib/sawa/whatsapp";
 import { useSawaLanguage } from "./SawaLanguageProvider";
 import SawaWhatsAppCard from "./SawaWhatsAppCard";
+import SawaReplyReport from "./SawaReplyReport";
+import { reportableReplies } from "../../lib/sawa/report";
 
 export type SawaChatProps = {
   readonly className?: string;
@@ -461,6 +463,7 @@ const SawaChat = ({
       message,
       history,
       language,
+      supportShown: supportAlreadyShown(state.messages),
       signal: controller.signal,
       fetcher: doFetch,
       onDelta: (text) => dispatch({ type: "delta", text }),
@@ -468,11 +471,16 @@ const SawaChat = ({
     if (abortRef.current === controller) abortRef.current = null;
 
     if (result.ok) {
-      const resolved = resolveReply(result.text);
-      appendAssistant(resolved.content, detection);
-      const crisisText = crisisTextFor(detection);
-      if (plan.thenCrisis && crisisText && !result.text.includes(crisisText)) {
-        appendAssistant(crisisText, detection);
+      // The turn's rules live in assistantTurns (chat.ts), shared with the
+      // replay suite.
+      for (const content of assistantTurns({
+        detection,
+        plan,
+        previous: state.messages,
+        reply: { text: result.text, ...(result.safety ? { safety: true } : {}) },
+        language,
+      })) {
+        appendAssistant(content, detection);
       }
       dispatch({ type: "stream-end" });
       return;
@@ -589,10 +597,8 @@ const SawaChat = ({
     dispatch({ type: "user", message: remember(toBubble(stored)) });
 
     if (!plan.callModel) {
-      if (plan.immediate === "crisis" && detection.crisis) {
-        appendAssistant(crisisTextFor(detection), detection);
-      } else {
-        appendAssistant(t.decline, detection);
+      for (const content of assistantTurns({ detection, plan, previous: state.messages, language })) {
+        appendAssistant(content, detection);
       }
       if (plan.escalate && detection.signal) {
         await escalate(detection.signal);
@@ -693,6 +699,7 @@ const SawaChat = ({
   const canSend = input.trim().length > 0 && !isStreaming;
   const hasConversation = state.messages.some((message) => message.role === "user");
   const whatsapp = whatsappNumber ? whatsappAnchors(state.messages) : null;
+  const reportable = reportableReplies(state.messages);
   const showClear = hasConversation && !isStreaming;
   const retryAvailable =
     state.notice !== null &&
@@ -729,6 +736,9 @@ const SawaChat = ({
               return (
                 <div key={message.id} className="space-y-3">
                   <MessageBubble message={message} />
+                  {reportable.has(message.id) && !message.partial ? (
+                    <SawaReplyReport message={reportable.get(message.id)!} reply={message.content} />
+                  ) : null}
                   {anchor && whatsappNumber ? (
                     <SawaWhatsAppCard
                       number={whatsappNumber}

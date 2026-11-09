@@ -20,7 +20,15 @@ import {
   type ChatAction,
   type ChatBubble,
   withoutDashes,
+  assistantTurns,
 } from "../src/lib/sawa/chat";
+import {
+  CRISIS_BLOCK,
+  HARM_TO_OTHERS_BLOCK,
+  HARM_URGE_SUPPORT,
+  crisisResponseFor,
+  isFixedSafetyCopy,
+} from "../src/lib/sawa/safety/crisisCopy";
 import { detectUserTurn } from "../src/lib/sawa/safety/detector";
 
 /*
@@ -294,6 +302,24 @@ describe("streamReply", () => {
     expect(result.text).toBe("one");
   });
 
+  it("reports fixed safety copy from the server so the chat adds no second block", async () => {
+    const fetcher = (async () =>
+      streamResponse([
+        sseFrames([
+          { type: "meta", promptVersion: "1.7", safety: true },
+          { type: "delta", text: "If anyone is in danger right now" },
+          { type: "done" },
+        ]),
+      ])) as typeof fetch;
+    expect(await streamReply(baseOptions({ fetcher }))).toEqual({
+      ok: true,
+      text: "If anyone is in danger right now",
+      safety: true,
+    });
+    // An ordinary model reply carries no such flag.
+    expect((await streamReply(baseOptions())).safety).toBeUndefined();
+  });
+
   it("returns a timeout result when the stream stalls without data", async () => {
     const fetcher = (async () => new Response(new ReadableStream<Uint8Array>())) as typeof fetch;
     const result = await streamReply(baseOptions({ fetcher, idleTimeoutMs: 5 }));
@@ -490,6 +516,60 @@ describe("the safety pipeline's place in the turn", () => {
   });
 });
 
+describe("assistantTurns: what Sawa adds after the visitor's message", () => {
+  const urge = detectUserTurn({ text: "I wanna hurt someone", conversationId: "turns-1" });
+  const urgePlan = planTurn(urge);
+
+  it("adds the reply, then the support line the first time", () => {
+    expect(
+      assistantTurns({ detection: urge, plan: urgePlan, previous: [], reply: { text: "Is anyone in danger?" }, language: "en" }),
+    ).toEqual(["Is anyone in danger?", HARM_URGE_SUPPORT.en]);
+  });
+
+  it("does not repeat the support line once it has been shown", () => {
+    const previous: ChatBubble[] = [{ id: "s", role: "assistant", content: HARM_URGE_SUPPORT.en }];
+    expect(
+      assistantTurns({ detection: urge, plan: urgePlan, previous, reply: { text: "What did he do?" }, language: "en" }),
+    ).toEqual(["What did he do?"]);
+  });
+
+  it("replaces a reply that only parrots the support line with a listening line", () => {
+    const previous: ChatBubble[] = [{ id: "s", role: "assistant", content: HARM_URGE_SUPPORT.en }];
+    expect(
+      assistantTurns({ detection: urge, plan: urgePlan, previous, reply: { text: HARM_URGE_SUPPORT.en }, language: "en" }),
+    ).toEqual(["I'm here, and I want to understand. What happened?"]);
+  });
+
+  it("passes the server's fixed safety copy through untouched", () => {
+    expect(
+      assistantTurns({ detection: urge, plan: urgePlan, previous: [], reply: { text: HARM_TO_OTHERS_BLOCK.en, safety: true }, language: "en" }),
+    ).toEqual([HARM_TO_OTHERS_BLOCK.en]);
+  });
+
+  it("answers a high turn with the crisis block and no model call", () => {
+    const high = detectUserTurn({ text: "I want to kill myself", conversationId: "turns-2" });
+    expect(assistantTurns({ detection: high, plan: planTurn(high), previous: [], language: "en" })).toEqual([
+      CRISIS_BLOCK.en,
+    ]);
+  });
+});
+
+describe("isFixedSafetyCopy", () => {
+  it("recognises every block the pipeline can show, in both languages", () => {
+    const combos: string[][] = [[], ["gbv"], ["substance_crisis", "child_safety"], ["gbv", "substance_crisis", "child_safety"]];
+    for (const categories of combos) {
+      const text = crisisResponseFor("elevated", categories as never)!.text;
+      expect(isFixedSafetyCopy(text.en)).toBe(true);
+      expect(isFixedSafetyCopy(text.sw)).toBe(true);
+    }
+    expect(isFixedSafetyCopy(`  ${HARM_URGE_SUPPORT.sw}\n`)).toBe(true);
+  });
+
+  it("does not mistake a reply that mentions a number for the system's copy", () => {
+    expect(isFixedSafetyCopy("You can call 1199 any time if that would help. What happened?")).toBe(false);
+  });
+});
+
 describe("withoutDashes", () => {
   it.each([
     ["You matter \u2014 and so does your safety.", "You matter, and so does your safety."],
@@ -500,6 +580,7 @@ describe("withoutDashes", () => {
     ["Wait \u2014.", "Wait."],
     ["It ends here \u2014", "It ends here"],
     ["Pole sana\u2014kazi ni heavy", "Pole sana, kazi ni heavy"],
+    ["Monday\u2013Friday, Mon\u2013Fri", "Monday to Friday, Mon to Fri"],
   ])("rewrites %j", (input, expected) => {
     expect(withoutDashes(input)).toBe(expected);
   });
@@ -511,6 +592,28 @@ describe("withoutDashes", () => {
 });
 
 describe("buildHistory", () => {
+  it("keeps fixed safety copy out of what the model sees as its own turns", () => {
+    // The 9 November transcript: the support line sent back as Sawa's words
+    // taught the model to answer every message with it.
+    const line = HARM_URGE_SUPPORT.en;
+    const history = buildHistory([
+      { id: "o", role: "assistant", content: OPENING_LINE },
+      { id: "u1", role: "user", content: "I wanna hurt someone" },
+      { id: "a1", role: "assistant", content: "I hear you. Are you or anyone else in danger right now?" },
+      { id: "s1", role: "assistant", content: line },
+      { id: "u2", role: "user", content: "my brother" },
+      { id: "s2", role: "assistant", content: HARM_TO_OTHERS_BLOCK.sw },
+      { id: "s3", role: "assistant", content: CRISIS_BLOCK.en },
+    ]);
+    expect(history.map((turn) => turn.content)).toEqual([
+      OPENING_LINE,
+      "I wanna hurt someone",
+      "I hear you. Are you or anyone else in danger right now?",
+      "my brother",
+    ]);
+  });
+
+
   it("drops empty turns and keeps the role/content shape api/sawa.ts expects", () => {
     const history = buildHistory([
       { id: "a", role: "assistant", content: OPENING_LINE },

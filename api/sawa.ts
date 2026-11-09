@@ -221,7 +221,9 @@ const sendSseText = (res: any, text: string) => {
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
   if (typeof res.flushHeaders === "function") res.flushHeaders();
-  writeSse(res, { type: "meta", promptVersion });
+  // `safety: true` tells the client this is fixed safety copy, so it does not
+  // add its own support block on top (two blocks back to back).
+  writeSse(res, { type: "meta", promptVersion, safety: true });
   for (let offset = 0; offset < text.length; offset += 48) {
     writeSse(res, { type: "delta", text: text.slice(offset, offset + 48) });
   }
@@ -269,7 +271,10 @@ export default async function handler(req: any, res: any) {
   const messages: ChatMessage[] = [
     { role: "system", content: promptFor(language) },
     ...sanitiseHistory(payload?.history),
-    { role: "user", content: withReplyLanguage(message, language) },
+    {
+      role: "user",
+      content: withReplyLanguage(message, language, { supportShown: payload?.supportShown === true }),
+    },
   ];
 
   // Repeat safety checks at the trusted server boundary. Client checks remain

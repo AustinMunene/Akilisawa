@@ -238,8 +238,24 @@ describe("api/sawa guards", () => {
     const sent = JSON.parse(String((init as RequestInit).body));
     const last = sent.messages[sent.messages.length - 1];
     expect(last).toEqual({ role: "user", content: withReplyLanguage("Habari, naomba usaidizi", "sw") });
+    expect(last.content).not.toContain("Support lines have already been shown");
     // Earlier turns are passed through untouched.
     expect(sent.messages[1]).toEqual({ role: "user", content: "Hello" });
+  });
+
+  it("marks a server-side crisis reply as fixed safety copy", async () => {
+    const fake = await send({ body: { conversationId: "conv-safety-meta", message: "I want to kill myself" } });
+    expect(fake.text()).toContain('"safety":true');
+  });
+
+  it("reminds the model not to recite numbers once support has been shown", async () => {
+    vi.mocked(fetch).mockClear();
+    await send({ body: { conversationId: "conv-support-shown", message: "he took my phone", supportShown: true } });
+    const [, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    const sent = JSON.parse(String((init as RequestInit).body));
+    expect(sent.messages[sent.messages.length - 1].content).toContain(
+      "Do not give any phone numbers in this reply unless the person asks for one.",
+    );
   });
 
   it("short-circuits high-risk turns at the server before calling the model", async () => {
@@ -268,7 +284,7 @@ describe("api/sawa guards", () => {
       },
     });
     expect(fake.status).toBe(200);
-    expect(streamedText(fake.text())).toContain("Children and young people");
+    expect(streamedText(fake.text())).toContain("Childline Kenya is on 116");
     expect(fetch).not.toHaveBeenCalled();
   });
 
