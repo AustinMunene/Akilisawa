@@ -4,6 +4,7 @@ import {
   SW_PRIVACY_REVIEWED,
   type SawaLanguage,
 } from "../../lib/sawa/language";
+import { configuredWhatsAppNumber, whatsappPrivacyNote } from "../../lib/sawa/whatsapp";
 import { SawaLanguageProvider, useSawaLanguage } from "./SawaLanguageProvider";
 import SawaLanguageToggle from "./SawaLanguageToggle";
 
@@ -17,7 +18,7 @@ import SawaLanguageToggle from "./SawaLanguageToggle";
 const linkClass =
   "text-brand-dark underline underline-offset-4 dark:text-brand";
 
-function SawaPrivacyContent() {
+function SawaPrivacyContent({ whatsappEnabled }: { readonly whatsappEnabled: boolean }) {
   const { language: chosen } = useSawaLanguage();
   // Unreviewed Kiswahili legal copy is not shown; see SW_PRIVACY_REVIEWED.
   const pending = chosen === "sw" && !SW_PRIVACY_REVIEWED;
@@ -80,6 +81,9 @@ function SawaPrivacyContent() {
                 {paragraph}
               </p>
             ))}
+            {question.id === "safety-escalation" && whatsappEnabled ? (
+              <p className="text-sm text-muted">{whatsappPrivacyNote[language]}</p>
+            ) : null}
           </div>
         ))}
       </div>
@@ -89,12 +93,19 @@ function SawaPrivacyContent() {
   );
 }
 
-type SawaPrivacySectionProps = { readonly initialLanguage?: SawaLanguage };
+type SawaPrivacySectionProps = {
+  readonly initialLanguage?: SawaLanguage;
+  /** Defaults to whether the WhatsApp line is configured. Injected in tests. */
+  readonly whatsappEnabled?: boolean;
+};
 
-export default function SawaPrivacySection({ initialLanguage }: SawaPrivacySectionProps) {
+export default function SawaPrivacySection({
+  initialLanguage,
+  whatsappEnabled = configuredWhatsAppNumber() !== null,
+}: SawaPrivacySectionProps) {
   return (
     <SawaLanguageProvider initialLanguage={initialLanguage}>
-      <SawaPrivacyContent />
+      <SawaPrivacyContent whatsappEnabled={whatsappEnabled} />
     </SawaLanguageProvider>
   );
 }

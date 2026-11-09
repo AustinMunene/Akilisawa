@@ -152,6 +152,32 @@ Settled with Austin in a grilling session:
   12 prompts. Fixes land as one batch of text edits; tests change only where a
   fix breaks one.
 
+## 9. The Akili Sawa WhatsApp line (9 November, switched off)
+
+Njiruh suggested routing people to a WhatsApp line run by Akili Sawa's own
+doctors and therapists, instead of only listing helplines. Built and
+switched off until the clinical team provides the number:
+
+- A card under the support block and under the crisis message: "Open WhatsApp"
+  opens `wa.me/<number>` with a message ready; the person presses send. Nothing
+  is sent for them.
+- The pre-typed message is a neutral starter. The person's own message is
+  added only if they tick a box (off by default), capped at 500 characters,
+  because whatever is pre-typed travels in the link and sits in browser
+  history.
+- It sits beside the verified lines, not in place of them. On the crisis
+  message the card leads with "Call 999 or 112 first", and the copy promises no
+  response time or emergency cover until hours are confirmed.
+- The privacy section gains one paragraph while the line is on: Akili Sawa
+  then sees the person's phone number and what they send.
+- Turned on by setting `VITE_SAWA_WHATSAPP_NUMBER` (digits, country code
+  first) in Vercel and redeploying. Logic in `src/lib/sawa/whatsapp.ts`.
+
+Before switching it on: the number; the hours and expected reply time (the
+card's wording may change); an after-hours auto-reply pointing to 999/112
+and 1199; who reads the chats and where they are kept; adding the line to
+`docs/adr/crisis-resources-v1.md`; and a Kiswahili review of the card copy.
+
 ## Open, before release
 
 - Clinical review is replaced by the owner's decision in section 6. A clinician

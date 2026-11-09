@@ -72,7 +72,9 @@ import {
   type TurnPlan,
   withoutDashes,
 } from "../../lib/sawa/chat";
+import { configuredWhatsAppNumber, whatsappAnchors } from "../../lib/sawa/whatsapp";
 import { useSawaLanguage } from "./SawaLanguageProvider";
+import SawaWhatsAppCard from "./SawaWhatsAppCard";
 
 export type SawaChatProps = {
   readonly className?: string;
@@ -83,6 +85,11 @@ export type SawaChatProps = {
   readonly initialMessage?: string;
   /** Called as the initial message is sent, so the page can forget it. */
   readonly onInitialMessageSent?: () => void;
+  /**
+   * The Akili Sawa WhatsApp line. Defaults to VITE_SAWA_WHATSAPP_NUMBER; `null`
+   * or unset hides the card. Injected in tests.
+   */
+  readonly whatsappNumber?: string | null;
   /** Injected in tests. Defaults to a per-tab AnonymousConversationStore. */
   readonly store?: ConversationStore;
   /** Injected. When absent the disclosure is still shown, nothing is sent. */
@@ -207,6 +214,7 @@ const SawaChat = ({
   className,
   initialMessage,
   onInitialMessageSent,
+  whatsappNumber = configuredWhatsAppNumber(),
   store,
   escalationSink,
   fetcher,
@@ -684,6 +692,7 @@ const SawaChat = ({
 
   const canSend = input.trim().length > 0 && !isStreaming;
   const hasConversation = state.messages.some((message) => message.role === "user");
+  const whatsapp = whatsappNumber ? whatsappAnchors(state.messages) : null;
   const showClear = hasConversation && !isStreaming;
   const retryAvailable =
     state.notice !== null &&
@@ -715,9 +724,21 @@ const SawaChat = ({
             aria-label={t.conversationLabel}
             className="space-y-4"
           >
-            {state.messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
-            ))}
+            {state.messages.map((message) => {
+              const anchor = whatsapp?.get(message.id);
+              return (
+                <div key={message.id} className="space-y-3">
+                  <MessageBubble message={message} />
+                  {anchor && whatsappNumber ? (
+                    <SawaWhatsAppCard
+                      number={whatsappNumber}
+                      excerpt={anchor.excerpt}
+                      tier={anchor.tier}
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
           {state.messages.length === 1 && !isStreaming ? (
             <div className="flex flex-wrap gap-2" aria-label={t.startingOptionsLabel}>
