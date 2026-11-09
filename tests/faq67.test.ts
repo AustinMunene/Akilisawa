@@ -45,7 +45,7 @@ describe("Faq67", () => {
     expect(html).toContain(
       "It is not a therapist, psychiatrist, psychologist or other licensed clinician."
     );
-    expect(html).toContain("Your transcript is held in this browser.");
+    expect(html).toContain("Your transcript is held in this browser tab.");
     expect(html).toContain(
       "organisations see aggregated insights where relevant, never private conversation details."
     );
@@ -57,18 +57,18 @@ describe("Faq67", () => {
     expect(html.match(/open=""/g)?.length).toBe(2);
   });
 
-  it("states Sawa is not an emergency service and links to /privacy", () => {
+  it("states Sawa is not an emergency service and links to the Sawa privacy section", () => {
     const html = render(createElement(Faq67));
     expect(html).toContain(
       "contact local emergency services or a trusted healthcare provider"
     );
-    expect(html).toContain('href="/privacy"');
+    expect(html).toContain('href="/privacy#sawa-privacy"');
     expect(html).toContain("Read about privacy");
   });
 
   it("places the FAQ below the product and the closing CTA", () => {
     const html = render(createElement(SawaAi));
-    const chat = html.indexOf("Date of birth / Tarehe ya kuzaliwa");
+    const chat = html.indexOf("data-sawa-launcher");
     const cta = html.indexOf("Bring Sawa AI to your organisation");
     const faq = html.indexOf("What is Sawa?");
     expect(chat).toBeGreaterThan(-1);

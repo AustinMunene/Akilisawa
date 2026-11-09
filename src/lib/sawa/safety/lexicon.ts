@@ -150,11 +150,36 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "hurt him", lang: "en", category: "harm_to_others", tier: high },
   { term: "hurt her", lang: "en", category: "harm_to_others", tier: high },
   { term: "stab", lang: "en", category: "harm_to_others", tier: high },
+  // Intent toward an unnamed person ("I want to hurt someone"). Rated `low`
+  // before 9 November although the feedback plan's benchmark expects `high`.
+  // Phrased as intent on purpose: a bare "hurt someone" would also catch "I
+  // don't want to hurt someone's feelings", and "could kill someone" is
+  // everyday exaggeration; a false `high` ends the conversation.
+  { term: "want to hurt someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "want to hurt somebody", lang: "en", category: "harm_to_others", tier: high },
+  { term: "going to hurt someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "going to hurt somebody", lang: "en", category: "harm_to_others", tier: high },
+  { term: "gonna hurt someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "wanna hurt someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "want to kill someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "want to kill somebody", lang: "en", category: "harm_to_others", tier: high },
+  { term: "going to kill someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "going to kill somebody", lang: "en", category: "harm_to_others", tier: high },
+  { term: "gonna kill someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "wanna kill someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "afraid i will hurt someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "scared i will hurt someone", lang: "en", category: "harm_to_others", tier: high },
+  { term: "afraid i might hurt someone", lang: "en", category: "harm_to_others", tier: high },
 
   { term: "kumuua", lang: "sw", category: "harm_to_others", tier: high },
   { term: "kumdhuru", lang: "sw", category: "harm_to_others", tier: high },
   { term: "kuwadhuru", lang: "sw", category: "harm_to_others", tier: high },
   { term: "kuchoma moto", lang: "sw", category: "harm_to_others", tier: high },
+  // As above, in Kiswahili. Needs the Kiswahili reviewer.
+  { term: "kumuumiza mtu", lang: "sw", category: "harm_to_others", tier: high },
+  { term: "kuua mtu", lang: "sw", category: "harm_to_others", tier: high },
+  { term: "nitamuua", lang: "sw", category: "harm_to_others", tier: high },
+  { term: "nitamuumiza", lang: "sw", category: "harm_to_others", tier: high },
 
   // Elevated: gender-based violence.
   { term: "rape", lang: "en", category: "gbv", tier: elevated },
@@ -172,6 +197,31 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "abused me", lang: "en", category: "gbv", tier: elevated },
   { term: "being abused", lang: "en", category: "gbv", tier: elevated },
 
+  // Elevated: threats from another person and fear of going home (Sawa AI
+  // User Feedback No. 1, benchmark prompts 4 and 5). Both classified `low`
+  // before this, so the urgent prompts got no deterministic support line.
+  // Kept to phrases that name a threat or a fear of home: "may hurt me" and
+  // "will hurt me" are left out because they also describe emotional hurt
+  // ("it will hurt me to say goodbye"). Pending the ticket 17 clinical review.
+  { term: "threatened to hurt me", lang: "en", category: "gbv", tier: elevated },
+  { term: "threatens to hurt me", lang: "en", category: "gbv", tier: elevated },
+  { term: "threatening to hurt me", lang: "en", category: "gbv", tier: elevated },
+  { term: "threatened to kill me", lang: "en", category: "gbv", tier: elevated },
+  { term: "threatens to kill me", lang: "en", category: "gbv", tier: elevated },
+  { term: "threatening to kill me", lang: "en", category: "gbv", tier: elevated },
+  // A threat with no stated harm ("my partner checks my phone and threatens
+  // me"), the plan's controlling-behaviour benchmark prompt.
+  { term: "threatens me", lang: "en", category: "gbv", tier: elevated },
+  { term: "threatened me", lang: "en", category: "gbv", tier: elevated },
+  { term: "threatening me", lang: "en", category: "gbv", tier: elevated },
+  { term: "afraid to go home", lang: "en", category: "gbv", tier: elevated },
+  { term: "scared to go home", lang: "en", category: "gbv", tier: elevated },
+  { term: "frightened to go home", lang: "en", category: "gbv", tier: elevated },
+  { term: "afraid of going home", lang: "en", category: "gbv", tier: elevated },
+  { term: "scared of going home", lang: "en", category: "gbv", tier: elevated },
+  { term: "not safe at home", lang: "en", category: "gbv", tier: elevated },
+  { term: "unsafe at home", lang: "en", category: "gbv", tier: elevated },
+
   { term: "nibakwa", lang: "sw", category: "gbv", tier: elevated },
   { term: "kubakwa", lang: "sw", category: "gbv", tier: elevated },
   { term: "alinibaka", lang: "sw", category: "gbv", tier: elevated },
@@ -181,6 +231,13 @@ export const LEXICON: readonly LexiconEntry[] = [
   { term: "unyanyasaji wa kijinsia", lang: "sw", category: "gbv", tier: elevated },
   { term: "ukatili wa kijinsia", lang: "sw", category: "gbv", tier: elevated },
   { term: "amenilazimisha", lang: "sw", category: "gbv", tier: elevated },
+  // Threats and fear of going home, as above. Needs the Kiswahili reviewer.
+  { term: "amenitishia", lang: "sw", category: "gbv", tier: elevated },
+  { term: "ananitishia", lang: "sw", category: "gbv", tier: elevated },
+  { term: "alinitishia", lang: "sw", category: "gbv", tier: elevated },
+  { term: "naogopa kurudi nyumbani", lang: "sw", category: "gbv", tier: elevated },
+  { term: "naogopa kwenda nyumbani", lang: "sw", category: "gbv", tier: elevated },
+  { term: "siko salama nyumbani", lang: "sw", category: "gbv", tier: elevated },
 
   // Elevated: substance crisis.
   { term: "overdose", lang: "en", category: "substance_crisis", tier: elevated },

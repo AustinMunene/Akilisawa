@@ -1,6 +1,5 @@
 import SectionBackground from "../components/layout/SectionBackground";
-import SawaChat from "../components/sawa/SawaChat";
-import SawaAgeGate from "../components/sawa/SawaAgeGate";
+import SawaLauncher from "../components/sawa/SawaLauncher";
 import Badge from "../components/ui/Badge";
 import { ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
@@ -196,9 +195,9 @@ const Home = () => {
 
       {/*
        * §3 - Talk to Sawa. Blueprint §40 places the live conversation here,
-       * directly before the prevention model bands. Same component as /sawa-ai
-       * (ticket 20), compact inline variant. The opening line, transcript and
-       * safety behaviour are all the component's own.
+       * directly before the prevention model bands. The same launcher as
+       * /sawa-ai: the first message opens the full-screen conversation at
+       * /sawa-ai/chat, where the age gate and the chat itself live.
        */}
       <SectionBackground variant="light">
         <div className="space-y-8">
@@ -213,9 +212,7 @@ const Home = () => {
             </p>
           </div>
           <Card>
-            <SawaAgeGate>
-              <SawaChat variant="inline" />
-            </SawaAgeGate>
+            <SawaLauncher />
           </Card>
           <p className="text-xs text-muted">
             Akili Sawa is not a therapist, clinician or crisis service. If you

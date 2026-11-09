@@ -1,23 +1,11 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { isAdultDateOfBirth } from "../../lib/sawa/ageGate";
+import { gateCopy, type SawaLanguage } from "../../lib/sawa/language";
+import { SawaLanguageProvider, useSawaLanguage } from "./SawaLanguageProvider";
+import SawaLanguageToggle from "./SawaLanguageToggle";
 
 const SESSION_KEY = "sawa.age-consent.v1";
-
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-] as const;
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 1900 + 1 }, (_, index) => currentYear - index);
@@ -28,33 +16,44 @@ function daysInMonth(year: string, month: string): number {
   return new Date(resolvedYear, resolvedMonth, 0).getDate();
 }
 
-type SawaAgeGateProps = { readonly children: ReactNode };
+// Read on first render, not in an effect, so a visitor who already accepted
+// this session never sees the gate flash before the chat.
+function readAccepted(): boolean {
+  try {
+    return typeof window !== "undefined" && window.sessionStorage.getItem(SESSION_KEY) === "accepted";
+  } catch {
+    // Storage blocked: the gate stays usable for this page view.
+    return false;
+  }
+}
 
-export default function SawaAgeGate({ children }: SawaAgeGateProps) {
-  const [accepted, setAccepted] = useState(false);
+function SawaAgeGateContent({
+  children,
+  showLanguageToggle,
+  className,
+}: {
+  readonly children: ReactNode;
+  readonly showLanguageToggle: boolean;
+  readonly className?: string;
+}) {
+  const { language } = useSawaLanguage();
+  const t = gateCopy[language];
+  const [accepted, setAccepted] = useState(readAccepted);
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    try {
-      setAccepted(window.sessionStorage.getItem(SESSION_KEY) === "accepted");
-    } catch {
-      // The gate remains usable for this page view if browser storage is blocked.
-    }
-  }, []);
-
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const dateOfBirth = year && month && day ? `${year}-${month}-${day}` : "";
     if (!isAdultDateOfBirth(dateOfBirth)) {
-      setError("Sawa AI is currently available to adults aged 18 and over. / Sawa AI inapatikana kwa watu wazima wenye umri wa miaka 18 na zaidi.");
+      setError(t.ageError);
       return;
     }
     if (!consent) {
-      setError("Please confirm that you understand the limits of this service. / Tafadhali thibitisha kuwa umeelewa mipaka ya huduma hii.");
+      setError(t.consentError);
       return;
     }
     try {
@@ -71,36 +70,38 @@ export default function SawaAgeGate({ children }: SawaAgeGateProps) {
   return (
     <section
       aria-labelledby="sawa-age-gate-title"
-      className="space-y-5 rounded-none border border-line bg-panel p-5 text-text shadow-card md:p-7"
+      className={`space-y-5 rounded-none border border-line bg-panel p-5 text-text shadow-card md:p-7 ${className ?? ""}`}
     >
+      {showLanguageToggle ? (
+        <div className="flex justify-end">
+          <SawaLanguageToggle />
+        </div>
+      ) : null}
+
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Before you begin / Kabla ya kuanza</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          {t.before}
+        </p>
         <h2 id="sawa-age-gate-title" className="text-xl font-semibold">
-          A conversation for adults / Mazungumzo ya watu wazima
+          {t.title}
         </h2>
-        <p className="text-sm text-muted">
-          Sawa AI is a non-clinical wellbeing companion, not a therapist, clinician or crisis service. Your date of birth is checked in this browser only; it is not sent to the server or saved.
+        <p lang={language} className="text-sm text-muted">
+          {t.intro}
         </p>
-        <p lang="sw" className="text-sm text-muted">
-          Sawa AI ni msaidizi wa ustawi asiye wa kliniki, si mtaalamu wa afya ya akili wala huduma ya dharura. Tarehe yako ya kuzaliwa itakaguliwa kwenye kivinjari hiki pekee; haitatumwa kwa seva wala kuhifadhiwa.
-        </p>
-        <p className="text-sm text-muted">
-          If a high-severity safety concern is detected, the message that raised it may be sent to Akili Sawa's designated support inbox. Email retention depends on that inbox's settings. The service is not monitored for emergencies and cannot guarantee an immediate response.
-        </p>
-        <p lang="sw" className="text-sm text-muted">
-          Ikiwa mfumo utagundua hatari kubwa ya usalama, ujumbe ulioibua wasiwasi huo unaweza kutumwa kwenye kisanduku maalum cha usaidizi cha Akili Sawa. Muda wa kuhifadhi barua pepe hutegemea mipangilio ya kisanduku hicho. Huduma hii haifuatiliwi kwa dharura na haiwezi kuhakikisha jibu la haraka.
+        <p lang={language} className="text-sm text-muted">
+          {t.safety}
         </p>
       </div>
 
       <form onSubmit={submit} className="space-y-4">
         <fieldset className="space-y-2">
-          <legend className="block text-sm font-medium">Date of birth / Tarehe ya kuzaliwa</legend>
+          <legend className="block text-sm font-medium">{t.dateOfBirth}</legend>
           <p id="sawa-date-of-birth-help" className="text-xs text-muted">
-            Select the day, month and year. This is checked in your browser only.
+            {t.dateOfBirthHelp}
           </p>
           <div className="grid grid-cols-[0.8fr_1.4fr_1fr] gap-2">
             <label className="space-y-1 text-xs font-medium text-muted">
-              <span>Day</span>
+              <span>{t.day}</span>
               <select
                 name="birthDay"
                 required
@@ -109,15 +110,19 @@ export default function SawaAgeGate({ children }: SawaAgeGateProps) {
                 aria-describedby="sawa-date-of-birth-help"
                 className="min-h-[44px] w-full border border-line bg-background px-3 text-sm text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
-                <option value="">Day</option>
+                <option value="">{t.day}</option>
                 {Array.from({ length: daysInMonth(year, month) }, (_, index) => {
                   const value = String(index + 1).padStart(2, "0");
-                  return <option key={value} value={value}>{index + 1}</option>;
+                  return (
+                    <option key={value} value={value}>
+                      {index + 1}
+                    </option>
+                  );
                 })}
               </select>
             </label>
             <label className="space-y-1 text-xs font-medium text-muted">
-              <span>Month</span>
+              <span>{t.month}</span>
               <select
                 name="birthMonth"
                 required
@@ -130,15 +135,19 @@ export default function SawaAgeGate({ children }: SawaAgeGateProps) {
                 aria-describedby="sawa-date-of-birth-help"
                 className="min-h-[44px] w-full border border-line bg-background px-3 text-sm text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
-                <option value="">Month</option>
-                {MONTHS.map((label, index) => {
+                <option value="">{t.month}</option>
+                {t.months.map((label, index) => {
                   const value = String(index + 1).padStart(2, "0");
-                  return <option key={value} value={value}>{label}</option>;
+                  return (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  );
                 })}
               </select>
             </label>
             <label className="space-y-1 text-xs font-medium text-muted">
-              <span>Year</span>
+              <span>{t.year}</span>
               <select
                 name="birthYear"
                 required
@@ -151,8 +160,12 @@ export default function SawaAgeGate({ children }: SawaAgeGateProps) {
                 aria-describedby="sawa-date-of-birth-help"
                 className="min-h-[44px] w-full border border-line bg-background px-3 text-sm text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
-                <option value="">Year</option>
-                {YEARS.map((optionYear) => <option key={optionYear} value={optionYear}>{optionYear}</option>)}
+                <option value="">{t.year}</option>
+                {YEARS.map((optionYear) => (
+                  <option key={optionYear} value={optionYear}>
+                    {optionYear}
+                  </option>
+                ))}
               </select>
             </label>
           </div>
@@ -165,21 +178,55 @@ export default function SawaAgeGate({ children }: SawaAgeGateProps) {
             onChange={(event) => setConsent(event.target.checked)}
             className="mt-1 size-4 accent-accent"
           />
-          <span>
-            I am 18 or over, understand Sawa AI is not professional or emergency care, understand the safety excerpt notice above, and agree to continue. I have read the <Link to="/privacy" className="underline underline-offset-4">Privacy notice</Link>.
-            <span lang="sw" className="mt-2 block">Nina miaka 18 au zaidi, nimeelewa kuwa Sawa AI si huduma ya kitaalamu wala ya dharura, nimeelewa taarifa ya kipande cha ujumbe wa usalama hapo juu, na ninakubali kuendelea. Nimesoma <Link to="/privacy" className="underline underline-offset-4">taarifa ya faragha</Link>.</span>
+          <span lang={language}>
+            {t.consentPrefix}
+            <Link
+              to="/privacy#sawa-privacy"
+              className="underline underline-offset-4"
+            >
+              {t.privacyLabel}
+            </Link>
+            {t.consentSuffix}
           </span>
         </label>
 
-        {error ? <p role="alert" className="text-sm text-red-700 dark:text-red-300">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-sm text-red-700 dark:text-red-300">
+            {error}
+          </p>
+        ) : null}
 
         <button
           type="submit"
           className="min-h-[44px] w-full bg-accent-fill px-5 py-3 font-semibold text-white transition-colors hover:bg-accent-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
-          Continue / Endelea
+          {t.submit}
         </button>
       </form>
     </section>
+  );
+}
+
+type SawaAgeGateProps = {
+  readonly children: ReactNode;
+  readonly initialLanguage?: SawaLanguage;
+  /** Off when the surrounding page already shows the toggle. */
+  readonly showLanguageToggle?: boolean;
+  /** Placement for the gate panel only; the children are not wrapped. */
+  readonly className?: string;
+};
+
+export default function SawaAgeGate({
+  children,
+  initialLanguage,
+  showLanguageToggle = true,
+  className,
+}: SawaAgeGateProps) {
+  return (
+    <SawaLanguageProvider initialLanguage={initialLanguage}>
+      <SawaAgeGateContent showLanguageToggle={showLanguageToggle} className={className}>
+        {children}
+      </SawaAgeGateContent>
+    </SawaLanguageProvider>
   );
 }

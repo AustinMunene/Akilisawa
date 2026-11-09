@@ -20,12 +20,14 @@ const render = () =>
   );
 
 describe("Home page", () => {
-  it("gates the Home §3 Sawa chat before showing its composer", () => {
+  it("offers a launcher into the full-screen chat, not an embedded transcript", () => {
     const html = render();
     expect(html).toContain("Talk to Sawa");
-    expect(html).toContain("Date of birth / Tarehe ya kuzaliwa");
-    expect(html).toContain("I am 18 or over");
+    expect(html).toContain("data-sawa-launcher");
+    expect(html).toContain("Hi, I'm Sawa. What's on your mind today?");
+    // The gate and the transcript live on /sawa-ai/chat now.
     expect(html).not.toContain('role="log"');
+    expect(html).not.toContain("Date of birth");
   });
 
   it("keeps the non-clinical disclaimer in the house third person", () => {

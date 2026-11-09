@@ -120,6 +120,51 @@ export const CRISIS_BLOCK: BilingualText = {
   ].join("\n\n"),
 };
 
+/*
+ * High severity, harm to others, with no self-harm or suicide signal. Until
+ * 9 November this path reused CRISIS_BLOCK, which opens "It sounds like you
+ * might be thinking about suicide" - wrong for someone who says they might
+ * hurt another person, and wrong for someone who says another person tried to
+ * stab them, because the lexicon cannot tell those apart. So the opener names
+ * neither side: it says someone may be in danger of being hurt, then speaks to
+ * both the person at risk and the person who fears what they might do.
+ *
+ * Adopted on the owner's decision from the feedback brief's recommendations,
+ * not a clinical review; Kiswahili still pending review. Every number is from
+ * the verified list above (999/112, 1199, 1195, Befrienders); no new resource
+ * is introduced. See docs/adr/sawa-feedback-response-v1.md sections 5 and 6.
+ */
+export const HARM_TO_OTHERS_BLOCK: BilingualText = {
+  en: [
+    "It sounds like someone may be in danger of being hurt. Thank you for telling us.",
+    "Akili Sawa cannot handle this alone, but there are people in Kenya who are ready to help now, free of charge.",
+    "If anyone is in immediate danger, call 999 or 112. This is the national emergency line, run by the Kenya police. It is free from any phone in Kenya, even with no airtime. Akili Sawa cannot call on your behalf.",
+    "If someone is threatening or hurting you, try to get to a safe place, near other people, before anything else.",
+    "If you are afraid of what you might do, put distance between yourself and the other person now, and anything you could use to hurt them.",
+    "To talk to someone, any time, day or night:",
+    "- Kenya Red Cross, mental health and psychosocial support: 1199",
+    "- Gender-based violence support: 1195",
+    "At other times:",
+    "- Befrienders Kenya, confidential emotional support: 0722 178 177, Monday to Friday 09:00-17:00, call, SMS or WhatsApp",
+    "If one number does not connect, try the next.",
+  ].join("\n\n"),
+  sw: [
+    "Inaonekana kuna mtu anaweza kuumizwa. Asante kwa kutujulisha.",
+    "Akili Sawa haiwezi kushughulikia hili peke yake, lakini kuna watu nchini Kenya walio tayari kusaidia sasa hivi, bila malipo.",
+    "Kama kuna mtu yuko hatarini sasa hivi, piga 999 au 112. Hii ni nambari ya dharura ya taifa, inayoendeshwa na polisi wa Kenya. Ni bure kutoka kwa simu yoyote nchini Kenya, hata kama huna salio. Akili Sawa haiwezi kupiga simu kwa niaba yako.",
+    "Kama kuna mtu anakutishia au anakuumiza, jaribu kwanza kufika mahali salama, karibu na watu wengine.",
+    "Kama unaogopa kile unaweza kufanya, jitenge na huyo mtu sasa hivi, na uweke mbali chochote unaweza kutumia kumuumiza.",
+    "Ili kuongea na mtu, wakati wowote, mchana au usiku:",
+    "- Kenya Red Cross, usaidizi wa afya ya akili na kisaikolojia: 1199",
+    "- Usaidizi wa unyanyasaji wa kijinsia (GBV): 1195",
+    "Nyakati nyingine:",
+    "- Befrienders Kenya, usaidizi wa faragha wa kihisia: 0722 178 177, Jumatatu hadi Ijumaa 09:00-17:00, simu, SMS au WhatsApp",
+    "Kama nambari moja haifunguki, jaribu inayofuata.",
+  ].join("\n\n"),
+};
+
+const HARM_TO_OTHERS_RESOURCES = ["emergency", "krcs", "gbv", "befrienders"] as const;
+
 export type CrisisResponse = {
   readonly text: BilingualText;
   readonly resourceIds: readonly string[];
@@ -208,6 +253,14 @@ export function crisisResponseFor(
   tier: SeverityTier,
   categories: readonly SignalCategory[],
 ): CrisisResponse | null {
+  if (
+    tier === "high" &&
+    categories.includes("harm_to_others") &&
+    !categories.includes("suicidal_ideation") &&
+    !categories.includes("self_harm")
+  ) {
+    return { text: HARM_TO_OTHERS_BLOCK, resourceIds: [...HARM_TO_OTHERS_RESOURCES] };
+  }
   if (tier === "high") {
     return {
       text: CRISIS_BLOCK,

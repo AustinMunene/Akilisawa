@@ -1,36 +1,25 @@
-import { useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import SectionBackground from "../components/layout/SectionBackground";
 import Faq67 from "../components/sawa/Faq67";
-import SawaAgeGate from "../components/sawa/SawaAgeGate";
-import SawaChat from "../components/sawa/SawaChat";
 import SawaFeedback from "../components/sawa/SawaFeedback";
 import Badge from "../components/ui/Badge";
-import { Button, ButtonLink } from "../components/ui/Button";
+import SawaLauncher from "../components/sawa/SawaLauncher";
+import { ButtonLink } from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import {
   accessLevels,
   capabilityBoundary,
   safetyFlow,
 } from "../lib/sawa/copy";
+import { SAWA_CHAT_PATH } from "../lib/sawa/routes";
 
 const SawaAi = () => {
-  const prefersReducedMotion = useReducedMotion();
-
-  const showChat = () => {
-    document.getElementById("sawa-ai-chat")?.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "center",
-    });
-  };
-
   return (
     <div>
       {/*
        * §8 hero. The heading, the §8 paragraph, the non-clinical disclaimer and
-       * the CTA stay in the first screen; the conversation itself now sits below
-       * the §10 and §13 bands (product-order change, 2026-10-20, see ticket 10),
-       * so this CTA is the one-click route to the chat from the top of the page.
+       * the CTA stay in the first screen. The CTA opens the full-screen
+       * conversation at /sawa-ai/chat; this page stays as the explainer.
        */}
       <SectionBackground variant="gradient" className="pt-24 md:pt-28">
         <div className="max-w-3xl space-y-6">
@@ -53,9 +42,7 @@ const SawaAi = () => {
             healthcare provider.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Button type="button" onClick={showChat}>
-              Talk to Sawa AI
-            </Button>
+            <ButtonLink to={SAWA_CHAT_PATH}>Talk to Sawa AI</ButtonLink>
           </div>
         </div>
       </SectionBackground>
@@ -88,14 +75,10 @@ const SawaAi = () => {
                   <Badge>Available now</Badge>
                   <p>{level.who}</p>
                   <p>{level.body}</p>
-                  {level.cta?.kind === "scroll" ? (
-                    <Button
-                      type="button"
-                      onClick={showChat}
-                      className="min-h-[44px]"
-                    >
+                  {level.cta?.kind === "chat" ? (
+                    <ButtonLink to={SAWA_CHAT_PATH} className="min-h-[44px]">
                       {level.cta.label}
-                    </Button>
+                    </ButtonLink>
                   ) : level.cta?.kind === "link" ? (
                     <ButtonLink
                       to={level.cta.to}
@@ -170,11 +153,10 @@ const SawaAi = () => {
       </SectionBackground>
 
       {/*
-       * The conversation (ticket 20), now placed after the §10 access levels and
-       * the §13 boundary band so a visitor meets the product with its context
-       * already set. `#sawa-ai-chat` stays on the wrapper: the hero CTA and the
-       * Level 1 card both scroll to it, and the fixed minimum height keeps the
-       * transcript and composer from reflowing the page.
+       * The way into the conversation, after the §10 access levels and the §13
+       * boundary band so a visitor meets the product with its context already
+       * set. SawaLauncher carries the first message to the full-screen chat at
+       * /sawa-ai/chat, where the age gate and the conversation itself live.
        */}
       <SectionBackground variant="gradient" className="pt-0">
         <div className="space-y-6">
@@ -190,10 +172,8 @@ const SawaAi = () => {
           </div>
 
           <Card>
-            <div id="sawa-ai-chat" className="flex min-h-[24rem] flex-col">
-              <SawaAgeGate>
-                <SawaChat variant="page" />
-              </SawaAgeGate>
+            <div id="sawa-ai-chat">
+              <SawaLauncher />
             </div>
           </Card>
         </div>

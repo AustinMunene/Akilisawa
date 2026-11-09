@@ -18,5 +18,7 @@ The implemented gate accepts a date of birth in the browser, checks it locally, 
 ## Copy constraints
 Age gate copy must be plain, English+Kiswahili, and use third person (Akili Sawa/we) for boundary messages per voice-v1. Non-punitive, Kenya-context appropriate.
 
+Amendment, 3 November 2026 (Sawa AI User Feedback No. 1): "English+Kiswahili" now means both languages are available, one at a time, not stacked in the same paragraph. The gate renders in the visitor's chosen Sawa language (see `sawa-feedback-response-v1.md`), with a language toggle above it. The opening disclaimer uses the wording supplied in the feedback brief in both languages.
+
 ## Notes
 Trade-off: some friction for under-18 prevention access, but necessary for safeguarding. The same gate wraps both `/sawa-ai` and the Home embed. Legal advice and a named owner remain required before public use.

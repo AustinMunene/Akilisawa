@@ -1,0 +1,3 @@
+# Store text files with LF line endings. About 40 files once showed up as
+# modified purely because an editor rewrote them with CRLF; this stops that.
+* text=auto eol=lf

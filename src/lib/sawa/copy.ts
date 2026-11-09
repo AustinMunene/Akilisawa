@@ -17,7 +17,7 @@
  */
 
 export type AccessLevelCta =
-  | { kind: "scroll"; label: string }
+  | { kind: "chat"; label: string }
   | { kind: "link"; label: string; to: string };
 
 export type AccessLevel = {
@@ -64,7 +64,7 @@ export const accessLevels: AccessLevel[] = [
     who: "Anyone",
     body: "Begin a first conversation with Sawa. No account and no sign-in are needed, and the conversation is held in this browser. Level 1 is for adults aged 18 and over.",
     available: true,
-    cta: { kind: "scroll", label: "Talk to Sawa AI" },
+    cta: { kind: "chat", label: "Talk to Sawa AI" },
   },
   {
     id: "registered",
@@ -116,7 +116,7 @@ export const capabilityBoundary = {
   transcript:
     "Your conversation is held in this browser rather than on our servers.",
   privacyLabel: "Read about privacy",
-  privacyTo: "/privacy",
+  privacyTo: "/privacy#sawa-privacy",
 } as const;
 
 export const safetyFlow = {
@@ -132,7 +132,7 @@ export const safetyFlow = {
   architecture:
     "This is how Sawa AI is built, not a live readout of this conversation.",
   mechanism:
-    "Sawa AI checks messages against safety rules before generation. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message is also sent to Akili Sawa's designated support inbox for human review; the inbox is not monitored for emergencies and no immediate response is guaranteed.",
+    "Sawa AI checks messages against safety rules before generation. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message may also be sent to Akili Sawa's designated support inbox for human review; the inbox is not monitored for emergencies and no immediate response is guaranteed.",
   crisis:
     "In a crisis, Sawa shares support line details so you can reach someone directly. Akili Sawa does not call on your behalf.",
 } as const;
@@ -146,8 +146,8 @@ export const safetyFlow = {
  * sceptical visitor arrives with — what Sawa cannot do, and how information
  * is protected — so they open by default and the rest stay collapsed. Voice
  * is house third person (`Akili Sawa`/`we`), British English, sentence case.
- * Question 5 carries the /privacy link required by ticket 14; the answer text
- * itself is unchanged.
+ * Question 5 carries the /privacy link required by ticket 14 and describes
+ * handling without naming an unconfirmed provider.
  */
 
 export type Faq67Item = {
@@ -190,15 +190,15 @@ export const faq67: {
       id: "when-human-involved",
       question: "When does a human become involved?",
       answer:
-        "Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message is sent to Akili Sawa's designated support inbox for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.",
+        "Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message may be sent to Akili Sawa's designated support inbox for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.",
     },
     {
       id: "how-information-protected",
       question: "How is information protected?",
       answer:
-        "Your transcript is held in this browser. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message is sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains the current provider and how your information is handled.",
+        "Your transcript is held in this browser tab. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message may be sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains how your information is handled, and current provider details are available on request.",
       defaultOpen: true,
-      privacyTo: "/privacy",
+      privacyTo: "/privacy#sawa-privacy",
       privacyLabel: "Read about privacy",
     },
     {

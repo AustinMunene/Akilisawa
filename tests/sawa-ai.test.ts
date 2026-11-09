@@ -29,11 +29,13 @@ describe("SawaAi page", () => {
     expect(html).toContain("Talk to Sawa AI");
   });
 
-  it("requires the age and consent gate before exposing the chat", () => {
+  it("sends every route into the conversation to the full-screen chat", () => {
     const html = render();
-    expect(html).toContain("Date of birth / Tarehe ya kuzaliwa");
-    expect(html).toContain("I am 18 or over");
-    expect(html).not.toContain("Hi, I'm Sawa. What's on your mind today?");
+    expect(html).toContain('href="/sawa-ai/chat"');
+    expect(html).toContain("data-sawa-launcher");
+    // The launcher is not a chat: no transcript, no gate on this page.
+    expect(html).not.toContain('role="log"');
+    expect(html).not.toContain("Date of birth");
   });
 
   it("keeps the non-clinical disclaimer in the house third person", () => {
@@ -111,7 +113,7 @@ describe("SawaAi page", () => {
     const html = render();
     expect(html).toContain("not a live readout of this conversation");
     expect(html).toContain(
-      "The flagged message is also sent to Akili Sawa's designated support inbox"
+      "The flagged message may also be sent to Akili Sawa's designated support inbox"
     );
     expect(html).toContain(
       "the inbox is not monitored for emergencies and no immediate response is guaranteed"
@@ -119,10 +121,10 @@ describe("SawaAi page", () => {
     expect(html).toContain("Akili Sawa does not call on your behalf");
   });
 
-  it("explains the transcript lives in the browser and links to /privacy", () => {
+  it("explains the transcript lives in the browser and links to the Sawa privacy section", () => {
     const html = render();
     expect(html).toContain("Your conversation is held in this browser");
     expect(html).toContain("Read about privacy");
-    expect(html).toContain('href="/privacy"');
+    expect(html).toContain('href="/privacy#sawa-privacy"');
   });
 });

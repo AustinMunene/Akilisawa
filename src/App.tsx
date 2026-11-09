@@ -26,6 +26,7 @@ const PreventionModel = lazy(() => import("./pages/PreventionModel"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const SafeguardingFramework = lazy(() => import("./pages/SafeguardingFramework"));
 const SawaAi = lazy(() => import("./pages/SawaAi"));
+const SawaChatPage = lazy(() => import("./pages/SawaChatPage"));
 const StyleGuide = lazy(() => import("./pages/StyleGuide"));
 const Terms = lazy(() => import("./pages/Terms"));
 
@@ -33,6 +34,11 @@ const App = () => {
   return (
     <Suspense fallback={null}>
       <Routes>
+        {/*
+          The full-screen conversation sits outside Layout: no site navigation
+          or footer while someone is talking to Sawa.
+        */}
+        <Route path="sawa-ai/chat" element={<SawaChatPage />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="for-organisations" element={<ForOrganisations />} />

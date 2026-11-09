@@ -1,6 +1,6 @@
 # 67 answers (v1)
-Status: adopted (2026-10-09, amended 2026-10-21)
-Version: 1.1
+Status: adopted (2026-10-09, amended 2026-10-21, 2026-11-03)
+Version: 1.2
 
 The six questions below must appear below the immediately accessible product. Answers use house voice (Akili Sawa/we), British English, sentence case. Each is concise enough to scan in under a minute.
 
@@ -18,11 +18,11 @@ The six questions below must appear below the immediately accessible product. An
 
 4. When does a human become involved?
 
-   Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message is sent to Akili Sawa's designated support inbox for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.
+   Sawa AI is designed for self-directed reflection. A high-severity signal stops the open-ended reply and shows crisis resources. The flagged message may be sent to Akili Sawa's designated support inbox for human review, but the inbox is not monitored for emergencies and no immediate response is guaranteed. You can also choose to connect with a professional.
 
 5. How is information protected?
 
-   Your transcript is held in this browser. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message is sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains the current provider and how your information is handled.
+   Your transcript is held in this browser tab. Messages are sent to the configured AI provider to generate replies. If a high-severity safety signal is detected, the flagged message may be sent to Akili Sawa's designated support inbox; email retention depends on that inbox's settings. The Privacy notice explains how your information is handled, and current provider details are available on request.
 
 6. How does institutional deployment work?
 
@@ -32,3 +32,4 @@ Notes: The non-clinical disclaimer (preventive, non-clinical; not a therapist/di
 
 Amendment, 21 October 2026 (ticket 28): answers 4, 5 and 6 now state what the site actually does rather than what it might do. The escalation inbox is configured and receives flagged excerpts, so "may be sent" became "is sent"; the "not monitored for emergencies" caveat is unchanged, because nobody has confirmed staffing. Answer 5 lost the phrase "before real-user use is enabled", which described a pre-launch state the site is no longer in. The copy in `src/lib/sawa/copy.ts` is what ships; this file is the source it is written from.
 
+Amendment, 3 November 2026 (Sawa AI User Feedback No. 1): answers 4 and 5 return to "may be sent". This reverses the 21 October wording deliberately. The replacement privacy copy written by the therapy and board team uses "may be sent", and it is the more accurate claim: a send can fail, is rate-limited per conversation, and is skipped when escalation is not configured (`api/_sawaEscalation.ts`), so "is sent" promised delivery the code does not guarantee. Answer 5 now says "this browser tab", because the transcript is in tab-scoped session storage, and no longer says the Privacy notice names the current provider, because it does not; provider details are available on request until the production provider is confirmed. The FAQ link points at `/privacy#sawa-privacy`.

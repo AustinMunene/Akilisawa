@@ -18,6 +18,12 @@
  * marks, no emoji.
  */
 
+import {
+  chatCopy,
+  messageTooLong,
+  openingLine,
+  type SawaLanguage,
+} from "./language";
 import { promptVersion } from "./prompt";
 import {
   crisisTextFor,
@@ -29,7 +35,7 @@ import type { ReplyCategory } from "./safety/rules";
 import type { SafetyTierResult } from "./store";
 
 /* Fixed by spec section 9 and the mockup. Do not change without a prompt bump. */
-export const OPENING_LINE = "Hi, I'm Sawa. What's on your mind today?";
+export const OPENING_LINE = openingLine("en");
 
 export const DEFAULT_ENDPOINT = "/api/sawa";
 
@@ -39,21 +45,16 @@ export const DEFAULT_ENDPOINT = "/api/sawa";
  * copy is shown as-is, and this is only the fallback when the body cannot be
  * read.
  */
-export const GENERIC_ERROR = "Sawa is unavailable right now. Please try again.";
-export const TURN_CAP_FALLBACK =
-  "This conversation has reached its turn limit. Your transcript stays in this browser; you can begin a new conversation whenever you like.";
-export const STREAM_TRUNCATED_MESSAGE =
-  "The reply stopped early. You can try again to continue.";
-export const STREAM_TIMEOUT_MESSAGE =
-  "Sawa stopped responding. Your message is saved here; you can try again.";
+export const GENERIC_ERROR = chatCopy.en.genericError;
+export const TURN_CAP_FALLBACK = chatCopy.en.turnCapFallback;
+export const STREAM_TRUNCATED_MESSAGE = chatCopy.en.streamTruncated;
+export const STREAM_TIMEOUT_MESSAGE = chatCopy.en.streamTimeout;
 export const STREAM_IDLE_TIMEOUT_MS = 30_000;
 
 /* Bounded refusals, house third person for the boundary and first person for the
  * warmth, exactly as voice-v1's refusal pattern prescribes. */
-export const DECLINE_MESSAGE =
-  "Akili Sawa cannot continue with that message. I can stay with you if you would like to talk about what is on your mind.";
-export const REFUSAL_MESSAGE =
-  "Akili Sawa cannot offer diagnoses or advice on medication. I can stay with you and help you think about what might help next.";
+export const DECLINE_MESSAGE = chatCopy.en.decline;
+export const REFUSAL_MESSAGE = chatCopy.en.refusal;
 
 /* Matches api/sawa.ts's history ceiling; the endpoint re-slices defensively. */
 export const MAX_HISTORY = 24;
@@ -65,7 +66,7 @@ export const MAX_HISTORY = 24;
  */
 export const MAX_MESSAGE_CHARS = 1000;
 
-export const MESSAGE_TOO_LONG = `A message can be up to ${MAX_MESSAGE_CHARS} characters. Please shorten this one and try again.`;
+export const MESSAGE_TOO_LONG = messageTooLong("en", MAX_MESSAGE_CHARS);
 
 export type MessageCheck = {
   readonly ok: boolean;
@@ -119,6 +120,7 @@ export type ChatBubble = {
 export type ChatNotice = {
   readonly kind: "error" | "info";
   readonly message: string;
+  readonly retryable?: boolean;
 };
 
 export type ChatStatus = "idle" | "streaming" | "error";
@@ -131,19 +133,19 @@ export type ChatState = {
   readonly degraded: boolean;
 };
 
-const OPENING_ID = "sawa-opening";
+export const OPENING_ID = "sawa-opening";
 
-export function openingBubble(): ChatBubble {
+export function openingBubble(language: SawaLanguage = "en"): ChatBubble {
   return {
     id: OPENING_ID,
     role: "assistant",
-    content: OPENING_LINE,
+    content: openingLine(language),
   };
 }
 
-export function initialChatState(): ChatState {
+export function initialChatState(language: SawaLanguage = "en"): ChatState {
   return {
-    messages: [openingBubble()],
+    messages: [openingBubble(language)],
     streaming: "",
     status: "idle",
     notice: null,
@@ -153,6 +155,7 @@ export function initialChatState(): ChatState {
 
 export type ChatAction =
   | { readonly type: "hydrate"; readonly messages: readonly ChatBubble[]; readonly degraded: boolean }
+  | { readonly type: "replace-opening"; readonly content: string }
   | { readonly type: "degrade" }
   | { readonly type: "user"; readonly message: ChatBubble }
   | { readonly type: "append-assistant"; readonly message: ChatBubble }
@@ -160,7 +163,9 @@ export type ChatAction =
   | { readonly type: "delta"; readonly text: string }
   | { readonly type: "stream-end" }
   | { readonly type: "notice"; readonly notice: ChatNotice }
-  | { readonly type: "dismiss-notice" };
+  | { readonly type: "dismiss-notice" }
+  /** The visitor cleared the conversation: back to the opening line only. */
+  | { readonly type: "reset"; readonly language: SawaLanguage };
 
 export function chatReducer(state: ChatState, action: ChatAction): ChatState {
   switch (action.type) {
@@ -171,6 +176,14 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
         degraded: action.degraded,
         status: "idle",
       };
+    case "replace-opening": {
+      const [first] = state.messages;
+      if (state.messages.length !== 1 || first?.id !== OPENING_ID) return state;
+      return {
+        ...state,
+        messages: [{ ...first, content: action.content }],
+      };
+    }
     case "degrade":
       return { ...state, degraded: true };
     case "user":
@@ -195,6 +208,9 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
       };
     case "dismiss-notice":
       return { ...state, notice: null, status: state.status === "error" ? "idle" : state.status };
+    case "reset":
+      // Storage degradation is a fact about the browser, not the conversation.
+      return { ...initialChatState(action.language), degraded: state.degraded };
     default:
       return state;
   }
@@ -311,6 +327,8 @@ export type StreamReplyOptions = {
   readonly history: OutgoingHistory;
   readonly signal: AbortSignal;
   readonly fetcher: typeof fetch;
+  /** The visitor's chosen reply language; api/sawa.ts treats absent as English. */
+  readonly language?: SawaLanguage;
   readonly onDelta?: (text: string) => void;
   readonly onMeta?: (version: string) => void;
   /** Shortens the idle timer in tests; production uses STREAM_IDLE_TIMEOUT_MS. */
@@ -372,6 +390,7 @@ export async function streamReply(options: StreamReplyOptions): Promise<StreamRe
         ageConsentAccepted: true,
         message: options.message,
         history: options.history,
+        language: options.language ?? "en",
       }),
       signal: options.signal,
     });
@@ -507,7 +526,36 @@ export function resolveReply(reply: string): ResolvedReply {
   const check = detectAssistantReply(reply);
   return check.flagged
     ? { content: REFUSAL_MESSAGE, flagged: true, categories: check.categories }
-    : { content: reply, flagged: false, categories: [] };
+    : { content: withoutDashes(reply), flagged: false, categories: [] };
+}
+
+/*
+ * Sawa never shows an em dash. Prompt 1.6 asks the model not to write one; this
+ * is the guarantee, because a prompt rule is a request, not a contract. It runs
+ * on everything model-written before it reaches the screen: the live stream,
+ * a committed reply and a partial one.
+ *
+ *   "line start — item"   -> "- item"   (a dash used as a list marker)
+ *   "9–5", "2–3 weeks"    -> "9-5"      (an en dash in a number range)
+ *   "word — word", "a—b"  -> "word, word"
+ *
+ * A dash right before closing punctuation or a line end is dropped rather than
+ * turned into a comma, so "wait —." becomes "wait." and not "wait, .". Text
+ * without an em, en or horizontal-bar dash comes back unchanged; hyphens are
+ * never touched.
+ */
+const LIST_DASH = /^([ \t]*)[\u2013\u2014\u2015][ \t]*/gm;
+const RANGE_DASH = /(\d)[\u2013\u2014\u2015](?=\d)/g;
+const INLINE_DASH = /[ \t]*[\u2013\u2014\u2015]+[ \t]*/g;
+const CLOSES_CLAUSE = /^(?:[.,;:!?)\n]|$)/;
+
+export function withoutDashes(text: string): string {
+  return text
+    .replace(LIST_DASH, "$1- ")
+    .replace(RANGE_DASH, "$1-")
+    .replace(INLINE_DASH, (match: string, offset: number, whole: string) =>
+      CLOSES_CLAUSE.test(whole.slice(offset + match.length)) ? "" : ", "
+    );
 }
 
 /* Re-exported so the component imports one module for the pipeline. */

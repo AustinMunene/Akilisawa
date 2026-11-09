@@ -1,10 +1,12 @@
 /*
- * SawaChat (ticket 20) - the one chat, mounted in two places.
+ * SawaChat (ticket 20) - the one chat.
  *
  * SAWA-AI-NO-ACCOUNTS-APPROACH.md section 4 makes this a deep module requirement:
- * `/sawa-ai` uses `variant="page"` and Home section 3 will use `variant="inline"`.
- * There must never be a second implementation. The variant only changes density
- * and the minimum height; every behaviour below is shared.
+ * there must never be a second implementation. It used to be embedded on
+ * /sawa-ai and Home in two densities; since the full-screen change it is
+ * mounted once, by SawaChatPage at /sawa-ai/chat, and fills its parent. Home
+ * and /sawa-ai show SawaLauncher, which is not a chat: it only carries the
+ * first message here as `initialMessage`.
  *
  * The component is thin on purpose. Its decisions live in `src/lib/sawa/chat.ts`
  * (the pure engine) so they can be tested without a DOM; this file owns React
@@ -22,6 +24,16 @@
  * toward the accounts architecture the map excludes and make ticket 12's honesty
  * copy untrue.
  *
+ * WAITING AND CLEARING
+ * Before the first token arrives the visitor sees ThinkingBubble: three dots
+ * and a label, which changes after STILL_THINKING_MS so a slow cold start does
+ * not look frozen. With reduced motion the dots hold still and the label does
+ * the work. "Clear conversation" sits under the composer once the visitor
+ * has written something; it asks first, inline (no browser dialog), then empties the tab
+ * store and starts a new conversation id, so the server's turn count starts
+ * again too. Escalations already sent are not recalled; the copy does not
+ * claim otherwise.
+ *
  * NO INLINE STYLES. Tokens only (bg-panel, border-line, text-text, text-muted,
  * text-accent, bg-tint, bg-accent-fill). Motion is opt-in per element through
  * `motion-safe:`; there are no framer-motion `motion.*` calls in this file.
@@ -36,6 +48,7 @@ import {
   type ConversationStore,
 } from "../../lib/sawa/store";
 import { EXCERPT_DISCLOSURE, type EscalationSink } from "../../lib/sawa/escalation";
+import { chatCopy, messageTooLong, openingLine } from "../../lib/sawa/language";
 import type { SafetySignal } from "../../lib/sawa/safety/detector";
 import {
   ANNOUNCE_THROTTLE_MS,
@@ -44,33 +57,32 @@ import {
   chatReducer,
   checkMessage,
   crisisTextFor,
-  DECLINE_MESSAGE,
   DEFAULT_ENDPOINT,
   detectUserTurn,
-  GENERIC_ERROR,
   initialChatState,
-  MESSAGE_TOO_LONG,
-  OPENING_LINE,
+  MAX_MESSAGE_CHARS,
   planTurn,
   promptVersion,
   resolveReply,
-  STREAM_TRUNCATED_MESSAGE,
-  STREAM_TIMEOUT_MESSAGE,
   streamReply,
   toBubble,
-  TURN_CAP_FALLBACK,
   type ChatBubble,
   type Detection,
   type OutgoingHistory,
   type TurnPlan,
+  withoutDashes,
 } from "../../lib/sawa/chat";
-
-export type SawaChatVariant = "page" | "inline";
+import { useSawaLanguage } from "./SawaLanguageProvider";
 
 export type SawaChatProps = {
-  /** `page` is the full `/sawa-ai` surface; `inline` is the compact embed. */
-  readonly variant?: SawaChatVariant;
   readonly className?: string;
+  /**
+   * A first message typed into SawaLauncher. Sent once, after the transcript
+   * has hydrated, so it carries the right history.
+   */
+  readonly initialMessage?: string;
+  /** Called as the initial message is sent, so the page can forget it. */
+  readonly onInitialMessageSent?: () => void;
   /** Injected in tests. Defaults to a per-tab AnonymousConversationStore. */
   readonly store?: ConversationStore;
   /** Injected. When absent the disclosure is still shown, nothing is sent. */
@@ -81,13 +93,6 @@ export type SawaChatProps = {
 };
 
 const DEFAULT_ENDPOINT_VALUE = DEFAULT_ENDPOINT;
-
-const STARTING_OPTIONS = [
-  "Help me make sense of a concern",
-  "Help me plan a next step",
-  "What support options could suit me?",
-  "What can you help me with?",
-] as const;
 
 /*
  * api/sawa.ts accepts `[A-Za-z0-9_-]{8,64}`. A UUID is 36 characters and fits;
@@ -110,13 +115,15 @@ function safetyFor(detection: Detection) {
 type MessageBubbleProps = { readonly message: ChatBubble };
 
 const MessageBubble = ({ message }: MessageBubbleProps) => {
+  const { language } = useSawaLanguage();
+  const t = chatCopy[language];
   const isUser = message.role === "user";
   const isSafety = message.safety !== undefined && message.safety.tier !== "low";
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
         className={[
-          "max-w-[85%] rounded-3xl px-4 py-3 text-sm",
+          "max-w-[85%] rounded-3xl px-4 py-3 text-[0.95rem] leading-relaxed",
           isUser
             ? "bg-accent-fill text-accent-on-fill"
             : "bg-tint text-text shadow-[0_8px_18px_rgba(15,23,42,0.05)]",
@@ -133,8 +140,45 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
           {message.content}
         </p>
         {message.partial ? (
-          <p className="mt-1 text-xs text-muted">Reply stopped early.</p>
+          <p className="mt-1 text-xs text-muted">{t.partialReply}</p>
         ) : null}
+      </div>
+    </div>
+  );
+};
+
+/* After this long with no first token, the label says it is still working. */
+export const STILL_THINKING_MS = 8_000;
+
+const THINKING_DOT_DELAYS = [
+  "",
+  "motion-safe:[animation-delay:160ms]",
+  "motion-safe:[animation-delay:320ms]",
+] as const;
+
+export const ThinkingBubble = () => {
+  const { language } = useSawaLanguage();
+  const t = chatCopy[language];
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), STILL_THINKING_MS);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <div className="flex justify-start" data-sawa-thinking="">
+      <div
+        role="status"
+        className="inline-flex items-center gap-3 rounded-3xl bg-tint px-4 py-3 shadow-[0_8px_18px_rgba(15,23,42,0.05)]"
+      >
+        <span className="flex items-center gap-1" aria-hidden="true">
+          {THINKING_DOT_DELAYS.map((delay, index) => (
+            <span
+              key={index}
+              className={`h-2 w-2 rounded-full bg-accent motion-safe:animate-sawa-thinking ${delay}`}
+            />
+          ))}
+        </span>
+        <span className="text-xs text-muted">{slow ? t.stillThinking : t.thinking}</span>
       </div>
     </div>
   );
@@ -148,8 +192,8 @@ const StreamingBubble = ({
   readonly animate: boolean;
 }) => (
   <div className="flex justify-start" aria-hidden="true">
-    <p className="max-w-[85%] whitespace-pre-wrap rounded-3xl bg-tint px-4 py-3 text-sm text-text shadow-[0_8px_18px_rgba(15,23,42,0.05)]">
-      {text}
+    <p className="max-w-[85%] whitespace-pre-wrap rounded-3xl bg-tint px-4 py-3 text-[0.95rem] leading-relaxed text-text shadow-[0_8px_18px_rgba(15,23,42,0.05)]">
+      {withoutDashes(text)}
       <span
         className={`ml-1 inline-block h-4 w-1.5 translate-y-0.5 bg-accent ${
           animate ? "motion-safe:animate-pulse" : ""
@@ -160,21 +204,26 @@ const StreamingBubble = ({
 );
 
 const SawaChat = ({
-  variant = "page",
   className,
+  initialMessage,
+  onInitialMessageSent,
   store,
   escalationSink,
   fetcher,
   endpoint = DEFAULT_ENDPOINT_VALUE,
 }: SawaChatProps) => {
+  const { language } = useSawaLanguage();
+  const t = chatCopy[language];
   const prefersReducedMotion = useReducedMotion();
   const conversationStore = useMemo(
     () => store ?? new AnonymousConversationStore(),
     [store]
   );
-  const [state, dispatch] = useReducer(chatReducer, undefined, initialChatState);
+  const [state, dispatch] = useReducer(chatReducer, language, initialChatState);
   const [input, setInput] = useState("");
-  const conversationId = useMemo(() => defaultConversationId(), []);
+  const [conversationId, setConversationId] = useState(defaultConversationId);
+  const [confirmingClear, setConfirmingClear] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const doFetch = useMemo<typeof fetch | undefined>(() => {
     if (fetcher) return fetcher;
     /*
@@ -196,6 +245,9 @@ const SawaChat = ({
     plan: TurnPlan;
   } | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
+  const clearButtonRef = useRef<HTMLButtonElement | null>(null);
+  const keepButtonRef = useRef<HTMLButtonElement | null>(null);
   const pinnedRef = useRef(true);
 
   /*
@@ -227,11 +279,12 @@ const SawaChat = ({
         messages,
         degraded: conversationStore.isDegraded(),
       });
+      setHydrated(true);
       return;
     }
     const seeded = conversationStore.addMessage({
       role: "assistant",
-      content: OPENING_LINE,
+      content: openingLine(language),
       promptVersion,
     });
     const bubble = toBubble(seeded);
@@ -241,7 +294,12 @@ const SawaChat = ({
       messages: [bubble],
       degraded: conversationStore.isDegraded(),
     });
-  }, [conversationStore]);
+    setHydrated(true);
+  }, [conversationStore, language]);
+
+  useEffect(() => {
+    dispatch({ type: "replace-opening", content: openingLine(language) });
+  }, [language]);
 
   // A leaked stream bills money: abort on unmount, and drop any pending
   // announcement so a timed-out update never fires after the chat is gone.
@@ -321,7 +379,8 @@ const SawaChat = ({
     });
   };
 
-  const commitPartial = (content: string) => {
+  const commitPartial = (raw: string) => {
+    const content = withoutDashes(raw);
     if (!content.trim()) {
       dispatch({ type: "stream-end" });
       return;
@@ -342,7 +401,7 @@ const SawaChat = ({
     // The disclosure is required whenever a signal fires, sink or no sink.
     dispatch({
       type: "notice",
-      notice: { kind: "info", message: EXCERPT_DISCLOSURE.en },
+      notice: { kind: "info", message: EXCERPT_DISCLOSURE[language] },
     });
     try {
       const outcome = escalationSink
@@ -363,7 +422,7 @@ const SawaChat = ({
       if (!outcome) return;
       dispatch({
         type: "notice",
-        notice: { kind: "info", message: outcome.disclosure.en },
+        notice: { kind: "info", message: outcome.disclosure[language] },
       });
     } catch {
       // Generic by design: the disclosure above already said what may happen.
@@ -379,7 +438,7 @@ const SawaChat = ({
     if (!doFetch) {
       dispatch({
         type: "notice",
-        notice: { kind: "error", message: GENERIC_ERROR },
+        notice: { kind: "error", message: t.genericError },
       });
       return;
     }
@@ -393,6 +452,7 @@ const SawaChat = ({
       conversationId,
       message,
       history,
+      language,
       signal: controller.signal,
       fetcher: doFetch,
       onDelta: (text) => dispatch({ type: "delta", text }),
@@ -414,7 +474,11 @@ const SawaChat = ({
       commitPartial(result.text);
       dispatch({
         type: "notice",
-        notice: { kind: "info", message: STREAM_TRUNCATED_MESSAGE },
+        notice: {
+          kind: "info",
+          message: t.streamTruncated,
+          retryable: true,
+        },
       });
       return;
     }
@@ -429,7 +493,7 @@ const SawaChat = ({
      */
     if (result.reason === "http" && result.status === 400) {
       dispatch({ type: "stream-end" });
-      appendAssistant(DECLINE_MESSAGE, detection);
+      appendAssistant(t.decline, detection);
       return;
     }
 
@@ -441,7 +505,9 @@ const SawaChat = ({
         type: "notice",
         notice: {
           kind: "info",
-          message: result.message ?? TURN_CAP_FALLBACK,
+          // The server's cap copy is English; never show it in Kiswahili.
+          message:
+            language === "en" ? result.message ?? t.turnCapFallback : t.limitReached,
         },
       });
       return;
@@ -453,7 +519,8 @@ const SawaChat = ({
         type: "notice",
         notice: {
           kind: "info",
-          message: STREAM_TRUNCATED_MESSAGE,
+          message: t.streamTruncated,
+          retryable: true,
         },
       });
       return;
@@ -463,7 +530,11 @@ const SawaChat = ({
       commitPartial(result.text);
       dispatch({
         type: "notice",
-        notice: { kind: "info", message: STREAM_TIMEOUT_MESSAGE },
+        notice: {
+          kind: "info",
+          message: t.streamTimeout,
+          retryable: true,
+        },
       });
       return;
     }
@@ -472,7 +543,7 @@ const SawaChat = ({
     commitPartial(result.text);
     dispatch({
       type: "notice",
-      notice: { kind: "error", message: GENERIC_ERROR },
+      notice: { kind: "error", message: t.genericError },
     });
   };
 
@@ -484,12 +555,16 @@ const SawaChat = ({
       if (messageCheck.tooLong) {
         dispatch({
           type: "notice",
-          notice: { kind: "error", message: MESSAGE_TOO_LONG },
+          notice: {
+            kind: "error",
+            message: messageTooLong(language, MAX_MESSAGE_CHARS),
+          },
         });
       }
       return;
     }
     setInput("");
+    setConfirmingClear(false);
     dispatch({ type: "dismiss-notice" });
 
     // History is the transcript before this new turn; api/sawa.ts appends the
@@ -509,7 +584,7 @@ const SawaChat = ({
       if (plan.immediate === "crisis" && detection.crisis) {
         appendAssistant(crisisTextFor(detection), detection);
       } else {
-        appendAssistant(DECLINE_MESSAGE, detection);
+        appendAssistant(t.decline, detection);
       }
       if (plan.escalate && detection.signal) {
         await escalate(detection.signal);
@@ -527,6 +602,20 @@ const SawaChat = ({
     dispatch({ type: "dismiss-notice" });
     void generate(last.text, last.history, last.detection, last.plan);
   };
+
+  // `submit` closes over this render's state; the effect below must call the
+  // latest one, not the one from the render that scheduled it.
+  const submitRef = useRef(submit);
+  submitRef.current = submit;
+  const initialSentRef = useRef(false);
+  useEffect(() => {
+    if (!hydrated || initialSentRef.current) return;
+    const text = initialMessage?.trim();
+    if (!text) return;
+    initialSentRef.current = true;
+    onInitialMessageSent?.();
+    void submitRef.current(text);
+  }, [hydrated, initialMessage, onInitialMessageSent]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -551,121 +640,215 @@ const SawaChat = ({
     abortRef.current?.abort();
   };
 
-  const minHeight = variant === "page" ? "min-h-[24rem]" : "min-h-[18rem]";
+  // Move focus with the confirm step so keyboard users are never stranded on a
+  // button that has just been unmounted. "Keep it" takes focus, not "Clear",
+  // so a stray Enter cannot delete the conversation.
+  // After "Keep it", focus returns to the clear button it came from. Done in
+  // an effect so the remounted button's ref is attached by the time it runs.
+  const restoreClearFocusRef = useRef(false);
+  useEffect(() => {
+    if (confirmingClear) {
+      keepButtonRef.current?.focus();
+      return;
+    }
+    if (restoreClearFocusRef.current) {
+      restoreClearFocusRef.current = false;
+      clearButtonRef.current?.focus();
+    }
+  }, [confirmingClear]);
+
+  const cancelClear = () => {
+    restoreClearFocusRef.current = true;
+    setConfirmingClear(false);
+  };
+
+  const clearConversation = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    conversationStore.clear();
+    lastTurnRef.current = null;
+    pinnedRef.current = true;
+    if (announceTimerRef.current !== null) {
+      clearTimeout(announceTimerRef.current);
+      announceTimerRef.current = null;
+    }
+    pendingAnnouncementRef.current = null;
+    announcedRef.current = new Set(initialChatState(language).messages.map((m) => m.id));
+    setConversationId(defaultConversationId());
+    setInput("");
+    setConfirmingClear(false);
+    dispatch({ type: "reset", language });
+    setAnnouncement(t.cleared);
+    composerRef.current?.focus();
+  };
+
   const canSend = input.trim().length > 0 && !isStreaming;
+  const hasConversation = state.messages.some((message) => message.role === "user");
+  const showClear = hasConversation && !isStreaming;
   const retryAvailable =
     state.notice !== null &&
     lastTurnRef.current !== null &&
-    (state.notice.kind === "error" ||
-      state.notice.message === STREAM_TIMEOUT_MESSAGE ||
-      state.notice.message === STREAM_TRUNCATED_MESSAGE);
+    (state.notice.kind === "error" || state.notice.retryable === true);
 
   return (
     <div
-      className={`flex h-full flex-col ${minHeight} ${className ?? ""}`}
+      className={`flex h-full min-h-0 flex-col ${className ?? ""}`}
       onKeyDown={handleRootKeyDown}
     >
       <div role="status" aria-live="polite" className="sr-only">
         {announcement}
       </div>
-      {state.degraded ? (
-        <p className="mb-3 text-xs text-muted">
-          Akili Sawa cannot save this conversation to your browser right now. It
-          is held in memory for this tab only.
-        </p>
-      ) : null}
 
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 space-y-3 overflow-y-auto pr-1"
+        className="min-h-0 flex-1 overflow-y-auto"
       >
-        <div
-          role="log"
-          aria-live="off"
-          aria-relevant="additions"
-          aria-label="Conversation with Sawa"
-          className="space-y-3"
-        >
-          {state.messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
-        </div>
-        {state.messages.length === 1 && !isStreaming ? (
-          <div className="flex flex-wrap gap-2" aria-label="Ways Sawa can help">
-            {STARTING_OPTIONS.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => void submit(option)}
-                className="rounded-full border border-line bg-surface px-3 py-2 text-left text-xs text-text transition-colors hover:bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/25 dark:bg-panel"
-              >
-                {option}
-              </button>
+        <div className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6 md:px-6 md:py-10">
+          {state.degraded ? (
+            <p className="text-xs text-muted">{t.degraded}</p>
+          ) : null}
+          <div
+            role="log"
+            aria-live="off"
+            aria-relevant="additions"
+            aria-label={t.conversationLabel}
+            className="space-y-4"
+          >
+            {state.messages.map((message) => (
+              <MessageBubble key={message.id} message={message} />
             ))}
           </div>
-        ) : null}
-        {isStreaming ? (
-          <StreamingBubble
-            text={state.streaming}
-            animate={!prefersReducedMotion}
-          />
-        ) : null}
-      </div>
-
-      {state.notice ? (
-        <div
-          className={`mt-3 flex flex-wrap items-center justify-between gap-2 rounded-none border border-line px-3 py-2 text-xs ${
-            state.notice.kind === "error"
-              ? "bg-surface/90 text-text"
-              : "bg-tint text-muted"
-          }`}
-        >
-          <p className="text-pretty">{state.notice.message}</p>
-          {retryAvailable ? (
-            <button
-              type="button"
-              onClick={retry}
-              className="link-underline text-brand-dark dark:text-brand font-semibold"
-            >
-              Try again
-            </button>
+          {state.messages.length === 1 && !isStreaming ? (
+            <div className="flex flex-wrap gap-2" aria-label={t.startingOptionsLabel}>
+              {t.startingOptions.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => void submit(option)}
+                  className="min-h-[44px] rounded-full border border-line bg-surface px-4 py-2 text-left text-sm text-text transition-colors hover:bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/25 dark:bg-panel"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {isStreaming && state.streaming.length === 0 ? <ThinkingBubble /> : null}
+          {isStreaming && state.streaming.length > 0 ? (
+            <StreamingBubble
+              text={state.streaming}
+              animate={!prefersReducedMotion}
+            />
           ) : null}
         </div>
-      ) : null}
+      </div>
 
-      <form className="mt-4 flex items-end gap-3" onSubmit={handleSubmit}>
-        <label htmlFor="sawa-message" className="sr-only">
-          Your message
-        </label>
-        <textarea
-          id="sawa-message"
-          name="message"
-          rows={1}
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          onKeyDown={handleComposerKeyDown}
-          placeholder="Type your message..."
-          className="min-h-[44px] min-w-0 flex-1 resize-none rounded-none border border-line bg-surface/90 px-3 py-2 text-sm text-text outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-accent/25 dark:bg-panel/90"
-        />
-        {isStreaming ? (
-          <button
-            type="button"
-            onClick={stop}
-            className="btn btn-secondary btn-sm shrink-0"
+      {/* The dock: notices, the clear confirmation, the composer, then the
+          footnote and the clear button underneath it. */}
+      {/* Translucent so the Sawa space's blue carries through to the bottom
+          edge; the blur keeps scrolled text from fighting the composer. */}
+      <div className="border-t border-line/70 bg-background/60 backdrop-blur-md">
+        <div className="mx-auto w-full max-w-3xl space-y-3 px-4 pb-4 pt-3 md:px-6">
+          {state.notice ? (
+            <div
+              className={`flex flex-wrap items-center justify-between gap-2 border border-line px-3 py-2 text-xs ${
+                state.notice.kind === "error"
+                  ? "bg-surface/90 text-text"
+                  : "bg-tint text-muted"
+              }`}
+            >
+              <p className="text-pretty">{state.notice.message}</p>
+              {retryAvailable ? (
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="link-underline text-brand-dark dark:text-brand font-semibold"
+                >
+                  {t.retry}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
+          {showClear && confirmingClear ? (
+            <div
+              role="group"
+              aria-label={t.clear}
+              className="flex flex-wrap items-center justify-between gap-3 border border-line bg-tint px-3 py-2 text-sm text-text"
+            >
+              <p className="text-pretty">{t.clearConfirm}</p>
+              <div className="flex gap-2">
+                <button
+                  ref={keepButtonRef}
+                  type="button"
+                  onClick={cancelClear}
+                  className="btn btn-secondary btn-sm"
+                >
+                  {t.clearConfirmNo}
+                </button>
+                <button
+                  type="button"
+                  onClick={clearConversation}
+                  className="btn btn-primary btn-sm"
+                >
+                  {t.clearConfirmYes}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <form
+            className="flex items-end gap-2 rounded-2xl border border-line bg-surface p-2 shadow-[0_8px_18px_rgba(15,23,42,0.06)] focus-within:ring-2 focus-within:ring-accent/25 dark:bg-panel"
+            onSubmit={handleSubmit}
           >
-            Stop
-          </button>
-        ) : (
-          <button
-            type="submit"
-            disabled={!canSend}
-            className="btn btn-primary btn-sm shrink-0"
-          >
-            Send
-          </button>
-        )}
-      </form>
+            <label htmlFor="sawa-message" className="sr-only">
+              {t.messageLabel}
+            </label>
+            <textarea
+              ref={composerRef}
+              id="sawa-message"
+              name="message"
+              rows={1}
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={handleComposerKeyDown}
+              placeholder={t.placeholder}
+              className="field-sizing-content max-h-48 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-base text-text outline-none placeholder:text-muted"
+            />
+            {isStreaming ? (
+              <button
+                type="button"
+                onClick={stop}
+                className="btn btn-secondary btn-sm shrink-0"
+              >
+                {t.stop}
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={!canSend}
+                className="btn btn-primary btn-sm shrink-0"
+              >
+                {t.send}
+              </button>
+            )}
+          </form>
+
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <p className="text-xs text-muted">{t.footnote}</p>
+            {showClear && !confirmingClear ? (
+              <button
+                ref={clearButtonRef}
+                type="button"
+                onClick={() => setConfirmingClear(true)}
+                className="btn btn-secondary btn-sm"
+              >
+                {t.clear}
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

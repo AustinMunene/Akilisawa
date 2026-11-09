@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import handler, { extractDeltaText, toPlainText } from "../api/sawa";
-import { promptVersion } from "../src/lib/sawa/prompt";
+import { promptFor, promptVersion, withReplyLanguage } from "../src/lib/sawa/prompt";
 
 /*
  * Smoke tests for `api/sawa.ts` (ticket 16).
@@ -200,6 +200,46 @@ describe("api/sawa guards", () => {
       chat_template_kwargs: { enable_thinking: false },
     });
     expect(fake.text()).not.toContain("nvidia-test-token");
+  });
+
+  it("holds the model to the visitor's chosen language, whatever they type in", async () => {
+    const systemPromptFor = async (body: Record<string, unknown>) => {
+      vi.mocked(fetch).mockClear();
+      await send({ body: { conversationId: `conv-lang-${Math.random().toString(36).slice(2, 10)}`, ...body } });
+      const [, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+      const sent = JSON.parse(String((init as RequestInit).body));
+      return sent.messages[0].content as string;
+    };
+
+    const swahiliInEnglishMode = await systemPromptFor({ message: "Nataka kuongea", language: "en" });
+    expect(swahiliInEnglishMode).toBe(promptFor("en"));
+    expect(swahiliInEnglishMode).toContain("The visitor chose English");
+
+    expect(await systemPromptFor({ message: "I want to talk", language: "sw" })).toBe(promptFor("sw"));
+    // Absent or unknown falls back to English, the site default.
+    expect(await systemPromptFor({ message: "Hello Sawa" })).toBe(promptFor("en"));
+    expect(await systemPromptFor({ message: "Hello Sawa", language: "fr" })).toBe(promptFor("en"));
+  });
+
+  it("repeats the reply language on the newest turn so history cannot outweigh it", async () => {
+    vi.mocked(fetch).mockClear();
+    await send({
+      body: {
+        conversationId: "conv-lang-switch",
+        message: "Habari, naomba usaidizi",
+        language: "sw",
+        history: [
+          { role: "user", content: "Hello" },
+          { role: "assistant", content: "Hi, what is on your mind?" },
+        ],
+      },
+    });
+    const [, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    const sent = JSON.parse(String((init as RequestInit).body));
+    const last = sent.messages[sent.messages.length - 1];
+    expect(last).toEqual({ role: "user", content: withReplyLanguage("Habari, naomba usaidizi", "sw") });
+    // Earlier turns are passed through untouched.
+    expect(sent.messages[1]).toEqual({ role: "user", content: "Hello" });
   });
 
   it("short-circuits high-risk turns at the server before calling the model", async () => {

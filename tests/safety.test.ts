@@ -16,6 +16,7 @@ import {
 } from "../src/lib/sawa/safety/rules";
 import {
   CRISIS_BLOCK,
+  HARM_TO_OTHERS_BLOCK,
   CRISIS_RESOURCES,
   crisisResponseFor,
   MANDATED_OPENER,
@@ -232,6 +233,39 @@ describe("post-generation check", () => {
 
   it("passes an ordinary warm reply", () => {
     expect(checkAssistantReply("That sounds heavy. Tell me more about the nights.").flagged).toBe(false);
+  });
+});
+
+describe("harm-to-others crisis block", () => {
+  it("is used for a harm-to-others signal instead of the suicide block", () => {
+    const detection = detectUserTurn({ text: "I am going to kill him", conversationId: "c-harm-1" });
+    expect(detection.tier).toBe("high");
+    expect(detection.crisis?.text).toBe(HARM_TO_OTHERS_BLOCK);
+    expect(crisisTextFor(detection)).not.toContain("suicide");
+  });
+
+  it("does not assume who is at risk, because a victim can match the same words", () => {
+    expect(HARM_TO_OTHERS_BLOCK.en.startsWith("It sounds like someone may be in danger of being hurt.")).toBe(true);
+    expect(HARM_TO_OTHERS_BLOCK.en).toContain("If someone is threatening or hurting you");
+    expect(HARM_TO_OTHERS_BLOCK.en).toContain("If you are afraid of what you might do");
+  });
+
+  it("keeps the suicide block when suicide and harm to others both appear", () => {
+    expect(crisisResponseFor("high", ["harm_to_others", "suicidal_ideation"])?.text).toBe(CRISIS_BLOCK);
+  });
+
+  it("follows a Kiswahili phrase into the Kiswahili block", () => {
+    const detection = detectUserTurn({ text: "nataka kumuua", conversationId: "c-harm-2" });
+    expect(crisisTextFor(detection)).toBe(HARM_TO_OTHERS_BLOCK.sw);
+  });
+
+  it("cites only verified numbers, never dispatches, no exclamation marks", () => {
+    const text = `${HARM_TO_OTHERS_BLOCK.en} ${HARM_TO_OTHERS_BLOCK.sw}`;
+    for (const needed of ["999", "112", "1199", "1195", "0722 178 177"]) expect(text).toContain(needed);
+    for (const forbidden of ["0800", "1190", "911", "Niskize"]) expect(text).not.toContain(forbidden);
+    expect(HARM_TO_OTHERS_BLOCK.en).toContain("Akili Sawa cannot call on your behalf.");
+    expect(/\bI\b/.test(HARM_TO_OTHERS_BLOCK.en)).toBe(false);
+    expect(text.includes("!")).toBe(false);
   });
 });
 

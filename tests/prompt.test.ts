@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { CRISIS_RESOURCES } from "../src/lib/sawa/safety/crisisCopy";
 import {
   PROMPT_VERSION,
+  promptFor,
   promptV1,
   promptVersion,
 } from "../src/lib/sawa/prompt";
@@ -14,9 +15,9 @@ import {
  */
 
 describe("Sawa prompt", () => {
-  it("stamps the website-rules production prompt as version 1.4", () => {
-    expect(promptVersion).toBe("1.4");
-    expect(PROMPT_VERSION).toBe("1.4");
+  it("stamps the one-language production prompt as version 1.6", () => {
+    expect(promptVersion).toBe("1.6");
+    expect(PROMPT_VERSION).toBe("1.6");
     expect(promptVersion).toBe(PROMPT_VERSION);
   });
 
@@ -95,11 +96,73 @@ describe("Sawa prompt", () => {
     expect(promptV1).toContain("trusted adult");
   });
 
-  it("matches the person's language, including English-Kiswahili mixing and Sheng", () => {
-    expect(promptV1).toContain("Answer in the language the person writes in");
+  it("graduated the safety response by moment rather than by topic", () => {
+    expect(promptV1).toContain("RESPONSE LADDER");
+    expect(promptV1).toContain("answer the practical question first");
+    expect(promptV1).toContain("Past abuse does not by itself mean current danger");
+    expect(promptV1).toContain("Do not tell someone to stay in or leave a relationship");
+    expect(promptV1).toContain("do not replace, shorten or add to the crisis block");
+  });
+
+  it("covers the clinical team's five scenarios and the conversational order", () => {
+    expect(promptV1).toContain("When the situation is unclear");
+    expect(promptV1).toContain("controlling or threatening behaviour");
+    expect(promptV1).toContain("possible immediate danger");
+    expect(promptV1).toContain("intent to harm another person");
+    expect(promptV1).toContain("acknowledge what they are going through");
+    expect(promptV1).toContain("Do not withhold help until they answer");
+    expect(promptV1).toContain("Do not give emergency numbers when no emergency has been indicated");
+  });
+
+  it("answers a first message that already asks a question", () => {
+    expect(promptV1).toContain("If the first message already asks a question, answer that question");
+    expect(promptV1).toContain("continue open-endedly past a high-severity safety signal");
+  });
+
+  it("uses the board-approved 'may be sent' wording for the support inbox", () => {
+    expect(promptV1).toContain("the flagged message may be sent to Akili Sawa's designated support inbox");
+    expect(promptV1).not.toContain("the flagged message is sent");
+  });
+
+  it("narrows the emergency boundary without forbidding practical safety help", () => {
+    expect(promptV1).toContain("act as an emergency dispatcher");
+    expect(promptV1).not.toContain("personal emergency instructions");
+  });
+
+  it("replies in the visitor's chosen language instead of mirroring theirs", () => {
+    expect(promptV1).not.toContain("Answer in the language the person writes in");
+    expect(promptV1).not.toContain("natural mix");
+    expect(promptV1).toContain("Reply in that language only");
+
+    const english = promptFor("en");
+    expect(english.startsWith(promptV1)).toBe(true);
+    expect(english).toContain("The visitor chose English");
+    expect(english).toContain("no Kiswahili or Sheng");
+    expect(english).not.toContain("The visitor chose Kiswahili");
+
+    const kiswahili = promptFor("sw");
+    expect(kiswahili).toContain("The visitor chose Kiswahili");
+    expect(kiswahili).toContain("no English sentences or clauses");
+    expect(promptFor()).toBe(english);
+  });
+
+  it("asks for everyday Kenyan Kiswahili, not Kiswahili sanifu", () => {
+    expect(promptV1).toContain("Not Kiswahili sanifu");
     expect(promptV1).toContain("Sheng");
-    expect(promptV1).toContain("natural mix");
     expect(promptV1).toContain("Niaje, nafeel down sana kwa job");
+  });
+
+  it("rules out crude, regional, over-familiar and religious wording", () => {
+    expect(promptV1).toContain("over-familiar ways of addressing the person, such as maze, bro or msee");
+    expect(promptV1).toContain("Mungu akubariki");
+    // The register example must follow its own rule.
+    expect(promptV1).not.toContain("Pole sana, maze");
+  });
+
+  it("forbids em and en dashes, and itself contains none", () => {
+    expect(promptV1).toContain("Never use an em dash or an en dash");
+    expect(promptFor("en")).not.toMatch(/[\u2013\u2014]/);
+    expect(promptFor("sw")).not.toMatch(/[\u2013\u2014]/);
   });
 
   it("renders every verified support line from the safety pipeline's own list", () => {

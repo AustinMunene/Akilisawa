@@ -48,7 +48,7 @@ describe("the feedback band", () => {
 
   it("sits below the conversation and above the organisation CTA", () => {
     const html = render(createElement(SawaAi));
-    const chat = html.indexOf("Date of birth / Tarehe ya kuzaliwa");
+    const chat = html.indexOf("data-sawa-launcher");
     const feedback = html.indexOf("Tell us what you think of Sawa");
     const cta = html.indexOf("Bring Sawa AI to your organisation");
     const faq = html.indexOf("What is Sawa?");

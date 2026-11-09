@@ -1,10 +1,11 @@
+import SawaPrivacySection from "../components/sawa/SawaPrivacySection";
 import Section from "../components/ui/Section";
 
 const Privacy = () => {
   return (
     <div>
       <Section variant="light" className="pt-24 md:pt-28">
-        <div className="max-w-3xl space-y-4">
+        <div id="privacy-notice" className="max-w-3xl scroll-mt-24 space-y-4">
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-dark dark:text-brand">
             Data Protection &amp; Privacy
           </p>
@@ -66,12 +67,19 @@ const Privacy = () => {
                 general wellbeing trends
               </li>
             </ul>
-            <p className="text-sm text-muted">Akili Sawa does not collect:</p>
+            <p className="text-sm text-muted">
+              Through this website, Akili Sawa does not create:
+            </p>
             <ul className="space-y-2 text-sm text-muted">
-              <li>Clinical or medical records through this website</li>
-              <li>Diagnostic information as a clinical record</li>
-              <li>Therapy notes or counselling records</li>
+              <li>Clinical or medical records</li>
+              <li>Diagnostic records</li>
+              <li>Therapy or counselling notes</li>
             </ul>
+            <p className="text-sm text-muted">
+              Sawa AI messages are not clinical records, but you choose what to
+              share. Do not share information you would not want processed by the
+              configured AI provider.
+            </p>
           </div>
           <div className="space-y-4">
             <h2>Purpose of data use</h2>
@@ -100,22 +108,25 @@ const Privacy = () => {
           <div className="space-y-4">
             <h2>Data storage and security</h2>
             <p className="text-sm text-muted">
-              Akili Sawa works to apply technical and organisational measures
-              appropriate to each service. Measures for the Sawa AI preview depend
-              on the hosting and inference providers and must be confirmed before
-              real-user conversations are enabled.
+              For Sawa AI, the conversation transcript is held in this browser
+              tab, not in an Akili Sawa account. Messages sent to the configured
+              AI provider, and any flagged excerpt sent to the support inbox, are
+              handled under the relevant provider or inbox terms.
             </p>
             <ul className="space-y-2 text-sm text-muted">
-              <li>Secure data storage</li>
-              <li>Restricted access to authorised personnel only</li>
+              <li>Access is restricted to authorised personnel</li>
               <li>
-                Technology providers selected for each service, subject to their
-                applicable terms
+                Technology providers are selected for each service, subject to
+                their applicable terms
+              </li>
+              <li>
+                Technical and organisational measures are reviewed as the service
+                changes
               </li>
             </ul>
             <p className="text-sm text-muted">
-              Where feasible, personal data is anonymised or de-identified to
-              reduce risk.
+              No system can guarantee absolute security. Where feasible, personal
+              data is anonymised or de-identified to reduce risk.
             </p>
           </div>
           <div className="space-y-4">
@@ -136,28 +147,23 @@ const Privacy = () => {
               </li>
             </ul>
             <p className="text-sm text-muted">
-              We aim to limit sharing to what is necessary for the stated purpose.
-              Provider terms, processing location, and retention periods vary by
-              service and will be disclosed for the Sawa AI preview before it is
-              offered for real-user conversations.
+              For Sawa AI, the current message and recent conversation history
+              are sent to the AI provider configured for the service so that it
+              can generate a reply. A high-severity safety concern may also send
+              the flagged message to the designated support inbox. The full
+              conversation is not sent there.
+            </p>
+            <p className="text-sm text-muted">
+              Provider terms, processing location and retention periods vary.
+              Akili Sawa does not control how a provider retains data under its
+              own terms. Current provider details are available on request.
             </p>
           </div>
         </div>
       </Section>
 
       <Section variant="light" className="pt-0">
-        <div className="max-w-3xl space-y-4">
-          <h2>Sawa AI preview</h2>
-          <p className="text-sm text-muted">
-            The conversation transcript is held in this browser tab. To generate a reply, the current message and recent conversation history are sent to the AI inference provider configured for the preview. The provider name, processing location and applicable retention terms must be confirmed and published before real-user conversations are enabled. Do not use the preview to share information you would not want processed by an external AI service.
-          </p>
-          <p className="text-sm text-muted">
-            The age check is performed in your browser. Your date of birth is not sent to Akili Sawa or stored; this tab stores only that the age and consent steps were completed.
-          </p>
-          <p className="text-sm text-muted">
-            If a high-severity safety concern is detected, the message that raised it may be sent to Akili Sawa's designated support inbox when that feature is configured. Email retention depends on that inbox's settings. The inbox is not monitored for emergencies and Akili Sawa cannot guarantee an immediate response. The full conversation is not sent.
-          </p>
-        </div>
+        <SawaPrivacySection />
       </Section>
 
       <Section variant="mid" className="pt-0">
